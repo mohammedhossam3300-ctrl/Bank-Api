@@ -55,9 +55,6 @@ public static class MiddlewareExtensions
     /// </summary>
     public static WebApplication ConfigureStandardMiddleware(this WebApplication app)
     {
-        // HTTPS redirection
-        app.UseHttpsRedirection();
-        
         // CORS policy
         app.UseCors("AllowAngular");
         

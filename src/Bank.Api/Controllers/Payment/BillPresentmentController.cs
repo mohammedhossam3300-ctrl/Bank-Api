@@ -29,25 +29,12 @@ public class BillPresentmentController : ControllerBase
     /// Get bill presentments for the current customer
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<BillPresentmentDto>>> GetCustomerBillPresentments([FromQuery] BillPresentmentStatus? status = null)
+    public async Task<ActionResult<List<BillPresentmentDto>>> GetCustomerBillPresentments([FromQuery] Bank.Domain.Enums.BillPresentmentStatus? status = null)
     {
         try
         {
             var customerId = this.GetCurrentUserId();
-            
-            // Convert DTO enum to Domain enum
-            Bank.Domain.Enums.BillPresentmentStatus? domainStatus = status switch
-            {
-                BillPresentmentStatus.Pending => Bank.Domain.Enums.BillPresentmentStatus.Pending,
-                BillPresentmentStatus.Available => Bank.Domain.Enums.BillPresentmentStatus.Presented,
-                BillPresentmentStatus.Paid => Bank.Domain.Enums.BillPresentmentStatus.Paid,
-                BillPresentmentStatus.Overdue => Bank.Domain.Enums.BillPresentmentStatus.Overdue,
-                BillPresentmentStatus.Cancelled => Bank.Domain.Enums.BillPresentmentStatus.Cancelled,
-                null => null,
-                _ => null
-            };
-            
-            var presentments = await _billPresentmentService.GetCustomerBillPresentmentsAsync(customerId, domainStatus);
+            var presentments = await _billPresentmentService.GetCustomerBillPresentmentsAsync(customerId, status);
             return Ok(presentments);
         }
         catch (Exception ex)
@@ -166,18 +153,7 @@ public class BillPresentmentController : ControllerBase
     {
         try
         {
-            // Convert DTO enum to Domain enum
-            var domainStatus = request.Status switch
-            {
-                BillPresentmentStatus.Pending => Bank.Domain.Enums.BillPresentmentStatus.Pending,
-                BillPresentmentStatus.Available => Bank.Domain.Enums.BillPresentmentStatus.Presented,
-                BillPresentmentStatus.Paid => Bank.Domain.Enums.BillPresentmentStatus.Paid,
-                BillPresentmentStatus.Overdue => Bank.Domain.Enums.BillPresentmentStatus.Overdue,
-                BillPresentmentStatus.Cancelled => Bank.Domain.Enums.BillPresentmentStatus.Cancelled,
-                _ => throw new ArgumentException($"Invalid status: {request.Status}")
-            };
-            
-            var success = await _billPresentmentService.UpdateBillPresentmentStatusAsync(presentmentId, domainStatus);
+            var success = await _billPresentmentService.UpdateBillPresentmentStatusAsync(presentmentId, request.Status);
             if (!success)
             {
                 return NotFound("Bill presentment not found");
@@ -335,6 +311,6 @@ public class BillPresentmentController : ControllerBase
 }
 
 // Request DTOs for the controller
-public record UpdateBillPresentmentStatusRequest(BillPresentmentStatus Status);
+public record UpdateBillPresentmentStatusRequest(Bank.Domain.Enums.BillPresentmentStatus Status);
 public record MarkBillPresentmentAsPaidRequest(Guid PaymentId);
 public record SynchronizeBillPresentmentsRequest(Guid BillerId, Guid? CustomerId = null);

@@ -45,7 +45,7 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .HasDefaultValue("en");
 
         builder.Property(n => n.Data)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("TEXT");
 
         builder.Property(n => n.ErrorMessage)
             .HasMaxLength(1000);

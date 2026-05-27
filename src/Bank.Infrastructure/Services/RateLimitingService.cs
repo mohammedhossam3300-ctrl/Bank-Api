@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Bank.Application.Interfaces;
-using Bank.Application.DTOs;
+using Bank.Application.DTOs.Shared.RateLimit;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 

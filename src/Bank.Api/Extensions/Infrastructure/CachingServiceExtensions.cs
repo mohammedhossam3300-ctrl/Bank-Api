@@ -10,13 +10,8 @@ public static class CachingServiceExtensions
     /// </summary>
     public static IServiceCollection AddCachingServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Redis for caching and rate limiting
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = configuration.GetConnectionString("Redis") ?? "localhost:6379";
-        });
+        services.AddDistributedMemoryCache();
 
-        // Session support
         services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromMinutes(30);

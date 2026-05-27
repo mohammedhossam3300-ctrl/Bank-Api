@@ -12,10 +12,8 @@ public class AccountStatementConfiguration : IEntityTypeConfiguration<AccountSta
 {
     public void Configure(EntityTypeBuilder<AccountStatement> builder)
     {
-        // Table name
         builder.ToTable("AccountStatements");
 
-        // Indexes for performance
         builder.HasIndex(s => s.AccountId)
             .HasDatabaseName("IX_AccountStatements_AccountId");
 
@@ -31,22 +29,20 @@ public class AccountStatementConfiguration : IEntityTypeConfiguration<AccountSta
         builder.HasIndex(s => new { s.AccountId, s.Status })
             .HasDatabaseName("IX_AccountStatements_AccountId_Status");
 
-        builder.HasIndex(s => s.StartDate)
-            .HasDatabaseName("IX_AccountStatements_StartDate");
+        builder.HasIndex(s => s.PeriodStartDate)
+            .HasDatabaseName("IX_AccountStatements_PeriodStartDate");
 
-        builder.HasIndex(s => s.EndDate)
-            .HasDatabaseName("IX_AccountStatements_EndDate");
+        builder.HasIndex(s => s.PeriodEndDate)
+            .HasDatabaseName("IX_AccountStatements_PeriodEndDate");
 
-        // String property configurations
-        builder.Property(s => s.DocumentPath)
+        builder.Property(s => s.FilePath)
             .HasMaxLength(500);
 
-        // Decimal property configurations
-        builder.Property(s => s.TotalDebit)
+        builder.Property(s => s.TotalDebits)
             .HasPrecision(18, 2)
             .HasDefaultValue(0);
 
-        builder.Property(s => s.TotalCredit)
+        builder.Property(s => s.TotalCredits)
             .HasPrecision(18, 2)
             .HasDefaultValue(0);
 
@@ -58,7 +54,6 @@ public class AccountStatementConfiguration : IEntityTypeConfiguration<AccountSta
             .HasPrecision(18, 2)
             .IsRequired();
 
-        // Enum configurations
         builder.Property(s => s.Status)
             .HasConversion<int>()
             .HasDefaultValue(StatementStatus.Generated);
@@ -67,7 +62,6 @@ public class AccountStatementConfiguration : IEntityTypeConfiguration<AccountSta
             .HasConversion<int>()
             .HasDefaultValue(StatementFormat.PDF);
 
-        // Relationships
         builder.HasOne(s => s.Account)
             .WithMany()
             .HasForeignKey(s => s.AccountId)
@@ -79,4 +73,3 @@ public class AccountStatementConfiguration : IEntityTypeConfiguration<AccountSta
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

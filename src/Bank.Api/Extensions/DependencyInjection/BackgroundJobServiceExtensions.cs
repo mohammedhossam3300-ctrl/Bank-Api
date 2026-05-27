@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.InMemory;
 
 namespace Bank.Api.Extensions.DependencyInjection;
 
@@ -13,22 +14,12 @@ public static class BackgroundJobServiceExtensions
     public static IServiceCollection AddBackgroundJobServices(this IServiceCollection services, IConfiguration configuration)
     {
         var allowOfflineMode = configuration.GetValue<bool>("DatabaseSettings:AllowOfflineMode", false);
-        
+
         if (!allowOfflineMode)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-            // Hangfire for background jobs
             services.AddHangfire(config => config
-                .UseSqlServerStorage(connectionString));
+                .UseInMemoryStorage());
             services.AddHangfireServer();
-        }
-        else
-        {
-            // In offline mode, skip Hangfire and background services
-            var logger = services.BuildServiceProvider().GetService<ILogger<Program>>();
-            logger?.LogWarning("⚠️ Background job services disabled (offline mode)");
         }
 
         return services;

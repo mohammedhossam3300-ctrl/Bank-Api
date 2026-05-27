@@ -52,7 +52,7 @@ public class BillPresentmentConfiguration : IEntityTypeConfiguration<BillPresent
             .HasMaxLength(100);
 
         builder.Property(bp => bp.LineItemsJson)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("TEXT");
 
         // Decimal configurations
         builder.Property(bp => bp.AmountDue)

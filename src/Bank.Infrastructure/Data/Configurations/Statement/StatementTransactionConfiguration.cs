@@ -12,10 +12,8 @@ public class StatementTransactionConfiguration : IEntityTypeConfiguration<Statem
 {
     public void Configure(EntityTypeBuilder<StatementTransaction> builder)
     {
-        // Table name
         builder.ToTable("StatementTransactions");
 
-        // Indexes for performance
         builder.HasIndex(st => st.StatementId)
             .HasDatabaseName("IX_StatementTransactions_StatementId");
 
@@ -34,7 +32,6 @@ public class StatementTransactionConfiguration : IEntityTypeConfiguration<Statem
         builder.HasIndex(st => new { st.StatementId, st.TransactionDate })
             .HasDatabaseName("IX_StatementTransactions_StatementId_TransactionDate");
 
-        // String property configurations
         builder.Property(st => st.Description)
             .HasMaxLength(500)
             .IsRequired();
@@ -45,24 +42,21 @@ public class StatementTransactionConfiguration : IEntityTypeConfiguration<Statem
         builder.Property(st => st.Category)
             .HasMaxLength(100);
 
-        builder.Property(st => st.Merchant)
+        builder.Property(st => st.Memo)
             .HasMaxLength(200);
 
-        // Decimal property configurations
         builder.Property(st => st.Amount)
             .HasPrecision(18, 2)
             .IsRequired();
 
-        builder.Property(st => st.Balance)
+        builder.Property(st => st.RunningBalance)
             .HasPrecision(18, 2)
             .IsRequired();
 
-        // Enum configuration
         builder.Property(st => st.Type)
             .HasConversion<int>()
             .IsRequired();
 
-        // Relationships
         builder.HasOne(st => st.Statement)
             .WithMany(s => s.Transactions)
             .HasForeignKey(st => st.StatementId)
@@ -74,4 +68,3 @@ public class StatementTransactionConfiguration : IEntityTypeConfiguration<Statem
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
-

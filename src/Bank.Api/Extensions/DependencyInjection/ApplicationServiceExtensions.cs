@@ -28,7 +28,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IBatchService, Bank.Application.Services.BatchService>();
         services.AddScoped<IRecurringPaymentService, Bank.Application.Services.RecurringPaymentService>();
         services.AddScoped<IPaymentTemplateService, Bank.Application.Services.PaymentTemplateService>();
-        services.AddScoped<IBeneficiaryService, Bank.Application.Services.BeneficiaryService>();
+        services.AddScoped<IBeneficiaryService, Bank.Application.Services.Payment.BeneficiaryService>();
         services.AddScoped<IAccountValidationService, Bank.Application.Services.AccountValidationService>();
         services.AddScoped<ITransferEligibilityService, Bank.Application.Services.TransferEligibilityService>();
 
@@ -48,6 +48,7 @@ public static class ApplicationServiceExtensions
         
         // Bill Payment Services
         services.AddScoped<IBillPaymentService, Bank.Application.Services.BillPaymentService>();
+        services.AddScoped<IBillPaymentProcessingService, Bank.Application.Services.BillPaymentProcessingService>();
         services.AddScoped<IBillerIntegrationService, Bank.Application.Services.BillerIntegrationService>();
         services.AddScoped<IPaymentRetryService, Bank.Application.Services.PaymentRetryService>();
         services.AddScoped<IPaymentReceiptService, Bank.Application.Services.PaymentReceiptService>();
