@@ -658,7 +658,7 @@ nav a.active { color: #fff; }
     border-left: 2px solid rgba(30,144,255,0.4);
 }
 .infodiv i { color: var(--primary-blue); font-size: 1.1em; margin-top: 2px; flex-shrink: 0; }
-.info { font-size: 0.88rem; font-weight: 400; color: var(--text-muted); margin: 0; line-height: 1.6; }
+.info { font-size: 0.88rem; font-weight: 400; color: var(--text-muted); margin: 0; line-height: 1.6; word-break: break-word; overflow-wrap: break-word; }
 
 /* ============================================================
    RESOURCES SECTION
@@ -666,6 +666,9 @@ nav a.active { color: #fff; }
 .resources {
     color: var(--text-light);
     width: 100%;
+    max-width: 100%;
+    min-width: 0;            /* lets it shrink inside flex/grid parents */
+    overflow: hidden;
     margin: 64px 0;
     scroll-margin-top: 140px;
 }
@@ -675,9 +678,14 @@ nav a.active { color: #fff; }
     margin: 0 0 8px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;         /* heading + icon wraps on narrow screens */
     gap: 10px;
 }
-.resources > p { font-size: 0.95rem; color: var(--text-muted); margin: 8px 0 20px; line-height: 1.65; }
+.resources > p {
+    font-size: 0.95rem; color: var(--text-muted);
+    margin: 8px 0 20px; line-height: 1.65;
+    word-break: break-word;
+}
 
 /* ============================================================
    DOCS TAB NAVIGATION
@@ -726,7 +734,7 @@ nav a.active { color: #fff; }
     box-shadow: 0 3px 12px var(--shadow-blue);
 }
 .tab-link i { font-size: 0.95rem; }
-.docs-content-full { width: 100%; }
+.docs-content-full { width: 100%; min-width: 0; overflow: hidden; }
 
 /* ============================================================
    ENDPOINT CARDS GRID
@@ -736,6 +744,8 @@ nav a.active { color: #fff; }
     grid-template-columns: repeat(4, 1fr);
     gap: 18px;
     margin: 20px 0;
+    max-width: 100%;         /* grid itself never exceeds parent */
+    min-width: 0;
 }
 
 .endpoint-card {
@@ -746,6 +756,8 @@ nav a.active { color: #fff; }
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;            /* KEY: lets 1fr cells shrink below content size */
+    overflow: hidden;        /* clip anything that still overflows the card */
     transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s, background 0.25s;
 }
 .endpoint-card:hover {
@@ -754,8 +766,11 @@ nav a.active { color: #fff; }
     border-color: rgba(30,144,255,0.4);
     background: var(--bg-card-hover);
 }
-.endpoint-card h4 { color: #fff; margin: 0; font-size: 0.97rem; font-weight: 600; }
-.endpoint-card .docbox { margin: 0; flex: 1; }
+.endpoint-card h4 {
+    color: #fff; margin: 0; font-size: 0.97rem; font-weight: 600;
+    word-break: break-word;  /* long titles wrap instead of overflowing */
+}
+.endpoint-card .docbox { margin: 0; flex: 1; max-width: 100%; }
 .endpoint-card .infodiv { margin: 0; }
 
 /* ============================================================
@@ -930,6 +945,8 @@ footer a::after { display: none; }
     background: var(--bg-card);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-dark);
+    overflow: hidden;        /* contain any child overflow */
+    max-width: 100%;
 }
 .quickstart-section .section-title { margin-top: 0; }
 
@@ -938,6 +955,7 @@ footer a::after { display: none; }
     margin-bottom: 24px;
     line-height: 1.75;
     font-size: 0.95rem;
+    word-break: break-word;
 }
 
 .inline-code {
@@ -947,12 +965,15 @@ footer a::after { display: none; }
     font-family: "Fira Code", monospace;
     font-size: 0.88em;
     color: var(--primary-blue);
+    word-break: break-all;   /* long tokens wrap instead of overflowing */
 }
 
 .quickstart-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 18px;
+    min-width: 0;            /* grid itself can shrink */
+    max-width: 100%;
 }
 
 .quickstart-step {
@@ -960,13 +981,15 @@ footer a::after { display: none; }
     background: rgba(30, 144, 255, 0.05);
     border-radius: var(--radius-md);
     border: 1px solid rgba(30, 144, 255, 0.2);
+    min-width: 0;            /* grid cell can shrink below content size */
+    overflow: hidden;        /* clip any code that still overflows */
     transition: border-color 0.25s, background 0.25s;
 }
 .quickstart-step:hover {
     background: rgba(30, 144, 255, 0.08);
     border-color: rgba(30, 144, 255, 0.4);
 }
-.quickstart-step .docbox { margin: 10px 0 0; }
+.quickstart-step .docbox { margin: 10px 0 0; max-width: 100%; }
 
 .step-number {
     font-size: 1.35rem;
