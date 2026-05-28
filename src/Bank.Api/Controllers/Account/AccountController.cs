@@ -67,7 +67,8 @@ public class AccountController : ControllerBase
         if (account.UserId != userId) return this.CreateForbiddenResponse("Access denied");
 
         account.AccountHolderName = request.AccountHolderName;
-        // In a real app, persist via service  
+        account.UpdatedAt = DateTime.UtcNow;
+        await _accountService.UpdateAccountAsync(account);
         return this.CreateSuccessResponse("Account updated successfully", account);
     }
 
@@ -83,7 +84,8 @@ public class AccountController : ControllerBase
         var userId = this.GetCurrentUserIdRequired();
         if (account.UserId != userId) return this.CreateForbiddenResponse("Access denied");
 
-        // In a real app, delete via service
+        account.SoftDelete(userId.ToString());
+        await _accountService.UpdateAccountAsync(account);
         return NoContent();
     }
 }

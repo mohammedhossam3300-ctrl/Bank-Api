@@ -16,8 +16,8 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IEmailService, Bank.Infrastructure.Services.EmailService>();
         services.AddScoped<ISmsService, Bank.Infrastructure.Services.SmsService>();
 
-        // Rate Limiting Service
-        services.AddScoped<IRateLimitingService, Bank.Infrastructure.Services.RateLimitingService>();
+        // Rate Limiting Service — Singleton so hit counts persist across requests
+        services.AddSingleton<IRateLimitingService, Bank.Infrastructure.Services.RateLimitingService>();
 
         return services;
     }

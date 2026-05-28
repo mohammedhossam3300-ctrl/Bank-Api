@@ -72,7 +72,6 @@ global using Bank.Application.DTOs.Transaction.Search;
 global using Bank.Domain.Common;
 global using Bank.Domain.Entities;
 global using Bank.Domain.Enums;
-global using Bank.Domain.Entities;
 global using Bank.Application.Interfaces.Payment;
 
 global using Bank.Application.DTOs;
