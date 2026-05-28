@@ -34,9 +34,14 @@
 }
 
 /* ── Base ── */
-html { scroll-behavior: smooth; }
-html, body {
-    margin: 0; padding: 0; width: 100%;
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;   /* kill page-level horizontal scroll */
+}
+body {
+    margin: 0; padding: 0;
+    width: 100%; max-width: 100%;
+    overflow-x: hidden;
     font-family: "Poppins", sans-serif;
     background: var(--bg-dark);
     color: var(--text-light);
@@ -137,9 +142,11 @@ nav a.active { color: #fff; }
    LAYOUT CONTAINER
    ============================================================ */
 .doccontainer {
-    width: min(90%, 1400px);
+    width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 60px 0 80px;
+    padding: 60px 40px 80px;  /* horizontal padding always */
+    box-sizing: border-box;
 }
 
 /* ============================================================
@@ -386,13 +393,15 @@ nav a.active { color: #fff; }
 .docbox {
     background: #161616;
     border-radius: var(--radius-sm);
-    padding: 16px 18px;
+    padding: 14px 16px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.4);
     margin: 14px 0;
     border: 1px solid #2a2a2a;
-    overflow: hidden;
+    overflow: hidden;          /* clip vertically */
+    overflow-x: auto;          /* allow horizontal scroll INSIDE the box */
+    max-width: 100%;
 }
-.docbox pre { margin: 0; overflow-x: auto; }
+.docbox pre { margin: 0; }
 .docbox pre::-webkit-scrollbar { height: 3px; }
 .docbox code {
     font-family: "Fira Code", "Courier New", monospace;
@@ -400,7 +409,8 @@ nav a.active { color: #fff; }
     line-height: 1.6;
     color: var(--text-light);
     display: block;
-    white-space: pre;
+    white-space: pre;          /* keep code formatting */
+    min-width: 0;
 }
 .docbox span { color: var(--primary-blue); font-weight: 600; }
 
@@ -779,7 +789,7 @@ footer a::after { display: none; }
 
     nav a { font-size: 0.95rem; padding: 10px 14px; }
 
-    .doccontainer { width: 94%; padding: 40px 0 60px; }
+    .doccontainer   { padding: 40px 24px 60px; }
 
     .endpoints-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
     .endpoint-card  { padding: 16px; }
@@ -790,7 +800,7 @@ footer a::after { display: none; }
     .tab-link i     { font-size: 1.1rem; }
 
     .features-grid  { grid-template-columns: repeat(2, 1fr); }
-
+    .quickstart-section { padding: 28px 24px; }
     .tech-section   { padding: 32px 24px; }
 }
 
@@ -798,7 +808,7 @@ footer a::after { display: none; }
    RESPONSIVE — Mobile  ≤ 600px
    ============================================================ */
 @media (max-width: 600px) {
-    .doccontainer { width: 96%; padding: 28px 0 50px; }
+    .doccontainer   { padding: 24px 16px 48px; }
 
     .endpoints-grid { grid-template-columns: 1fr; gap: 12px; }
     .features-grid  { grid-template-columns: 1fr; }
@@ -806,17 +816,20 @@ footer a::after { display: none; }
 
     .hero-logo      { width: 80px; height: 80px; margin-bottom: 20px; }
     .home-buttons   { flex-direction: column; align-items: center; }
-    .home-btn       { width: 100%; max-width: 280px; }
+    .home-btn       { width: 100%; max-width: 300px; }
 
-    .tech-section   { padding: 24px 16px; }
+    .tech-section       { padding: 22px 16px; }
+    .quickstart-section { padding: 22px 16px; }
     .stat-card      { padding: 22px 12px; }
     .stat-number    { font-size: 2rem; }
 
     .tab-navigation { gap: 4px; padding: 8px 10px; }
     .tab-link       { padding: 7px 10px; }
 
-    .resources      { margin: 44px 0; scroll-margin-top: 80px; }
+    .resources      { margin: 40px 0; scroll-margin-top: 80px; }
     .resources h2   { font-size: 1.2rem; }
+
+    .docbox code    { font-size: 11.5px; }
 }
 
 /* ============================================================
