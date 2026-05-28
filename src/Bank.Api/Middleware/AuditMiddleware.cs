@@ -1,5 +1,6 @@
 using Bank.Api.Middleware.Audit;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Bank.Api.Middleware;
 
@@ -51,6 +52,12 @@ public class AuditMiddleware
             // Capture request details
             var requestDetails = await _requestCapture.CaptureRequestDetailsAsync(context.Request);
             
+            // Capture immutable request-time context before async operations
+            var capturedMethod = context.Request.Method;
+            var capturedPath = context.Request.Path.ToString();
+            var capturedUserAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
+            var capturedIpAddress = GetClientIpAddressSafe(context);
+
             // Create a memory stream to capture response
             using var responseBodyStream = new MemoryStream();
             context.Response.Body = responseBodyStream;
@@ -60,19 +67,26 @@ public class AuditMiddleware
 
             stopwatch.Stop();
 
-            // Capture response details
+            // Capture response details and context data while context is still valid
             var responseDetails = await _responseCapture.CaptureResponseDetailsAsync(context.Response, responseBodyStream);
+            var capturedUserId = GetUserIdSafe(context);
+            var capturedSessionId = GetSessionIdSafe(context);
+            var capturedStatusCode = context.Response.StatusCode;
+            var capturedDuration = stopwatch.ElapsedMilliseconds;
 
             // Copy response back to original stream
             responseBodyStream.Seek(0, SeekOrigin.Begin);
             await responseBodyStream.CopyToAsync(originalBodyStream);
 
-            // Log the audit entry asynchronously
+            // Log the audit entry asynchronously using only captured (value-type/string) data
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    await _auditLogger.LogAuditEntryAsync(context, requestDetails, responseDetails, stopwatch.ElapsedMilliseconds, requestId);
+                    await _auditLogger.LogAuditEntryDirectAsync(
+                        capturedUserId, capturedIpAddress, capturedUserAgent, capturedSessionId,
+                        capturedMethod, capturedPath, requestDetails, responseDetails,
+                        capturedDuration, capturedStatusCode, requestId);
                 }
                 catch (Exception ex)
                 {
@@ -84,13 +98,24 @@ public class AuditMiddleware
         {
             stopwatch.Stop();
             _logger.LogError(ex, "Error in audit middleware for request {RequestId}", requestId);
-            
-            // Log the error as a security event
+
+            // Capture all needed data from context before it's disposed
+            var capturedMethod = context.Request.Method;
+            var capturedPath = context.Request.Path.ToString();
+            var capturedIpAddress = GetClientIpAddressSafe(context);
+            var capturedUserAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
+            var capturedUserId = GetUserIdSafe(context);
+            var capturedSessionId = GetSessionIdSafe(context);
+            var errorMessage = ex.Message;
+
+            // Log the error as a security event using only captured data
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    await _auditLogger.LogSecurityEventAsync(context, "MIDDLEWARE_ERROR", ex.Message, requestId);
+                    await _auditLogger.LogSecurityEventDirectAsync(
+                        capturedUserId, capturedIpAddress, capturedUserAgent, capturedSessionId,
+                        capturedMethod, capturedPath, "MIDDLEWARE_ERROR", errorMessage, requestId);
                 }
                 catch (Exception logEx)
                 {
@@ -103,6 +128,51 @@ public class AuditMiddleware
         finally
         {
             context.Response.Body = originalBodyStream;
+        }
+    }
+
+    private static Guid? GetUserIdSafe(HttpContext context)
+    {
+        try
+        {
+            var userIdClaim = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? GetClientIpAddressSafe(HttpContext context)
+    {
+        try
+        {
+            var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(forwardedFor))
+                return forwardedFor.Split(',')[0].Trim();
+
+            var realIp = context.Request.Headers["X-Real-IP"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(realIp))
+                return realIp;
+
+            return context.Connection.RemoteIpAddress?.ToString();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? GetSessionIdSafe(HttpContext context)
+    {
+        try
+        {
+            return context.Session?.Id;
+        }
+        catch
+        {
+            return null;
         }
     }
 }

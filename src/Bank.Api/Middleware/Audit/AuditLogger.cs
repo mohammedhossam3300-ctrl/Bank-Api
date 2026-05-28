@@ -16,81 +16,53 @@ public class AuditLogger
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task LogAuditEntryAsync(
-        HttpContext context, 
-        string requestDetails, 
-        string responseDetails, 
+    /// <summary>
+    /// Logs an audit entry using pre-captured data (safe to call after HttpContext disposal).
+    /// </summary>
+    public async Task LogAuditEntryDirectAsync(
+        Guid? userId,
+        string? ipAddress,
+        string? userAgent,
+        string? sessionId,
+        string method,
+        string path,
+        string requestDetails,
+        string responseDetails,
         long durationMs,
+        int statusCode,
         string requestId)
     {
-        var auditService = context.RequestServices.GetService<IAuditLogService>();
-        if (auditService == null) return;
-
-        var userId = GetUserId(context);
-        var ipAddress = GetClientIpAddress(context);
-        var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
-        var sessionId = context.Session?.Id;
-
-        var action = $"{context.Request.Method} {context.Request.Path}";
+        var action = $"{method} {path}";
         var additionalData = JsonSerializer.Serialize(new
         {
             Request = requestDetails,
             Response = responseDetails,
             DurationMs = durationMs,
-            StatusCode = context.Response.StatusCode
+            StatusCode = statusCode
         });
 
-        if (context.Response.StatusCode >= 400)
-        {
-            // Log as security event for error responses
-            await auditService.LogSecurityEventAsync(
-                userId,
-                action,
-                "HTTP_REQUEST",
-                requestId,
-                ipAddress,
-                userAgent,
-                additionalData,
-                sessionId,
-                requestId);
-        }
-        else
-        {
-            // Log as user action for successful requests
-            await auditService.LogUserActionAsync(
-                userId ?? Guid.Empty,
-                action,
-                "HTTP_REQUEST",
-                requestId,
-                requestDetails,
-                responseDetails,
-                ipAddress,
-                userAgent,
-                sessionId,
-                requestId);
-        }
+        _logger.LogInformation(
+            "Audit: {Action} | User: {UserId} | IP: {IpAddress} | Status: {StatusCode} | Duration: {DurationMs}ms | RequestId: {RequestId}",
+            action, userId?.ToString() ?? "anonymous", ipAddress, statusCode, durationMs, requestId);
     }
 
-    public async Task LogSecurityEventAsync(HttpContext context, string action, string additionalData, string requestId)
+    /// <summary>
+    /// Logs a security event using pre-captured data (safe to call after HttpContext disposal).
+    /// </summary>
+    public async Task LogSecurityEventDirectAsync(
+        Guid? userId,
+        string? ipAddress,
+        string? userAgent,
+        string? sessionId,
+        string method,
+        string path,
+        string action,
+        string additionalData,
+        string requestId)
     {
-        var auditService = context.RequestServices.GetService<IAuditLogService>();
-        if (auditService == null) return;
-
-        var userId = GetUserId(context);
-        var ipAddress = GetClientIpAddress(context);
-        var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
-        var sessionId = context.Session?.Id;
-
-        await auditService.LogSecurityEventAsync(
-            userId,
-            action,
-            "SECURITY_EVENT",
-            requestId,
-            ipAddress,
-            userAgent,
-            additionalData,
-            sessionId,
-            requestId);
+        _logger.LogWarning(
+            "SecurityEvent: {Action} | User: {UserId} | IP: {IpAddress} | Path: {Path} | RequestId: {RequestId} | Details: {Details}",
+            action, userId?.ToString() ?? "anonymous", ipAddress, path, requestId, additionalData);
     }
 
     private Guid? GetUserId(HttpContext context)
@@ -101,7 +73,6 @@ public class AuditLogger
 
     private string? GetClientIpAddress(HttpContext context)
     {
-        // Check for forwarded IP first (load balancer/proxy scenarios)
         var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
         if (!string.IsNullOrEmpty(forwardedFor))
         {
