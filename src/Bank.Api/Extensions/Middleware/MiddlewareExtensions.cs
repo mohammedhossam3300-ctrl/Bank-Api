@@ -88,8 +88,8 @@ public static class MiddlewareExtensions
                 <div id='swagger-nav-bar'>
                     <img class='snb-logo' src='/images/logo.png' alt='logo'/>
                     <span class='snb-title'>Bank Management API</span>
-                    <a href='/'><i class='fa-solid fa-house'></i> Home</a>
-                    <a href='/Docs.html'><i class='fa-solid fa-book'></i> Docs</a>
+                    <a href='/' onclick='event.stopPropagation();event.preventDefault();window.location.href=this.href;'><i class='fa-solid fa-house'></i> Home</a>
+                    <a href='/Docs.html' onclick='event.stopPropagation();event.preventDefault();window.location.href=this.href;'><i class='fa-solid fa-book'></i> Docs</a>
                     <a class='snb-active' href='/swagger'><i class='fa-solid fa-code'></i> Swagger</a>
                 </div>
             ";
