@@ -14,6 +14,7 @@
 </head>
 <body>
 
+    <!-- ── Navigation ── -->
     <nav>
         <div class="intrologo">
             <img src="/images/logo.png" alt="Bank Management API">
@@ -30,24 +31,57 @@
 
     <div class="doccontainer">
 
+        <!-- ── Hero ── -->
         <main class="hero-section docbox">
             <img src="/images/logo.png" alt="Logo" class="hero-logo">
             <h1 class="hero-title">Bank Management API</h1>
             <p class="hero-subtitle">
-                A comprehensive RESTful API for modern banking.
-                Built with ASP.NET Core 9, Clean Architecture, CQRS, and SQLite.
+                A production-ready RESTful banking platform built with
+                ASP.NET Core 9, Clean Architecture, CQRS, and SQLite.
             </p>
             <div class="home-buttons">
                 <a href="/Docs.html" class="home-btn">
-                    <i class="fa-solid fa-rocket"></i> Get Started
+                    <i class="fa-solid fa-rocket"></i> Browse Docs
                 </a>
                 <a href="/swagger" class="home-btn home-btn-secondary">
-                    <i class="fa-solid fa-code"></i> API Reference
+                    <i class="fa-solid fa-code"></i> Try Swagger UI
                 </a>
             </div>
         </main>
 
-        <section class="features-grid-section" data-reveal>
+        <!-- ── Stats Bar ── -->
+        <div class="stats-grid" data-reveal>
+            <div class="stat-card">
+                <div class="stat-number">30+</div>
+                <div class="stat-label">API Controllers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Clean Layers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">9</div>
+                <div class="stat-label">API Modules</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">2FA</div>
+                <div class="stat-label">Security Standard</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">JWT</div>
+                <div class="stat-label">Auth Protocol</div>
+            </div>
+        </div>
+
+        <!-- ── Feature Cards ── -->
+        <section class="home-section" data-reveal>
+            <div class="section-label">CAPABILITIES</div>
+            <h2 class="section-heading">Everything a banking platform needs</h2>
+            <p class="section-sub">All modules are fully wired — not stubs. Each exposes real business logic backed by a SQLite database with EF Core migrations.</p>
             <div class="features-grid">
                 <div class="feature-card">
                     <i class="fa-solid fa-wallet feature-icon"></i>
@@ -57,6 +91,7 @@
                         <li>Savings, Checking &amp; Joint Accounts</li>
                         <li>Real-time Balance Updates</li>
                         <li>Account Statements &amp; History</li>
+                        <li>Account Lockout &amp; Restrictions</li>
                     </ul>
                 </div>
                 <div class="feature-card">
@@ -64,19 +99,32 @@
                     <h4>Transaction Processing</h4>
                     <p>Secure transaction management with fraud detection and comprehensive audit trails.</p>
                     <ul class="feature-list">
-                        <li>Instant Transfers</li>
+                        <li>Instant Fund Transfers</li>
                         <li>Deposits &amp; Withdrawals</li>
                         <li>Transaction Search &amp; Filters</li>
+                        <li>Fraud Detection Layer</li>
                     </ul>
                 </div>
                 <div class="feature-card">
                     <i class="fa-solid fa-hand-holding-dollar feature-icon"></i>
                     <h4>Loan Management</h4>
-                    <p>End-to-end loan lifecycle — applications, repayments, interest calculations, and analytics.</p>
+                    <p>End-to-end loan lifecycle — applications, approvals, repayments, and analytics.</p>
                     <ul class="feature-list">
-                        <li>Loan Applications</li>
+                        <li>Loan Applications &amp; Approval</li>
                         <li>Repayment Schedules</li>
                         <li>Interest Rate Calculation</li>
+                        <li>Loan Analytics Dashboard</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-piggy-bank feature-icon"></i>
+                    <h4>Fixed Deposits</h4>
+                    <p>Manage fixed deposit products with compound interest accrual and automated maturity actions.</p>
+                    <ul class="feature-list">
+                        <li>Fixed Deposit Products</li>
+                        <li>Interest Accrual Engine</li>
+                        <li>Maturity &amp; Auto-Renewal</li>
+                        <li>Early Withdrawal Penalties</li>
                     </ul>
                 </div>
                 <div class="feature-card">
@@ -87,6 +135,7 @@
                         <li>Card Issuance &amp; Management</li>
                         <li>PIN Change &amp; Security</li>
                         <li>Block / Unblock Instantly</li>
+                        <li>Card Transaction History</li>
                     </ul>
                 </div>
                 <div class="feature-card">
@@ -95,59 +144,182 @@
                     <p>Pay bills, manage billers, recurring payments, and view bill presentments all in one place.</p>
                     <ul class="feature-list">
                         <li>One-time &amp; Recurring Bills</li>
-                        <li>Biller Registry</li>
-                        <li>Bill Presentment View</li>
+                        <li>Biller Registry &amp; Routing</li>
+                        <li>Batch Payment Processing</li>
+                        <li>Retry &amp; Failure Handling</li>
                     </ul>
                 </div>
                 <div class="feature-card">
                     <i class="fa-solid fa-shield-halved feature-icon"></i>
                     <h4>Secure Authentication</h4>
-                    <p>JWT-based auth with Two-Factor Authentication, ASP.NET Core Identity, and role-based access.</p>
+                    <p>JWT-based auth with 2FA, ASP.NET Core Identity, rate limiting, and role-based access control.</p>
                     <ul class="feature-list">
                         <li>JWT + Refresh Tokens</li>
-                        <li>Two-Factor Auth (2FA)</li>
+                        <li>Two-Factor Auth (TOTP)</li>
                         <li>Admin &amp; Customer Roles</li>
+                        <li>Session Management</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-file-lines feature-icon"></i>
+                    <h4>Statements &amp; Audit</h4>
+                    <p>Generate account statements, audit every request, and track compliance events automatically.</p>
+                    <ul class="feature-list">
+                        <li>PDF &amp; JSON Statements</li>
+                        <li>Request Audit Logging</li>
+                        <li>Delivery Channels</li>
+                        <li>Transaction Analytics</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-gears feature-icon"></i>
+                    <h4>Background Jobs</h4>
+                    <p>Hangfire-powered background services keep deposits, loans, and payments running automatically.</p>
+                    <ul class="feature-list">
+                        <li>Loan Maturity Processing</li>
+                        <li>Deposit Interest Accrual</li>
+                        <li>Payment Retry Engine</li>
+                        <li>Biller Health Checks</li>
                     </ul>
                 </div>
             </div>
         </section>
 
+        <!-- ── Architecture Layers ── -->
+        <section class="home-section" data-reveal>
+            <div class="section-label">ARCHITECTURE</div>
+            <h2 class="section-heading">Clean Architecture — 4 strict layers</h2>
+            <p class="section-sub">Each layer has a single responsibility and can only depend inward. Business rules never touch HTTP or databases directly.</p>
+            <div class="arch-grid">
+                <div class="arch-card arch-domain">
+                    <div class="arch-num">01</div>
+                    <i class="fa-solid fa-circle-nodes arch-icon"></i>
+                    <h4>Domain</h4>
+                    <p>Entities, value objects, domain events, interfaces, and business rules. Zero external dependencies.</p>
+                    <div class="arch-tags">
+                        <span>Entities</span><span>Enums</span><span>Interfaces</span><span>Domain Events</span>
+                    </div>
+                </div>
+                <div class="arch-card arch-app">
+                    <div class="arch-num">02</div>
+                    <i class="fa-solid fa-sitemap arch-icon"></i>
+                    <h4>Application</h4>
+                    <p>Use cases, DTOs, service interfaces, CQRS handlers via MediatR, and FluentValidation pipelines.</p>
+                    <div class="arch-tags">
+                        <span>Services</span><span>DTOs</span><span>MediatR</span><span>Validators</span>
+                    </div>
+                </div>
+                <div class="arch-card arch-infra">
+                    <div class="arch-num">03</div>
+                    <i class="fa-solid fa-server arch-icon"></i>
+                    <h4>Infrastructure</h4>
+                    <p>EF Core + SQLite, repository implementations, Identity, email/SMS stubs, rate limiter, AutoMapper.</p>
+                    <div class="arch-tags">
+                        <span>EF Core</span><span>Repositories</span><span>Identity</span><span>AutoMapper</span>
+                    </div>
+                </div>
+                <div class="arch-card arch-api">
+                    <div class="arch-num">04</div>
+                    <i class="fa-solid fa-network-wired arch-icon"></i>
+                    <h4>API</h4>
+                    <p>ASP.NET Core controllers, middleware pipeline, Swagger/OpenAPI, Hangfire dashboard, static files.</p>
+                    <div class="arch-tags">
+                        <span>Controllers</span><span>Middleware</span><span>Swagger</span><span>Hangfire</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── How It Works ── -->
+        <section class="home-section" data-reveal>
+            <div class="section-label">QUICK START</div>
+            <h2 class="section-heading">Up and running in 3 steps</h2>
+            <p class="section-sub">The API is live on port 5000. Register, get a token, and start calling endpoints immediately.</p>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-badge">01</div>
+                    <div class="step-content">
+                        <h4><i class="fa-solid fa-user-plus"></i> Register</h4>
+                        <p>Create your account with email and password.</p>
+                        <div class="docbox">
+                            <pre><code>POST /api/auth/register
+{
+  "email": "user@bank.com",
+  "password": "SecurePass1!"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-badge">02</div>
+                    <div class="step-content">
+                        <h4><i class="fa-solid fa-key"></i> Get Token</h4>
+                        <p>Login and copy your JWT access token.</p>
+                        <div class="docbox">
+                            <pre><code>POST /api/auth/login
+→ { "token": "eyJhbGci..." }</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-badge">03</div>
+                    <div class="step-content">
+                        <h4><i class="fa-solid fa-paper-plane"></i> Call APIs</h4>
+                        <p>Add the Bearer token to every request.</p>
+                        <div class="docbox">
+                            <pre><code>GET /api/Account
+Authorization: Bearer eyJhbGci...</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="steps-cta">
+                <a href="/Docs.html" class="home-btn">
+                    <i class="fa-solid fa-book"></i> Full API Reference
+                </a>
+                <a href="/swagger" class="home-btn home-btn-secondary">
+                    <i class="fa-solid fa-flask"></i> Try It Live
+                </a>
+            </div>
+        </section>
+
+        <!-- ── Tech Stack ── -->
         <section class="tech-section" data-reveal>
-            <h2><i class="fa-solid fa-layer-group"></i> Built with Clean Architecture</h2>
+            <h2><i class="fa-solid fa-layer-group"></i> Technology Stack</h2>
             <p>
-                Follows Domain-Driven Design with fully separated Domain, Application, Infrastructure and API layers.
-                Uses CQRS pattern via MediatR, AutoMapper, FluentValidation, Hangfire background jobs, and SQLite.
+                Built following Domain-Driven Design principles with fully decoupled layers,
+                CQRS via MediatR, in-memory caching, and automated background job scheduling.
             </p>
             <div class="badges-row">
                 <span class="tech-badge"><i class="fa-brands fa-microsoft"></i> ASP.NET Core 9</span>
-                <span class="tech-badge"><i class="fa-solid fa-database"></i> SQLite</span>
+                <span class="tech-badge"><i class="fa-solid fa-database"></i> SQLite + EF Core</span>
                 <span class="tech-badge"><i class="fa-solid fa-arrows-split-up-and-left"></i> CQRS / MediatR</span>
                 <span class="tech-badge"><i class="fa-solid fa-check-double"></i> FluentValidation</span>
                 <span class="tech-badge"><i class="fa-solid fa-clock"></i> Hangfire Jobs</span>
                 <span class="tech-badge"><i class="fa-solid fa-map"></i> AutoMapper</span>
-                <span class="tech-badge"><i class="fa-solid fa-lock"></i> JWT Auth + 2FA</span>
+                <span class="tech-badge"><i class="fa-solid fa-lock"></i> JWT + 2FA</span>
                 <span class="tech-badge"><i class="fa-solid fa-file-code"></i> Swagger / OAS 3</span>
+                <span class="tech-badge"><i class="fa-solid fa-memory"></i> In-Memory Cache</span>
+                <span class="tech-badge"><i class="fa-solid fa-id-card"></i> ASP.NET Identity</span>
+                <span class="tech-badge"><i class="fa-solid fa-shield-halved"></i> Rate Limiting</span>
+                <span class="tech-badge"><i class="fa-solid fa-scroll"></i> Audit Middleware</span>
             </div>
         </section>
 
-        <div class="stats-grid" data-reveal>
-            <div class="stat-card">
-                <div class="stat-number">30+</div>
-                <div class="stat-label">API Controllers</div>
+        <!-- ── Bottom CTA ── -->
+        <section class="cta-section" data-reveal>
+            <i class="fa-solid fa-code-branch cta-icon"></i>
+            <h2>Ready to explore the API?</h2>
+            <p>Use the interactive Swagger UI to send real requests, or read the full docs to understand every endpoint.</p>
+            <div class="home-buttons">
+                <a href="/swagger" class="home-btn">
+                    <i class="fa-solid fa-code"></i> Open Swagger UI
+                </a>
+                <a href="/Docs.html" class="home-btn home-btn-secondary">
+                    <i class="fa-solid fa-book-open"></i> Read the Docs
+                </a>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">100+</div>
-                <div class="stat-label">API Endpoints</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">4</div>
-                <div class="stat-label">Architecture Layers</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">2FA</div>
-                <div class="stat-label">Security Standard</div>
-            </div>
-        </div>
+        </section>
 
     </div>
 

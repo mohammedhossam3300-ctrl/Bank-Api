@@ -21,67 +21,77 @@ public static class MiddlewareExtensions
             options.RoutePrefix = "swagger"; // Swagger UI at /swagger
             options.DocumentTitle = "Bank Management API";
             options.HeadContent = @"
+                <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap' rel='stylesheet'>
+                <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'>
                 <style>
                     #swagger-nav-bar {
                         display: flex;
                         align-items: center;
-                        gap: 16px;
-                        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-                        padding: 10px 24px;
-                        border-bottom: 2px solid #1e90ff;
-                        font-family: Poppins, sans-serif;
+                        gap: 8px;
+                        background: rgba(14,14,14,0.97);
+                        padding: 0 28px;
+                        height: 60px;
+                        border-bottom: 1px solid rgba(30,144,255,0.25);
+                        font-family: 'Poppins', sans-serif;
                         position: sticky;
                         top: 0;
                         z-index: 9999;
-                        box-shadow: 0 4px 15px rgba(30,144,255,0.3);
+                        box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+                        box-sizing: border-box;
                     }
                     #swagger-nav-bar .snb-logo {
-                        width: 36px;
-                        height: 36px;
+                        width: 34px; height: 34px;
                         object-fit: contain;
-                        filter: drop-shadow(0 0 8px rgba(30,144,255,0.6));
+                        filter: drop-shadow(0 0 8px rgba(30,144,255,0.5));
                         flex-shrink: 0;
+                        margin-right: 4px;
                     }
                     #swagger-nav-bar .snb-title {
-                        color: white;
+                        color: #fff;
                         font-weight: 700;
-                        font-size: 1rem;
+                        font-size: 0.95rem;
                         margin-right: auto;
-                        letter-spacing: 0.3px;
+                        letter-spacing: 0.2px;
+                        white-space: nowrap;
                     }
                     #swagger-nav-bar a {
-                        color: #b0b0b0;
+                        color: #9a9a9a;
                         text-decoration: none;
-                        font-size: 0.9rem;
+                        font-size: 0.875rem;
                         font-weight: 600;
-                        padding: 7px 16px;
+                        padding: 7px 15px;
                         border-radius: 8px;
-                        transition: all 0.2s ease;
-                        display: flex;
+                        transition: background 0.2s, color 0.2s, border-color 0.2s;
+                        display: inline-flex;
                         align-items: center;
                         gap: 7px;
                         border: 1px solid transparent;
+                        white-space: nowrap;
                     }
                     #swagger-nav-bar a:hover {
-                        color: white;
+                        color: #fff;
                         background: rgba(30,144,255,0.15);
-                        border-color: #1e90ff;
+                        border-color: rgba(30,144,255,0.4);
                     }
                     #swagger-nav-bar a.snb-active {
-                        color: white;
+                        color: #fff;
                         background: linear-gradient(135deg,#1e90ff,#0047ab);
                         border-color: #1e90ff;
-                        box-shadow: 0 3px 10px rgba(30,144,255,0.4);
+                        box-shadow: 0 3px 10px rgba(30,144,255,0.35);
+                    }
+                    @media (max-width: 600px) {
+                        #swagger-nav-bar { padding: 0 14px; gap: 4px; }
+                        #swagger-nav-bar .snb-title { display: none; }
+                        #swagger-nav-bar a { padding: 6px 10px; font-size: 0.82rem; gap: 5px; }
                     }
                 </style>
                 <div id='swagger-nav-bar'>
                     <img class='snb-logo' src='/images/logo.png' alt='logo'/>
                     <span class='snb-title'>Bank Management API</span>
-                    <a href='/'>&#8962; Home</a>
-                    <a href='/Docs.html'>&#128214; Docs</a>
-                    <a class='snb-active' href='/swagger'>&#128196; Swagger</a>
+                    <a href='/'><i class='fa-solid fa-house'></i> Home</a>
+                    <a href='/Docs.html'><i class='fa-solid fa-book'></i> Docs</a>
+                    <a class='snb-active' href='/swagger'><i class='fa-solid fa-code'></i> Swagger</a>
                 </div>
-                <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap' rel='stylesheet'>
             ";
         });
 
