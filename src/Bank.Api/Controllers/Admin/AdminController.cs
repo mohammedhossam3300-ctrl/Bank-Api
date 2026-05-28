@@ -1,4 +1,5 @@
 using Bank.Application.Interfaces;
+using Bank.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,13 @@ public class AdminController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IAccountService _accountService;
+    private readonly IUserRepository _userRepository;
 
-    public AdminController(IAuthService authService, IAccountService accountService)
+    public AdminController(IAuthService authService, IAccountService accountService, IUserRepository userRepository)
     {
         _authService = authService;
         _accountService = accountService;
+        _userRepository = userRepository;
     }
 
     /// <summary>
@@ -51,6 +54,7 @@ public class AdminController : ControllerBase
         if (user == null) return NotFound();
 
         user.SoftDelete("Admin");
+        await _userRepository.UpdateAsync(user);
         return Ok(new { Message = "User suspended successfully." });
     }
 

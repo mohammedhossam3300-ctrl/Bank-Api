@@ -15,6 +15,8 @@ public static class ApiDocumentationServiceExtensions
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
+            options.CustomSchemaIds(type => type.FullName!.Replace("+", "."));
+
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "Bank Payment Simulator API",

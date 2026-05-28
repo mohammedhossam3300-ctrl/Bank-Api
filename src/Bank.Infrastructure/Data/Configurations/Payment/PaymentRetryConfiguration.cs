@@ -36,7 +36,7 @@ public class PaymentRetryConfiguration : IEntityTypeConfiguration<PaymentRetry>
             .HasMaxLength(1000);
 
         builder.Property(pr => pr.RetryMetadataJson)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("TEXT");
 
         // Enum configurations
         builder.Property(pr => pr.Status)

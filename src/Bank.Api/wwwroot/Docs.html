@@ -3,571 +3,946 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Bank API Backend documentation - explore endpoints for accounts, transactions, loans, and more.">
-    <title>Bank API Backend — Docs</title>
+    <meta name="description" content="Bank Management API documentation — explore endpoints for accounts, transactions, loans, cards, bills, and administration.">
+    <title>Bank Management API — Docs</title>
     <link rel="icon" type="image/x-icon" href="/images/logo.png">
-    <link rel="stylesheet" href="/community-car.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/community-car.css">
 </head>
 <body>
 
     <nav>
         <div class="intrologo">
-            <img src="/images/logo.png" alt="Bank API Backend">
+            <img src="/images/logo.png" alt="Bank Management API">
         </div>
-        <div>
-            <a href="/Home.html"><i class="fa-solid fa-house"></i> Home</a>
+        <button id="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div id="nav-links">
+            <a href="/"><i class="fa-solid fa-house"></i> Home</a>
             <a href="/Docs.html" class="active"><i class="fa-solid fa-book"></i> Docs</a>
             <a href="/swagger"><i class="fa-solid fa-code"></i> Swagger</a>
-            <a href="https://www.eraasoft.com" target="_blank" rel="noopener"><i class="fa-solid fa-building"></i> EraSoft</a>
         </div>
     </nav>
 
     <div class="doccontainer">
-        <div style="text-align: center; margin-bottom: 30px; padding: 0;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 10px; color: white;">API Documentation</h1>
-            <p style="color: var(--text-muted); max-width: 800px; margin: 0 auto; font-size: 1rem;">
-                Welcome to the official developer documentation for the Bank API Backend. 
-                Below you will find detailed information about our banking resources and integration guides.
+
+        <div class="docs-page-header">
+            <h1 class="docs-page-title">API Documentation</h1>
+            <p class="docs-page-desc">
+                Complete reference for the Bank Management API. All endpoints require a Bearer JWT token unless marked
+                <span class="auth-badge public-badge"><i class="fa-solid fa-unlock"></i> Public</span>.
+                Admin-only endpoints are marked
+                <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>.
             </p>
         </div>
 
-        <!-- Tab Navigation -->
+        <!-- Sticky Tab Navigation -->
         <div class="tab-navigation">
-            <a href="#auth" class="tab-link active" data-section="auth">
-                <i class="fa-solid fa-user-shield"></i>
-                <span>Auth</span>
+            <a href="#auth"         class="tab-link active" data-section="auth">
+                <i class="fa-solid fa-user-shield"></i><span>Auth</span>
             </a>
-            <a href="#accounts" class="tab-link" data-section="accounts">
-                <i class="fa-solid fa-wallet"></i>
-                <span>Accounts</span>
+            <a href="#accounts"     class="tab-link" data-section="accounts">
+                <i class="fa-solid fa-wallet"></i><span>Accounts</span>
             </a>
             <a href="#transactions" class="tab-link" data-section="transactions">
-                <i class="fa-solid fa-exchange-alt"></i>
-                <span>Transactions</span>
+                <i class="fa-solid fa-exchange-alt"></i><span>Transactions</span>
             </a>
-            <a href="#loans" class="tab-link" data-section="loans">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
-                <span>Loans</span>
+            <a href="#deposits"     class="tab-link" data-section="deposits">
+                <i class="fa-solid fa-piggy-bank"></i><span>Deposits</span>
             </a>
-            <a href="#cards" class="tab-link" data-section="cards">
-                <i class="fa-solid fa-credit-card"></i>
-                <span>Cards</span>
+            <a href="#loans"        class="tab-link" data-section="loans">
+                <i class="fa-solid fa-hand-holding-dollar"></i><span>Loans</span>
             </a>
-            <a href="#bills" class="tab-link" data-section="bills">
-                <i class="fa-solid fa-file-invoice-dollar"></i>
-                <span>Bills</span>
+            <a href="#cards"        class="tab-link" data-section="cards">
+                <i class="fa-solid fa-credit-card"></i><span>Cards</span>
             </a>
-            <a href="#admin" class="tab-link" data-section="admin">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span>Admin</span>
+            <a href="#bills"        class="tab-link" data-section="bills">
+                <i class="fa-solid fa-file-invoice-dollar"></i><span>Bills</span>
+            </a>
+            <a href="#profiles"     class="tab-link" data-section="profiles">
+                <i class="fa-solid fa-user"></i><span>Profile</span>
+            </a>
+            <a href="#admin"        class="tab-link" data-section="admin">
+                <i class="fa-solid fa-shield-halved"></i><span>Admin</span>
             </a>
         </div>
 
-        <!-- Main Content -->
         <div class="docs-content-full">
+
             <!-- ===== FEATURES ===== -->
-            <section id="features" style="margin-bottom: 30px;">
+            <section id="features" class="docs-features-section">
                 <h2 class="section-title"><i class="fa-solid fa-star"></i> Core Capabilities</h2>
                 <div class="features-grid">
                     <div class="feature-card">
                         <i class="fa-solid fa-wallet feature-icon"></i>
                         <h4>Account Management</h4>
-                        <p>Complete banking account operations with multi-currency support and real-time balance tracking.</p>
+                        <p>Multiple account types with real-time balances, statements, and joint account support.</p>
                         <ul class="feature-list">
-                            <li>Multiple Account Types</li>
-                            <li>Real-time Balance Updates</li>
-                            <li>Account Statements</li>
+                            <li>Savings, Checking &amp; Joint Accounts</li>
+                            <li>Real-time Balance Tracking</li>
+                            <li>Account Statements (PDF/JSON)</li>
                         </ul>
                     </div>
                     <div class="feature-card">
                         <i class="fa-solid fa-exchange-alt feature-icon"></i>
                         <h4>Transaction Processing</h4>
-                        <p>Secure transaction management with fraud detection and comprehensive audit trails.</p>
+                        <p>Secure transfers, deposits, and withdrawals with fraud detection and audit trails.</p>
                         <ul class="feature-list">
-                            <li>Instant Transfers</li>
-                            <li>Transaction History</li>
-                            <li>Fraud Detection</li>
+                            <li>Instant Fund Transfers</li>
+                            <li>Searchable History</li>
+                            <li>Fraud Detection Layer</li>
                         </ul>
                     </div>
                     <div class="feature-card">
                         <i class="fa-solid fa-shield-halved feature-icon"></i>
-                        <h4>Secure Banking</h4>
-                        <p>JWT-based authentication with 2FA, ASP.NET Core Identity and role-based access control.</p>
+                        <h4>Secure by Design</h4>
+                        <p>JWT + 2FA authentication, role-based access, rate limiting, and audit middleware.</p>
                         <ul class="feature-list">
-                            <li>Two-Factor Authentication</li>
-                            <li>Role-Based Access</li>
-                            <li>Encrypted Transactions</li>
+                            <li>Two-Factor Auth (TOTP)</li>
+                            <li>Role-Based Access Control</li>
+                            <li>Request Audit Logging</li>
                         </ul>
                     </div>
                 </div>
             </section>
 
-            <h2 class="section-title"><i class="fa-solid fa-layer-group"></i> API Resources</h2>
-
             <!-- ===== AUTHENTICATION ===== -->
             <div class="resources" id="auth">
-            <h2><i class="fa-solid fa-user-shield"></i> Authentication</h2>
-            <p>JWT-based authentication with 2FA support, ASP.NET Core Identity and role-based access control.</p>
-            
-            <div class="endpoints-grid">
-                <!-- Register Endpoint -->
-                <div class="endpoint-card">
-                    <h4>Register new user</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/auth/register</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Create a new user account with email and password.</p>
-                    </div>
-                </div>
+                <h2><i class="fa-solid fa-user-shield"></i> Authentication</h2>
+                <p>JWT-based authentication with Two-Factor Auth (TOTP), ASP.NET Core Identity and role-based access control.</p>
 
-                <!-- Login Endpoint -->
-                <div class="endpoint-card">
-                    <h4>Login</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/auth/login</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Register</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/auth/register</code></pre>
+                        </div>
+                        <span class="auth-badge public-badge"><i class="fa-solid fa-unlock"></i> Public</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Create a new customer account with email and password.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-   lass="fa-solid fa-circle-info"></i>
-                        <p class="info">Authenticate and receive JWT access token.</p>
-                    </div>
-                </div>
 
-                <!-- Enable 2FA -->
-                <div class="endpoint-card">
-                    <h4>Enable Two-Factor Auth</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/TwoFactorAuth/enable</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Login</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/auth/login</code></pre>
+                        </div>
+                        <span class="auth-badge public-badge"><i class="fa-solid fa-unlock"></i> Public</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Authenticate and receive a JWT access token + refresh token.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Returns QR code for authenticator app setup.</p>
-                    </div>
-                </div>
 
-                <!-- Verify 2FA -->
-                <div class="endpoint-card">
-                    <h4>Verify 2FA Code</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/TwoFactorAuth/verify</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Refresh Token</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/auth/refresh</code></pre>
+                        </div>
+                        <span class="auth-badge public-badge"><i class="fa-solid fa-unlock"></i> Public</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Obtain a new access token using a valid refresh token.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-              class="fa-solid fa-circle-info"></i>
-                        <p class="info">Verify the 6-digit code from authenticator app.</p>
+
+                    <div class="endpoint-card">
+                        <h4>Logout</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/auth/logout</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Invalidate the current session and revoke refresh token.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Enable Two-Factor Auth</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/TwoFactorAuth/enable</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Returns a QR code and secret for authenticator app setup.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Verify 2FA Code</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/TwoFactorAuth/verify</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Verify the 6-digit TOTP code from an authenticator app.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Disable Two-Factor Auth</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/TwoFactorAuth/disable</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Disable 2FA for the current user account.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Change Password</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/auth/change-password</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Change the current user's password securely.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             <!-- ===== ACCOUNTS ===== -->
             <div class="resources" id="accounts">
-            <h2><i class="fa-solid fa-wallet"></i> Account Management</h2>
-            <p>Manage bank accounts with support for multiple account types and real-time balance tracking.</p>
+                <h2><i class="fa-solid fa-wallet"></i> Account Management</h2>
+                <p>Manage bank accounts — create, view, update, and generate statements for Savings, Checking, and Joint accounts.</p>
 
-            <div class="endpoints-grid">
-                <!-- Get All Accounts -->
-                <div class="endpoint-card">
-                    <h4>Get all accounts</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Account</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Get All Accounts</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Account</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve all bank accounts belonging to the authenticated user.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Retrieve all accounts for the authenticated user.</p>
-                    <iv>
-                </div>
 
-                <!-- Get Account by ID -->
-                <div class="endpoint-card">
-                    <h4>Get account details</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Account/{id}</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Get Account by ID</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Account/{id}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Get detailed information about a specific account by its ID.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Get detailed information about a specific account.</p>
-                    </div>
-                </div>
 
-                <!-- Create Account -->
-                <div class="endpoint-card">
-                    <h4>Create new account</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Account</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Create Account</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Account</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Open a new bank account (Savings, Checking, Fixed Deposit, etc.).</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Open a new bank account (Savings, Checking, etc.).</p>
-                    </div>
-                </div>
 
-                <!-- Get Account Statement -->
-                <div class="endpoint-card">
-                    <h4>Get account statement</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Statement/{accountId}</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Update Account</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-put">PUT</span>/api/Account/{id}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Update account details such as nickname or linked settings.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-              nge.</p>
+
+                    <div class="endpoint-card">
+                        <h4>Get Account Statement</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Statement/{accountId}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve a filtered account statement for a date range.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Get Statement List</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Statement</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">List all generated statements for the current user's accounts.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Create Joint Account</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/JointAccount</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Open a joint account shared between two or more holders.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Get Joint Accounts</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/JointAccount</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">List all joint accounts the current user is a member of.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             <!-- ===== TRANSACTIONS ===== -->
             <div class="resources" id="transactions">
-            <h2><i class="fa-solid fa-exchange-alt"></i> Transaction Management</h2>
-            <p>Process transfers, deposits, and withdrawals with real-time fraud detection.</p>
+                <h2><i class="fa-solid fa-exchange-alt"></i> Transaction Management</h2>
+                <p>Process fund transfers, view transaction history, and search transactions with advanced filters.</p>
 
-            <div class="endpoints-grid">
-                <!-- Get All Transactions -->
-                <div class="endpoint-card">
-                    <h4>Get transactions</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Transaction</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Get Transactions</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Transaction</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve paginated transaction history with optional filters.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Retrieve transaction history with filtering options.</p>
-                    </div>
-                </div>
 
-                <!-- Create Transfer -->
-ard">
-                    <h4>Create transfer</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Transaction/transfer</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Get Transaction by ID</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Transaction/{id}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View complete details of a single transaction.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Transfer funds between accounts instantly.</p>
-                    </div>
-                </div>
 
-                <!-- Deposit -->
-                <d">
-                    <h4>Make deposit</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Deposit</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Transfer Funds</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Transaction/transfer</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Transfer funds between accounts instantly.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Deposit funds into an account.</p>
-                    </div>
-                </div>
 
-                <!-- Get Transaction Details -->
-                <div class="endpoint-card">
-                    <h4>Get transaction details</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Transaction/{id}</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">View complete details of a specific transaction.</p>
+                    <div class="endpoint-card">
+                        <h4>Search Transactions</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Transaction/search</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Search and filter transactions by date, amount, type, or reference.</p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- ===== DEPOSITS ===== -->
+            <div class="resources" id="deposits">
+                <h2><i class="fa-solid fa-piggy-bank"></i> Deposits &amp; Fixed Deposits</h2>
+                <p>Make deposits into accounts and manage fixed deposit products with interest accrual and maturity actions.</p>
+
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Make Deposit</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Deposit</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Deposit funds into a bank account.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Get Deposits</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Deposit</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve all fixed deposits for the current user.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Get Deposit by ID</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Deposit/{id}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View details of a specific fixed deposit including interest accrued.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Calculate Interest</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/InterestCalculation/calculate</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Calculate projected interest for a deposit given rate and term.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- ===== LOANS ===== -->
-        <div class="resources" id="loans">
-            <h2><i class="fa-solid fa-hand-holding-dollar"></i> Loan Management</h2>
-            <p>Apply for loans, track repayments, and manage loan analytics.</p>
+            <div class="resources" id="loans">
+                <h2><i class="fa-solid fa-hand-holding-dollar"></i> Loan Management</h2>
+                <p>Apply for loans, view repayment schedules, track installments, and access loan analytics.</p>
 
-            <div class="endpoints-grid">
-                <!-- Get All Loans -->
-                <div class="endpoint-card">
-                    <h4>Get all loans</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Loans</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Get All Loans</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Loans</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View all active and historical loans for the authenticated user.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">View all loans for the authenticated user.</p>
+
+                    <div class="endpoint-card">
+                        <h4>Get Loan by ID</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Loans/{id}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve detailed information about a specific loan.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Apply for Loan</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Loans</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Submit a new loan application with amount, term, and purpose.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Make Loan Repayment</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Loans/{id}/repay</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Make a repayment installment toward an active loan.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Loan Analytics</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/LoanAnalytics</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View loan statistics including total outstanding and repayment rate.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Calculate Loan Interest</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/LoanInterest/calculate</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Calculate monthly payments and total interest for a loan scenario.</p>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Apply for Loan -->
-                <div class="endpoint-card">
-                    <h4>Apply for loan</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Loans</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Submit a new loan application.</p>
-                    </div>
-                </div>
-
-                <!-- Get Loan Analytics -->
-                <div class="endpoint-card">
-                    <h4>Get loan analytics</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/LoanAnalytics</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">View loan statistics and repayment analytics.</p>
-                    </div>
-                </div>
-
-                <!-- Calculate Interest -->
-                <div class="endpoint-card">
-                    <h4>Calculate loan interest</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/LoanInterest/calculate</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Calculate monthly payments and total interest.</p>
-                    </div>
-                </div>
-            </div>
             </div>
 
             <!-- ===== CARDS ===== -->
             <div class="resources" id="cards">
-            <h2><i class="fa-solid fa-credit-card"></i> Card Management</h2>
-            <p>Manres.</p>
+                <h2><i class="fa-solid fa-credit-card"></i> Card Management</h2>
+                <p>Issue and manage debit or credit cards, change PINs, block cards, and view card transaction history.</p>
 
-            <div class="endpoints-grid">
-                <!-- Get All Cards -->
-                <div class="endpoint-card">
-                    <h4>Get all cards</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Card</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Get All Cards</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Card</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve all cards linked to the current user's accounts.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Retrieve all cards linked to user accounts.</p>
+
+                    <div class="endpoint-card">
+                        <h4>Get Card by ID</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Card/{id}</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Get details about a specific card, including status and limits.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Request New Card</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Card</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Request issuance of a new debit or credit card for an account.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Block / Unblock Card</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Card/{id}/block</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Instantly block or unblock a card to prevent unauthorized use.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Change Card PIN</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/PinManagement/change</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Securely change the PIN for a card after verifying the old PIN.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Card Transactions</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Card/{id}/transactions</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View transaction history for a specific card.</p>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Request New Card -->
-                <div class="endpoint-card">
-                    <h4>Request new card</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Card</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Request a new debit or credit card.</p>
-                    </div>
-                </div>
-
-                <!-- Change PIN -->
-                <div class="endpoint-card">
-                    <h4>Change card PIN</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/PinManagement/change</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Update the PIN for a card securely.</p>
-                    </div>
-                </div>
-
-                <!-- Block/Unblock Card -->
-                <div class="endpoint-card">
-                    <h4>Block or unblock card</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Card/{id}/block</code></pre>
-                    </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Instantly block or unblock a card for security.</p>
-                    </div>
-                </div>
-            </div>
             </div>
 
             <!-- ===== BILLS ===== -->
             <div class="resources" id="bills">
-            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Bill Payment</h2>
-            <p>Pay bills, manage billers, and set up recurring payments.</p>
+                <h2><i class="fa-solid fa-file-invoice-dollar"></i> Bill Payments</h2>
+                <p>Pay bills, manage billers, set up recurring payments, view bill presentments, and manage beneficiaries.</p>
 
-            <div class="endpoints-grid">
-                <!-- Get All Billers -->
-                <div class="endpoint-card">
-                    <h4>Get all billers</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/BillerManagement</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Get All Billers</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/BillerManagement</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Browse available billers (utilities, telco, government, etc.).</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">View available billers for bill payments.</p>
-                    </div>
-                </div>
 
-                <!-- Pay Bill -->
-                <div class="endpoint-card">
-                    <h4>Pay a bill</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/BillPayment</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Pay a Bill</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/BillPayment</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Make a one-time bill payment from a linked account.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Make a one-time bill payment.</p>
-                    </div>
-                </div>
 
-                <!-- Set Recurring Payment -->
-                <div class="endpoint-card">
-                    <h4>Set recurring payment</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/RecurringPayment</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Get Payment History</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/BillPayment</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve the bill payment history for the current user.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Automate bill payments with custom frequency.</p>
-                    </div>
-                </div>
 
-                <!-- Get Bill Presentment -->
-                <div class="endpoint-card">
-                    <h4>Get bill presentment</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/BillPresentment</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Set Recurring Payment</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/RecurringPayment</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Automate bill payments on a daily, weekly, or monthly schedule.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">View pending bills and due dates.</p>
+
+                    <div class="endpoint-card">
+                        <h4>Get Recurring Payments</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/RecurringPayment</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">List all active recurring payment schedules.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Bill Presentments</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/BillPresentment</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View pending and upcoming bills with due dates and amounts.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Get Beneficiaries</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Beneficiary</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">List saved beneficiaries for quick transfers and bill payments.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Add Beneficiary</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Beneficiary</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Save a new beneficiary with account details and nickname.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Payment Templates</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/PaymentTemplate</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Manage saved payment templates for frequently paid bills.</p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- ===== PROFILE ===== -->
+            <div class="resources" id="profiles">
+                <h2><i class="fa-solid fa-user"></i> Profile &amp; Notifications</h2>
+                <p>Manage the current user's profile information, preferences, and in-app notification settings.</p>
+
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Get My Profile</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Profile</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve the current user's profile details.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Update Profile</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-put">PUT</span>/api/Profile</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Update name, phone number, and other profile information.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Get Notifications</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Notification</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve all in-app notifications for the current user.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Mark Notification Read</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-put">PUT</span>/api/Notification/{id}/read</code></pre>
+                        </div>
+                        <span class="auth-badge"><i class="fa-solid fa-lock"></i> Auth Required</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Mark a specific notification as read.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- ===== ADMIN ===== -->
             <div class="resources" id="admin">
-alved"></i> Admin Dashboard</h2>
-            <p>Administrative endpoints for platform management (requires Admin role).</p>
+                <h2><i class="fa-solid fa-shield-halved"></i> Administration</h2>
+                <p>Administrative endpoints for platform management. All endpoints in this section require the <strong>Admin</strong> role.</p>
 
-            <div class="endpoints-grid">
-                <!-- Dashboard Statistics -->
-                <div class="endpoint-card">
-                    <h4>Get dashboard statistics</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Admin/statistics</code></pre>
+                <div class="endpoints-grid">
+                    <div class="endpoint-card">
+                        <h4>Dashboard Statistics</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Admin/statistics</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View platform-wide KPIs: total users, accounts, transactions, loans, and revenue.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-     class="fa-solid fa-circle-info"></i>
-                        <p class="info">View comprehensive platform statistics.</p>
-                    </div>
-                </div>
 
-                <!-- Get All Users -->
-                <div class="endpoint-card">
-                    <h4>Get all users</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Admin/users</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Get All Users</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Admin/users</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Retrieve and search all registered users in the system.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-              -solid fa-circle-info"></i>
-                        <p class="info">Manage and view all registered users.</p>
-                    </div>
-                </div>
 
-                <!-- Audit Logs -->
-                <div class="endpoint-card">
-                    <h4>Get audit logs</h4>
-                    <div class="docbox">
-                        <pre><code>GET /api/Audit</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Manage User Roles</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-put">PUT</span>/api/Admin/users/{id}/roles</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Assign or revoke roles (Admin, Customer) for a user.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Track all system activities with audit trails.</p>
-                    </div>
-                </div>
 
-                <!-- Batch Processing -->
-                <div class="endpoint-card">
-                    <h4>Process batch operations</h4>
-                    <div class="docbox">
-                        <pre><code>POST /api/Batch/process</code></pre>
+                    <div class="endpoint-card">
+                        <h4>Suspend / Activate User</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Admin/users/{id}/suspend</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Suspend or reactivate a user account.</p>
+                        </div>
                     </div>
-                    <div class="infodiv">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <p class="info">Execute bulk operations like interest calculations.</p>
+
+                    <div class="endpoint-card">
+                        <h4>Audit Logs</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/Audit</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">View all system audit trails — who did what, when, and from where.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Manage Billers</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/BillerManagement</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Register new billers or update existing biller information.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Approve / Reject Loans</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-put">PUT</span>/api/Loans/{id}/approve</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Review and approve or reject pending loan applications.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Batch Processing</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-post">POST</span>/api/Batch/process</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Execute bulk operations: interest accruals, recurring payments, and more.</p>
+                        </div>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <h4>Bill Payment Management</h4>
+                        <div class="docbox">
+                            <pre><code><span class="method-badge method-get">GET</span>/api/BillPaymentManagement</code></pre>
+                        </div>
+                        <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>
+                        <div class="infodiv">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <p class="info">Monitor and manage all bill payments across the platform.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            </div>
+
+            <!-- ===== GETTING STARTED ===== -->
+            <section class="quickstart-section" data-reveal>
+                <h2 class="section-title"><i class="fa-solid fa-rocket"></i> Quick Start</h2>
+                <p class="quickstart-desc">
+                    Follow these steps to start using the API. All authenticated endpoints require the
+                    <code class="inline-code">Authorization: Bearer &lt;token&gt;</code> header.
+                </p>
+
+                <div class="quickstart-grid">
+                    <div class="quickstart-step">
+                        <div class="step-number">① Register</div>
+                        <div class="docbox">
+                            <pre><code>POST /api/auth/register
+{
+  "email": "user@bank.com",
+  "password": "SecurePass1!",
+  "firstName": "John",
+  "lastName": "Doe"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="quickstart-step">
+                        <div class="step-number">② Login</div>
+                        <div class="docbox">
+                            <pre><code>POST /api/auth/login
+{
+  "email": "user@bank.com",
+  "password": "SecurePass1!"
+}
+→ returns: { "token": "eyJ..." }</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="quickstart-step">
+                        <div class="step-number">③ Call APIs</div>
+                        <div class="docbox">
+                            <pre><code>GET /api/Account
+Authorization: Bearer eyJ...
+
+→ returns your accounts list</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quickstart-cta">
+                    <a href="/swagger" class="home-btn">
+                        <i class="fa-solid fa-code"></i> Open Interactive API Reference
+                    </a>
+                </div>
+            </section>
+
         </div>
     </div>
 
     <footer>
         <p>
             <i class="fa-solid fa-code"></i>
-            Built with <i class="fa-solid fa-heart footer-heart"></i> by
-            <a href="https://m-said-portfolio.netlify.app" target="_blank" rel="noopener">M.Said</a>
-            for
-            <a href="https://www.eraasoft.com" target="_blank" rel="noopener">EraSoft</a>
+            Bank Management API &mdash; Built with
+            <i class="fa-solid fa-heart footer-heart"></i>
+            using ASP.NET Core 9 &amp; Clean Architecture
         </p>
     </footer>
 
-    <script>
-        // Tab Navigation - Active Link Highlighting
-        const tabLinks = document.querySelectorAll('.tab-link');
-        const sections = document.querySelectorAll('.resources');
-
-        // Update active tab on scroll
-        function updateActiveTab() {
-            let currentSection = '';
-            
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 200;
-                const sectionHeight = section.offsetHeight;
-                
-                if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
-                    currentSection = section.getAttribute('id');
-                }
-            });
-
-            tabLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-section') === currentSection) {
-                    link.classList.add('active');
-                }
-            });
-        }
-
-        // Smooth scroll and update active tab on click
-        tabLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Remove active class from all tabs
-                tabLinks.forEach(l => l.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                link.classList.add('active');
-                
-                coata-section');
-                const targetSection = document.getElementById(targetId);
-                
-                if (targetSection) {
-                    const offsetTop = targetSection.offsetTop - 180;
-                    window.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // Listen to scroll events
-        window.addEventListener('scroll', updateActiveTab);
-        
-        // Initial call to set active tab
-        updateActiveTab();
-    </script>
+    <script src="/site.js" defer></script>
 
 </body>
 </html>

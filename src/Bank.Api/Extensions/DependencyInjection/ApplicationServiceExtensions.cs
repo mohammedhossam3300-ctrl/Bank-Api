@@ -28,7 +28,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IBatchService, Bank.Application.Services.BatchService>();
         services.AddScoped<IRecurringPaymentService, Bank.Application.Services.RecurringPaymentService>();
         services.AddScoped<IPaymentTemplateService, Bank.Application.Services.PaymentTemplateService>();
-        services.AddScoped<IBeneficiaryService, Bank.Application.Services.BeneficiaryService>();
+        services.AddScoped<IBeneficiaryService, Bank.Application.Services.Payment.BeneficiaryService>();
         services.AddScoped<IAccountValidationService, Bank.Application.Services.AccountValidationService>();
         services.AddScoped<ITransferEligibilityService, Bank.Application.Services.TransferEligibilityService>();
 
@@ -48,22 +48,27 @@ public static class ApplicationServiceExtensions
         
         // Bill Payment Services
         services.AddScoped<IBillPaymentService, Bank.Application.Services.BillPaymentService>();
+        services.AddScoped<IBillPaymentProcessingService, Bank.Application.Services.BillPaymentProcessingService>();
         services.AddScoped<IBillerIntegrationService, Bank.Application.Services.BillerIntegrationService>();
         services.AddScoped<IPaymentRetryService, Bank.Application.Services.PaymentRetryService>();
         services.AddScoped<IPaymentReceiptService, Bank.Application.Services.PaymentReceiptService>();
         services.AddScoped<IBillPresentmentService, Bank.Application.Services.BillPresentmentService>();
-        
+        services.AddScoped<IBatchPaymentService, Bank.Application.Services.BatchPaymentService>();
+        services.AddScoped<Bank.Application.Interfaces.Payment.IBeneficiaryValidationService, Bank.Application.Services.Payment.BeneficiaryValidationService>();
+        services.AddScoped<Bank.Application.Interfaces.Payment.IPaymentRetryNotificationService, Bank.Application.Services.Payment.PaymentRetryNotificationService>();
+        services.AddScoped<Bank.Application.Interfaces.Payment.IPaymentReceiptGenerationService, Bank.Application.Services.Payment.PaymentReceiptGenerationService>();
+
         // Deposit Services
         services.AddScoped<IDepositService, Bank.Application.Services.DepositService>();
         services.AddScoped<Bank.Application.Services.IDepositMaturityService, Bank.Application.Services.DepositMaturityService>();
         services.AddScoped<Bank.Application.Services.IDepositWithdrawalService, Bank.Application.Services.DepositWithdrawalService>();
-        
+
         // HTTP Client for external integrations
         services.AddHttpClient<Bank.Application.Services.BillerIntegrationService>();
-        
+
         // Notification Services
         services.AddScoped<INotificationService, Bank.Application.Services.NotificationService>();
-        
+
         // Background Services (only if database is available)
         var allowOfflineMode = configuration.GetValue<bool>("DatabaseSettings:AllowOfflineMode", false);
         if (!allowOfflineMode)
@@ -72,6 +77,7 @@ public static class ApplicationServiceExtensions
             services.AddHostedService<Bank.Application.Services.BillPaymentBackgroundService>();
             services.AddHostedService<Bank.Application.Services.BillerHealthCheckBackgroundService>();
             services.AddHostedService<Bank.Application.Services.DepositBackgroundService>();
+            services.AddHostedService<Bank.Application.Services.PaymentRetryBackgroundService>();
         }
 
         // Financial Calculation Services

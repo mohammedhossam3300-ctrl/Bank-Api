@@ -13,10 +13,10 @@ public static class CqrsServiceExtensions
     public static IServiceCollection AddCqrsServices(this IServiceCollection services)
     {
         // MediatR for CQRS pattern
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Bank.Application.Commands.InitiateTransactionCommand).Assembly));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Bank.Application.Commands.Transaction.InitiateTransactionCommand).Assembly));
         
         // FluentValidation
-        services.AddValidatorsFromAssembly(typeof(Bank.Application.Validators.InitiateTransactionCommandValidator).Assembly);
+        services.AddValidatorsFromAssembly(typeof(Bank.Application.Validators.Transaction.InitiateTransactionCommandValidator).Assembly);
 
         return services;
     }

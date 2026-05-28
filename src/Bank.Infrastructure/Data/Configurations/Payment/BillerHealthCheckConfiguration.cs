@@ -36,7 +36,7 @@ public class BillerHealthCheckConfiguration : IEntityTypeConfiguration<BillerHea
             .HasMaxLength(1000);
 
         builder.Property(bhc => bhc.HealthMetricsJson)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("TEXT");
 
         // Default values
         builder.Property(bhc => bhc.IsHealthy)

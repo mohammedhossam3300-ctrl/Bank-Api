@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using AutoMapper;
 using DomainBillPresentmentStatus = Bank.Domain.Enums.BillPresentmentStatus;
-using DTOBillPresentmentStatus = Bank.Application.DTOs.Payment.Biller.BillPresentmentStatus;
 
 namespace Bank.Application.Services;
 

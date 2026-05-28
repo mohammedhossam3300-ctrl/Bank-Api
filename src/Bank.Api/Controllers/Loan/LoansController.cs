@@ -107,9 +107,9 @@ public class LoansController : ControllerBase
                 return NotFound(new { Message = "Loan not found" });
             }
 
-            // Ensure customer can only access their own loans
+            // Ensure customer can only access their own loans (admins bypass this check)
             var customerId = GetCurrentUserId();
-            if (loan.Id != loanId) // This check needs to be improved to check customer ownership
+            if (!User.IsInRole("Admin") && loan.CustomerId != customerId)
             {
                 return Forbid();
             }

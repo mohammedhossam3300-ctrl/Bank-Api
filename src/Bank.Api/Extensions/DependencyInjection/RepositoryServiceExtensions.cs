@@ -1,20 +1,6 @@
 using Bank.Domain.Interfaces;
-using Bank.Domain.Interfaces.Account;
-using Bank.Domain.Interfaces.Auth;
-using Bank.Domain.Interfaces.Card;
-using Bank.Domain.Interfaces.Loan;
-using Bank.Domain.Interfaces.Payment;
-using Bank.Domain.Interfaces.Shared;
-using Bank.Domain.Interfaces.Statement;
+using Bank.Application.Interfaces;
 using Bank.Infrastructure.Repositories;
-using Bank.Infrastructure.Repositories.Account;
-using Bank.Infrastructure.Repositories.Auth;
-using Bank.Infrastructure.Repositories.Card;
-using Bank.Infrastructure.Repositories.Deposit;
-using Bank.Infrastructure.Repositories.Loan;
-using Bank.Infrastructure.Repositories.Payment;
-using Bank.Infrastructure.Repositories.Shared;
-using Bank.Infrastructure.Repositories.Statement;
 
 namespace Bank.Api.Extensions.DependencyInjection;
 
@@ -28,10 +14,9 @@ public static class RepositoryServiceExtensions
     /// </summary>
     public static IServiceCollection AddRepositoryServices(this IServiceCollection services)
     {
-        // Unit of Work pattern
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-        // Domain repositories
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IAccountLockoutRepository, AccountLockoutRepository>();

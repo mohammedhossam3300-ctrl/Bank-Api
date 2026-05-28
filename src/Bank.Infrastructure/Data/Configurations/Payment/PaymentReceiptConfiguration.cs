@@ -58,7 +58,7 @@ public class PaymentReceiptConfiguration : IEntityTypeConfiguration<PaymentRecei
             .HasMaxLength(100);
 
         builder.Property(pr => pr.ReceiptDataJson)
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("TEXT");
 
         // Decimal configurations
         builder.Property(pr => pr.Amount)
