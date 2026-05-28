@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bank Management API — A comprehensive RESTful banking platform built with ASP.NET Core 9, Clean Architecture and CQRS.">
+    <title>Bank Management API — Home</title>
+    <link rel="icon" type="image/x-icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/community-car.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <nav>
+        <div class="intrologo">
+            <img src="/images/logo.png" alt="Bank Management API">
+        </div>
+        <div>
+            <a href="/" class="active"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/Docs.html"><i class="fa-solid fa-book"></i> Docs</a>
+            <a href="/swagger"><i class="fa-solid fa-code"></i> Swagger</a>
+        </div>
+    </nav>
+
+    <div class="doccontainer">
+        <main class="hero-section docbox">
+            <img src="/images/logo.png" alt="Logo" class="hero-logo">
+            <h1 class="hero-title">Bank Management API</h1>
+            <p class="hero-subtitle">
+                A comprehensive RESTful API for modern banking.
+                Built with ASP.NET Core 9, Clean Architecture, CQRS, and SQLite.
+            </p>
+            <div class="home-buttons">
+                <a href="/Docs.html" class="home-btn home-btn-primary">
+                    <i class="fa-solid fa-rocket"></i> Get Started
+                </a>
+                <a href="/swagger" class="home-btn home-btn-secondary">
+                    <i class="fa-solid fa-code"></i> API Reference
+                </a>
+            </div>
+        </main>
+
+        <section class="features-grid" style="margin-top: 60px;">
+            <div class="feature-card">
+                <i class="fa-solid fa-wallet feature-icon"></i>
+                <h4>Account Management</h4>
+                <p>Full lifecycle banking accounts with multi-type support, statements, and real-time balance tracking.</p>
+                <ul class="feature-list">
+                    <li>Savings, Checking & Joint Accounts</li>
+                    <li>Real-time Balance Updates</li>
+                    <li>Account Statements & History</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-exchange-alt feature-icon"></i>
+                <h4>Transaction Processing</h4>
+                <p>Secure transaction management with fraud detection and comprehensive audit trails.</p>
+                <ul class="feature-list">
+                    <li>Instant Transfers</li>
+                    <li>Deposits & Withdrawals</li>
+                    <li>Transaction Search & Filters</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-hand-holding-dollar feature-icon"></i>
+                <h4>Loan Management</h4>
+                <p>End-to-end loan lifecycle — applications, repayments, interest calculations, and analytics.</p>
+                <ul class="feature-list">
+                    <li>Loan Applications</li>
+                    <li>Repayment Schedules</li>
+                    <li>Interest Rate Calculation</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-credit-card feature-icon"></i>
+                <h4>Card Services</h4>
+                <p>Manage debit and credit cards with PIN management, blocking, and transaction history.</p>
+                <ul class="feature-list">
+                    <li>Card Issuance & Management</li>
+                    <li>PIN Change & Security</li>
+                    <li>Block / Unblock Instantly</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-file-invoice-dollar feature-icon"></i>
+                <h4>Bill Payments</h4>
+                <p>Pay bills, manage billers, recurring payments, and view bill presentments all in one place.</p>
+                <ul class="feature-list">
+                    <li>One-time & Recurring Bills</li>
+                    <li>Biller Registry</li>
+                    <li>Bill Presentment View</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-shield-halved feature-icon"></i>
+                <h4>Secure Authentication</h4>
+                <p>JWT-based auth with Two-Factor Authentication, ASP.NET Core Identity, and role-based access.</p>
+                <ul class="feature-list">
+                    <li>JWT + Refresh Tokens</li>
+                    <li>Two-Factor Auth (2FA)</li>
+                    <li>Admin & Customer Roles</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="margin-top: 60px; padding: 40px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-dark); text-align: center;">
+            <h2 style="color: var(--primary-blue); margin: 0 0 12px; font-size: 1.8rem;">
+                <i class="fa-solid fa-layer-group"></i> Built with Clean Architecture
+            </h2>
+            <p style="color: var(--text-muted); max-width: 700px; margin: 0 auto 30px; line-height: 1.7;">
+                Follows Domain-Driven Design with fully separated Domain, Application, Infrastructure and API layers.
+                Uses CQRS pattern via MediatR, AutoMapper, FluentValidation, Hangfire background jobs, and SQLite.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <span class="tech-badge"><i class="fa-brands fa-microsoft"></i> ASP.NET Core 9</span>
+                <span class="tech-badge"><i class="fa-solid fa-database"></i> SQLite</span>
+                <span class="tech-badge"><i class="fa-solid fa-arrows-split-up-and-left"></i> CQRS / MediatR</span>
+                <span class="tech-badge"><i class="fa-solid fa-check-double"></i> FluentValidation</span>
+                <span class="tech-badge"><i class="fa-solid fa-clock"></i> Hangfire Jobs</span>
+                <span class="tech-badge"><i class="fa-solid fa-map"></i> AutoMapper</span>
+                <span class="tech-badge"><i class="fa-solid fa-lock"></i> JWT Auth + 2FA</span>
+                <span class="tech-badge"><i class="fa-solid fa-file-code"></i> Swagger / OAS 3</span>
+            </div>
+        </section>
+
+        <section style="margin-top: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; text-align: center;">
+            <div style="padding: 30px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-dark);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-blue);">30+</div>
+                <div style="color: var(--text-muted); margin-top: 6px;">API Controllers</div>
+            </div>
+            <div style="padding: 30px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-dark);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-blue);">100+</div>
+                <div style="color: var(--text-muted); margin-top: 6px;">API Endpoints</div>
+            </div>
+            <div style="padding: 30px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-dark);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-blue);">4</div>
+                <div style="color: var(--text-muted); margin-top: 6px;">Architecture Layers</div>
+            </div>
+            <div style="padding: 30px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-dark);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-blue);">2FA</div>
+                <div style="color: var(--text-muted); margin-top: 6px;">Security Standard</div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <i class="fa-solid fa-code"></i>
+            Bank Management API &mdash; Built with
+            <i class="fa-solid fa-heart footer-heart"></i>
+            using ASP.NET Core 9 &amp; Clean Architecture
+        </p>
+    </footer>
+
+    <style>
+        nav a.active {
+            color: white;
+            background: rgba(30, 144, 255, 0.15);
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            background: rgba(30, 144, 255, 0.08);
+            border: 1px solid rgba(30, 144, 255, 0.3);
+            border-radius: 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: Poppins, sans-serif;
+        }
+        .tech-badge i {
+            color: var(--primary-blue);
+        }
+    </style>
+
+</body>
+</html>
