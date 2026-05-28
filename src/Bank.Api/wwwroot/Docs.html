@@ -6,58 +6,11 @@
     <meta name="description" content="Bank Management API documentation — explore endpoints for accounts, transactions, loans, cards, bills, and administration.">
     <title>Bank Management API — Docs</title>
     <link rel="icon" type="image/x-icon" href="/images/logo.png">
-    <link rel="stylesheet" href="/community-car.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        nav a.active { color: white; background: rgba(30,144,255,0.15); }
-        .method-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-right: 6px;
-            font-family: 'Fira Code', monospace;
-        }
-        .method-get    { background: rgba(97,175,54,0.2);  color: #61af36; border: 1px solid rgba(97,175,54,0.4); }
-        .method-post   { background: rgba(73,204,144,0.2); color: #49cc90; border: 1px solid rgba(73,204,144,0.4); }
-        .method-put    { background: rgba(252,161,48,0.2); color: #fca130; border: 1px solid rgba(252,161,48,0.4); }
-        .method-delete { background: rgba(249,62,62,0.2);  color: #f93e3e; border: 1px solid rgba(249,62,62,0.4); }
-        .method-patch  { background: rgba(80,160,255,0.2); color: #50a0ff; border: 1px solid rgba(80,160,255,0.4); }
-        .endpoint-card code {
-            font-family: 'Fira Code', monospace;
-            font-size: 12.5px;
-            color: #e0e0e0;
-            word-break: break-all;
-        }
-        .auth-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            background: rgba(255,193,7,0.1);
-            color: #ffc107;
-            border: 1px solid rgba(255,193,7,0.3);
-            margin-top: 4px;
-        }
-        .auth-badge.admin-badge {
-            background: rgba(220,53,69,0.1);
-            color: #dc3545;
-            border-color: rgba(220,53,69,0.3);
-        }
-        .auth-badge.public-badge {
-            background: rgba(40,167,69,0.1);
-            color: #28a745;
-            border-color: rgba(40,167,69,0.3);
-        }
-    </style>
+    <link rel="stylesheet" href="/community-car.css">
 </head>
 <body>
 
@@ -65,7 +18,10 @@
         <div class="intrologo">
             <img src="/images/logo.png" alt="Bank Management API">
         </div>
-        <div>
+        <button id="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div id="nav-links">
             <a href="/"><i class="fa-solid fa-house"></i> Home</a>
             <a href="/Docs.html" class="active"><i class="fa-solid fa-book"></i> Docs</a>
             <a href="/swagger"><i class="fa-solid fa-code"></i> Swagger</a>
@@ -74,13 +30,13 @@
 
     <div class="doccontainer">
 
-        <div style="text-align: center; margin-bottom: 40px;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 10px; color: white;">API Documentation</h1>
-            <p style="color: var(--text-muted); max-width: 800px; margin: 0 auto; font-size: 1rem; line-height: 1.7;">
+        <div class="docs-page-header">
+            <h1 class="docs-page-title">API Documentation</h1>
+            <p class="docs-page-desc">
                 Complete reference for the Bank Management API. All endpoints require a Bearer JWT token unless marked
-                <span class="auth-badge public-badge" style="vertical-align:middle;"><i class="fa-solid fa-unlock"></i> Public</span>.
+                <span class="auth-badge public-badge"><i class="fa-solid fa-unlock"></i> Public</span>.
                 Admin-only endpoints are marked
-                <span class="auth-badge admin-badge" style="vertical-align:middle;"><i class="fa-solid fa-crown"></i> Admin</span>.
+                <span class="auth-badge admin-badge"><i class="fa-solid fa-crown"></i> Admin</span>.
             </p>
         </div>
 
@@ -118,7 +74,7 @@
         <div class="docs-content-full">
 
             <!-- ===== FEATURES ===== -->
-            <section id="features" style="margin-bottom: 40px;">
+            <section id="features" class="docs-features-section">
                 <h2 class="section-title"><i class="fa-solid fa-star"></i> Core Capabilities</h2>
                 <div class="features-grid">
                     <div class="feature-card">
@@ -923,17 +879,17 @@
             </div>
 
             <!-- ===== GETTING STARTED ===== -->
-            <section style="margin-top: 60px; padding: 40px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-dark);">
-                <h2 class="section-title" style="margin-top: 0;"><i class="fa-solid fa-rocket"></i> Quick Start</h2>
-                <p style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.7;">
+            <section class="quickstart-section" data-reveal>
+                <h2 class="section-title"><i class="fa-solid fa-rocket"></i> Quick Start</h2>
+                <p class="quickstart-desc">
                     Follow these steps to start using the API. All authenticated endpoints require the
-                    <code style="background: rgba(30,144,255,0.1); padding: 2px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; color: #1e90ff;">Authorization: Bearer &lt;token&gt;</code> header.
+                    <code class="inline-code">Authorization: Bearer &lt;token&gt;</code> header.
                 </p>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
-                    <div style="padding: 24px; background: rgba(30,144,255,0.05); border-radius: 12px; border: 1px solid rgba(30,144,255,0.2);">
-                        <div style="font-size: 1.5rem; color: var(--primary-blue); font-weight: 700; margin-bottom: 8px;">① Register</div>
-                        <div class="docbox" style="margin: 12px 0;">
+                <div class="quickstart-grid">
+                    <div class="quickstart-step">
+                        <div class="step-number">① Register</div>
+                        <div class="docbox">
                             <pre><code>POST /api/auth/register
 {
   "email": "user@bank.com",
@@ -944,9 +900,9 @@
                         </div>
                     </div>
 
-                    <div style="padding: 24px; background: rgba(30,144,255,0.05); border-radius: 12px; border: 1px solid rgba(30,144,255,0.2);">
-                        <div style="font-size: 1.5rem; color: var(--primary-blue); font-weight: 700; margin-bottom: 8px;">② Login</div>
-                        <div class="docbox" style="margin: 12px 0;">
+                    <div class="quickstart-step">
+                        <div class="step-number">② Login</div>
+                        <div class="docbox">
                             <pre><code>POST /api/auth/login
 {
   "email": "user@bank.com",
@@ -956,9 +912,9 @@
                         </div>
                     </div>
 
-                    <div style="padding: 24px; background: rgba(30,144,255,0.05); border-radius: 12px; border: 1px solid rgba(30,144,255,0.2);">
-                        <div style="font-size: 1.5rem; color: var(--primary-blue); font-weight: 700; margin-bottom: 8px;">③ Call APIs</div>
-                        <div class="docbox" style="margin: 12px 0;">
+                    <div class="quickstart-step">
+                        <div class="step-number">③ Call APIs</div>
+                        <div class="docbox">
                             <pre><code>GET /api/Account
 Authorization: Bearer eyJ...
 
@@ -967,8 +923,8 @@ Authorization: Bearer eyJ...
                     </div>
                 </div>
 
-                <div style="margin-top: 24px; text-align: center;">
-                    <a href="/swagger" class="home-btn home-btn-primary">
+                <div class="quickstart-cta">
+                    <a href="/swagger" class="home-btn">
                         <i class="fa-solid fa-code"></i> Open Interactive API Reference
                     </a>
                 </div>
@@ -986,39 +942,7 @@ Authorization: Bearer eyJ...
         </p>
     </footer>
 
-    <script>
-        const tabLinks = document.querySelectorAll('.tab-link');
-        const sections = document.querySelectorAll('.resources');
-
-        function updateActiveTab() {
-            let currentSection = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 220;
-                if (window.scrollY >= sectionTop) {
-                    currentSection = section.getAttribute('id');
-                }
-            });
-            tabLinks.forEach(link => {
-                link.classList.toggle('active', link.getAttribute('data-section') === currentSection);
-            });
-        }
-
-        tabLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                tabLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                const targetId = link.getAttribute('data-section');
-                const target = document.getElementById(targetId);
-                if (target) {
-                    window.scrollTo({ top: target.offsetTop - 190, behavior: 'smooth' });
-                }
-            });
-        });
-
-        window.addEventListener('scroll', updateActiveTab);
-        updateActiveTab();
-    </script>
+    <script src="/site.js" defer></script>
 
 </body>
 </html>

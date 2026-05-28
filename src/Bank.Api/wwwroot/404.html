@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 — Page Not Found | Bank API Backend</title>
+    <meta name="description" content="Page not found — Bank Management API">
+    <title>404 — Page Not Found | Bank Management API</title>
     <link rel="icon" type="image/x-icon" href="/images/logo.png">
-    <link rel="stylesheet" href="/community-car.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/community-car.css">
 </head>
 <body>
 
     <nav>
         <div class="intrologo">
-            <img src="/images/logo.png" alt="Bank API Backend">
+            <img src="/images/logo.png" alt="Bank Management API">
         </div>
-        <div>
-            <a href="/Home.html"><i class="fa-solid fa-house"></i> Home</a>
+        <button id="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div id="nav-links">
+            <a href="/"><i class="fa-solid fa-house"></i> Home</a>
             <a href="/Docs.html"><i class="fa-solid fa-book"></i> Docs</a>
             <a href="/swagger"><i class="fa-solid fa-code"></i> Swagger</a>
-            <a href="https://www.eraasoft.com" target="_blank" rel="noopener"><i class="fa-solid fa-building"></i> EraSoft</a>
         </div>
     </nav>
 
     <div class="doccontainer">
-        <main class="error-container docbox">
+        <main class="error-container">
             <h1 class="error-code">404</h1>
-            <h2 class="error-message">Oops! Page Not Found.</h2>
+            <h2 class="error-message">Page Not Found</h2>
             <p class="error-desc">
-                The page you are looking for doesn't exist or has been moved. 
+                The page you are looking for doesn't exist or has been moved.
                 Let's get you back to banking.
             </p>
-
             <div class="home-buttons">
-                <a href="/Home.html" class="home-btn home-btn-primary">
+                <a href="/" class="home-btn">
                     <i class="fa-solid fa-house"></i> Back to Home
                 </a>
                 <a href="/Docs.html" class="home-btn home-btn-secondary">
@@ -48,12 +50,13 @@
     <footer>
         <p>
             <i class="fa-solid fa-code"></i>
-            Built with <i class="fa-solid fa-heart footer-heart"></i> by
-            <a href="https://m-said-portfolio.netlify.app" target="_blank" rel="noopener">M.Said</a>
-            for
-            <a href="https://www.eraasoft.com" target="_blank" rel="noopener">EraSoft</a>
+            Bank Management API &mdash; Built with
+            <i class="fa-solid fa-heart footer-heart"></i>
+            using ASP.NET Core 9 &amp; Clean Architecture
         </p>
     </footer>
+
+    <script src="/site.js" defer></script>
 
 </body>
 </html>
