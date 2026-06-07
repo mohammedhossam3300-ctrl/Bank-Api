@@ -13,6 +13,8 @@ spec:
       labels:
         app: database
     spec:
+      serviceAccountName: database
+      automountServiceAccountToken: false
       containers:
       - name: mssql
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -70,6 +72,13 @@ spec:
       - name: mssql-storage
         persistentVolumeClaim:
           claimName: mssql-pvc
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: database
+  namespace: bank-app
+automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: Service
