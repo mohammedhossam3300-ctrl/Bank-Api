@@ -112,14 +112,14 @@ public class TwoFactorAuthController : ControllerBase
     /// </summary>
     [HttpPost("verify")]
     [Authorize]
-    public async Task<IActionResult> VerifyToken([FromBody] VerifyTokenRequest request)
+    public async Task<IActionResult> VerifyToken([FromBody] VerifyTokenRequest request, [FromHeader(Name = "User-Agent")] string? userAgent)
     {
         var userId = GetCurrentUserId();
         if (userId == null) return Unauthorized();
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        var result = await _twoFactorService.VerifyTokenAsync(userId.Value, request.Token, ipAddress, request.UserAgent);
+        var result = await _twoFactorService.VerifyTokenAsync(userId.Value, request.Token, ipAddress, userAgent);
         
         if (!result.Success)
         {
