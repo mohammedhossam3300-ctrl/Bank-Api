@@ -672,7 +672,8 @@ public class StatementService : IStatementService
 
     private async Task<string> SaveStatementFileAsync(byte[] content, string fileName, Guid statementId)
     {
-        var directory = Path.Combine("statements", DateTime.UtcNow.ToString("yyyy"), DateTime.UtcNow.ToString("MM"));
+        var basePath = _configuration["FileStorage:BasePath"] ?? Path.Combine(AppContext.BaseDirectory, "storage");
+        var directory = Path.Combine(basePath, "statements", DateTime.UtcNow.ToString("yyyy"), DateTime.UtcNow.ToString("MM"));
         Directory.CreateDirectory(directory);
         
         var filePath = Path.Combine(directory, $"{statementId}_{fileName}");

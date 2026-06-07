@@ -25,14 +25,14 @@ public class EmailService : IEmailService
         var smtpHost = _configuration["Email:SmtpHost"] ?? "localhost";
         var smtpPort = int.Parse(_configuration["Email:SmtpPort"] ?? "587");
         var enableSsl = bool.Parse(_configuration["Email:EnableSsl"] ?? "true");
-        var username = _configuration["Email:Username"];
-        var password = _configuration["Email:Password"];
+        var username = _configuration["Email:Username"] ?? "noreply@bankapp.com";
+        var password = _configuration["Email:Password"] ?? "password";
 
         _smtpClient = new SmtpClient(smtpHost, smtpPort)
         {
             EnableSsl = enableSsl,
-            UseDefaultCredentials = false,
-            Credentials = new NetworkCredential(username, password)
+            UseDefaultCredentials = string.IsNullOrEmpty(username),
+            Credentials = !string.IsNullOrEmpty(username) ? new NetworkCredential(username, password) : null
         };
     }
 

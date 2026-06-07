@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Root level MSBuild configuration to fix NuGet fallback issues -->
+  
+  <PropertyGroup>
+    <!-- Ensure no fallback package folders are used -->
+    <FallbackPackageFolders></FallbackPackageFolders>
+    <UseSharedCompilationServer>true</UseSharedCompilationServer>
+  </PropertyGroup>
+
+  <!-- Import src-level settings if they exist -->
+  <Import Project="src\Directory.Build.props" Condition="Exists('src\Directory.Build.props')" />
+
+</Project>

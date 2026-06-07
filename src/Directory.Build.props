@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Override NuGet fallback package folders to prevent errors -->
+  <!-- This prevents the "Unable to find fallback package folder" error -->
+  
+  <!-- Clear any fallback package folders -->
+  <ItemGroup>
+    <FallbackPackageFolder Remove="@(FallbackPackageFolder)" />
+  </ItemGroup>
+
+  <!-- Set repository path explicitly -->
+  <PropertyGroup>
+    <NuGetPackageRoot>$(USERPROFILE)\.nuget\packages\</NuGetPackageRoot>
+    <RestorePackagesPath>$(NuGetPackageRoot)</RestorePackagesPath>
+    <SkipDefaultNuGetPackageRoot>true</SkipDefaultNuGetPackageRoot>
+  </PropertyGroup>
+
+  <!-- Disable offline cache that might reference missing folders -->
+  <PropertyGroup>
+    <ManagedNETPackageFramework>true</ManagedNETPackageFramework>
+  </PropertyGroup>
+
+</Project>
