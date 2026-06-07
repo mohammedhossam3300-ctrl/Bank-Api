@@ -55,9 +55,11 @@ spec:
           requests:
             memory: "256Mi"
             cpu: "250m"
+            ephemeralStorage: "1Gi"
           limits:
             memory: "512Mi"
             cpu: "500m"
+            ephemeralStorage: "2Gi"
         livenessProbe:
           httpGet:
             path: /health
