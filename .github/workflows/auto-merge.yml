@@ -15,7 +15,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@a5ac7e51b41094c153674e0e265ab8620f0f32fa  # v4
       
     - name: Check if PR is from Dependabot
       id: check-dependabot
@@ -43,7 +43,7 @@ jobs:
         
     - name: Wait for CI checks
       if: steps.pr-details.outputs.auto_merge_eligible == 'true'
-      uses: fountainhead/action-wait-for-check@v1.1.0
+      uses: fountainhead/action-wait-for-check@d0c5e5d63ffd1d4dbc5d50af8355fab86e3e7d3f  # v1.1.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         checkName: "ci-cd"
@@ -52,7 +52,7 @@ jobs:
         
     - name: Auto-approve PR
       if: steps.pr-details.outputs.auto_merge_eligible == 'true'
-      uses: juliangruber/approve-pull-request-action@v2
+      uses: juliangruber/approve-pull-request-action@c530503d6c3180512dc5214532953382cad4f944  # v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         number: ${{ github.event.pull_request.number }}

@@ -27,7 +27,7 @@ jobs:
         node-version: '20'
         
     - name: Install Artillery
-      run: npm install -g artillery@2.0.0
+      run: npm install --global artillery@2.0.0 --ignore-scripts
       
     - name: Create performance test config
       run: |

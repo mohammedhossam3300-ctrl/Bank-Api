@@ -56,6 +56,8 @@ resource "azurerm_kubernetes_cluster" "bank_aks" {
 }
 
 # Azure Container Registry
+# SECURITY: identity block enables Azure Managed Identities for secure authentication
+# Allows secure pull from AKS without exposing credentials
 resource "azurerm_container_registry" "bank_acr" {
   name                          = "${var.cluster_name}acr"
   resource_group_name           = azurerm_resource_group.bank_rg.name
@@ -63,6 +65,11 @@ resource "azurerm_container_registry" "bank_acr" {
   sku                           = "Standard"
   admin_enabled                 = false
   public_network_access_enabled = false
+
+  # Enable Managed Identity for secure access
+  identity {
+    type = "SystemAssigned"
+  }
 
   tags = {
     Environment = var.environment
@@ -78,6 +85,8 @@ resource "azurerm_role_assignment" "aks_acr_pull" {
 }
 
 # Azure SQL Database
+# SECURITY: identity block enables Azure Managed Identities for authentication
+# Allows applications to authenticate without managing credentials
 resource "azurerm_mssql_server" "bank_sql_server" {
   name                         = "${var.cluster_name}-sql-server"
   resource_group_name          = azurerm_resource_group.bank_rg.name
@@ -86,6 +95,11 @@ resource "azurerm_mssql_server" "bank_sql_server" {
   administrator_login          = var.sql_admin_username
   administrator_login_password = var.sql_admin_password
   public_network_access_enabled = false
+
+  # Enable Managed Identity for secure access
+  identity {
+    type = "SystemAssigned"
+  }
 
   tags = {
     Environment = var.environment
