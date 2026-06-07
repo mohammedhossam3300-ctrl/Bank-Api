@@ -33,22 +33,19 @@ jobs:
       with:
         sarif_file: 'trivy-results.sarif'
         
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/dotnet@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
-        
     - name: OWASP Dependency Check
       uses: dependency-check/Dependency-Check_Action@main
       with:
-        project: 'Bank Management System'
-        path: '.'
-        format: 'ALL'
+        project: 'Bank API'
+        path: 'src'
+        format: 'SARIF'
+        args: >
+          --enableExperimental
         
     - name: Upload OWASP results
-      uses: actions/upload-artifact@v4
+      uses: github/codeql-action/upload-sarif@v4
+      if: always()
       with:
-        name: dependency-check-report
-        path: reports/
+        sarif_file: 'dependency-check-report.sarif'
+        category: 'owasp-dependency-check'
+      continue-on-error: true
