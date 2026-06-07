@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 
 namespace Bank.Infrastructure.Data;
 
@@ -12,8 +13,23 @@ public class BankDbContextFactory : IDesignTimeDbContextFactory<BankDbContext>
     {
         var optionsBuilder = new DbContextOptionsBuilder<BankDbContext>();
 
-        // Use the remote SQL Server connection string for migrations
-        var connectionString = "Server=db48070.public.databaseasp.net; Database=db48070; User Id=db48070; Password=8s@A=4FaZ-k6; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;";
+        // Load configuration from appsettings.json and environment variables
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        // Get connection string from configuration
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException(
+                "The 'DefaultConnection' connection string is not configured. " +
+                "Please set it in appsettings.json or via environment variables (DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD).");
+        }
 
         optionsBuilder.UseSqlServer(connectionString, sqlServerOptions =>
         {
