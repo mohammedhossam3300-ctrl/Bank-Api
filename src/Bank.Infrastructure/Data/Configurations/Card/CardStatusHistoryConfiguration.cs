@@ -29,7 +29,7 @@ public class CardStatusHistoryConfiguration : IEntityTypeConfiguration<CardStatu
 
         builder.Property(h => h.ChangeDate)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(h => h.Notes)
             .HasMaxLength(500);

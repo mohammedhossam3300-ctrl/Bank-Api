@@ -38,7 +38,7 @@ public class CardTransactionConfiguration : IEntityTypeConfiguration<CardTransac
 
         builder.Property(t => t.TransactionDate)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(t => t.SettlementDate);
 
@@ -122,7 +122,7 @@ public class CardTransactionConfiguration : IEntityTypeConfiguration<CardTransac
 
         builder.HasIndex(t => t.AuthorizationCode)
             .HasDatabaseName("IX_CardTransactions_AuthorizationCode")
-            .HasFilter("[AuthorizationCode] IS NOT NULL");
+            .HasFilter("\"AuthorizationCode\" IS NOT NULL");
     }
 }
 

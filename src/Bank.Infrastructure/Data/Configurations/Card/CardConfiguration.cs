@@ -45,7 +45,7 @@ public class CardConfiguration : IEntityTypeConfiguration<Card>
 
         builder.Property(c => c.IssueDate)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(c => c.ActivationChannel)
             .HasConversion<int?>();

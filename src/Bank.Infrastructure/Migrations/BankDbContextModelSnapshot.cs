@@ -1450,7 +1450,7 @@ namespace Bank.Infrastructure.Migrations
                     b.Property<DateTime>("IssueDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<int?>("LastBlockReason")
                         .HasColumnType("integer");
@@ -1727,7 +1727,7 @@ namespace Bank.Infrastructure.Migrations
                     b.Property<DateTime>("ChangeDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<Guid?>("ChangedBy")
                         .HasColumnType("uuid");
@@ -1900,7 +1900,7 @@ namespace Bank.Infrastructure.Migrations
                     b.Property<DateTime>("TransactionDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("integer");
@@ -1915,7 +1915,7 @@ namespace Bank.Infrastructure.Migrations
 
                     b.HasIndex("AuthorizationCode")
                         .HasDatabaseName("IX_CardTransactions_AuthorizationCode")
-                        .HasFilter("[AuthorizationCode] IS NOT NULL");
+                        .HasFilter("\"AuthorizationCode\" IS NOT NULL");
 
                     b.HasIndex("CardId")
                         .HasDatabaseName("IX_CardTransactions_CardId");

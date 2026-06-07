@@ -39,7 +39,10 @@ builder.WebHost.ConfigureKestrel(options =>
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    builder.Configuration["ConnectionStrings:DefaultConnection"] = databaseUrl;
+    // Convert PostgreSQL URI format to Npgsql key-value connection string
+    // e.g. postgresql://user:pass@host/db?sslmode=disable -> Host=host;Database=db;Username=user;Password=pass;SSL Mode=Disable
+    var npgsqlConnStr = ConvertPostgresUrlToNpgsql(databaseUrl);
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = npgsqlConnStr;
 }
 
 // Process appsettings.json to replace placeholders with environment variables
@@ -163,7 +166,94 @@ public partial class Program
                 ["Jwt:Key"] = processedKey
             });
         }
+
+        // Process all Email config placeholders
+        var emailKeys = new[] { "Email:SmtpHost", "Email:SmtpPort", "Email:Username", "Email:Password" };
+        var emailOverrides = new Dictionary<string, string?>();
+        foreach (var key in emailKeys)
+        {
+            var val = config[key];
+            if (!string.IsNullOrEmpty(val))
+            {
+                var processed = ReplacePlaceholders(val);
+                if (processed != val)
+                    emailOverrides[key] = processed;
+            }
+        }
+        if (emailOverrides.Count > 0)
+            ((IConfigurationBuilder)config).AddInMemoryCollection(emailOverrides);
     }
+
+    /// <summary>
+    /// Convert a PostgreSQL URI (postgresql://user:pass@host/db?sslmode=disable)
+    /// to an Npgsql key-value connection string that Npgsql can parse correctly.
+    /// </summary>
+    internal static string ConvertPostgresUrlToNpgsql(string url)
+    {
+        try
+        {
+            // Handle both postgresql:// and postgres:// schemes
+            var normalized = url.Replace("postgresql://", "http://").Replace("postgres://", "http://");
+            var uri = new Uri(normalized);
+
+            var host = uri.Host;
+            // uri.Port returns 80 when scheme is http:// and no port specified; default to 5432 for PostgreSQL
+            var port = (uri.Port > 0 && uri.Port != 80) ? uri.Port : 5432;
+            var database = uri.AbsolutePath.TrimStart('/');
+            var username = Uri.UnescapeDataString(uri.UserInfo.Split(':')[0]);
+            var password = uri.UserInfo.Contains(':') ? Uri.UnescapeDataString(uri.UserInfo.Split(':', 2)[1]) : "";
+
+            var connStr = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
+
+            // Parse query string parameters (e.g. sslmode=disable)
+            var query = uri.Query.TrimStart('?');
+            if (!string.IsNullOrEmpty(query))
+            {
+                foreach (var param in query.Split('&'))
+                {
+                    var kv = param.Split('=', 2);
+                    if (kv.Length == 2)
+                    {
+                        var key = kv[0].ToLowerInvariant();
+                        var value = kv[1];
+                        // Map common URL params to Npgsql connection string keys
+                        var npgsqlKey = key switch
+                        {
+                            "sslmode" => "SSL Mode",
+                            "ssl" => "SSL Mode",
+                            "connect_timeout" => "Timeout",
+                            "application_name" => "Application Name",
+                            "search_path" => "Search Path",
+                            _ => null
+                        };
+                        if (npgsqlKey != null)
+                        {
+                            var npgsqlValue = (key == "sslmode" || key == "ssl") ? CapitalizeSslMode(value) : value;
+                            connStr += $";{npgsqlKey}={npgsqlValue}";
+                        }
+                    }
+                }
+            }
+
+            return connStr;
+        }
+        catch
+        {
+            // If parsing fails, return the original and let Npgsql try
+            return url;
+        }
+    }
+
+    private static string CapitalizeSslMode(string mode) => mode.ToLowerInvariant() switch
+    {
+        "disable" => "Disable",
+        "allow" => "Allow",
+        "prefer" => "Prefer",
+        "require" => "Require",
+        "verify-ca" => "VerifyCA",
+        "verify-full" => "VerifyFull",
+        _ => mode
+    };
 
     private static string ReplacePlaceholders(string value)
     {

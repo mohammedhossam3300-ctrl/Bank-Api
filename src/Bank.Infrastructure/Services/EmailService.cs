@@ -27,7 +27,8 @@ public class EmailService : IEmailService, IDisposable
         
         // Configure SMTP client with MANDATORY SSL/TLS encryption
         var smtpHost = _configuration["Email:SmtpHost"] ?? "localhost";
-        var smtpPort = int.Parse(_configuration["Email:SmtpPort"] ?? "587");
+        var smtpPortStr = _configuration["Email:SmtpPort"] ?? "587";
+        var smtpPort = int.TryParse(smtpPortStr, out var parsedPort) ? parsedPort : 587;
         var username = _configuration["Email:Username"] ?? "noreply@bankapp.com";
         var password = _configuration["Email:Password"] ?? "password";
 

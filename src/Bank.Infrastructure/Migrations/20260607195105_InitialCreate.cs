@@ -1094,7 +1094,7 @@ namespace Bank.Infrastructure.Migrations
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     ExpiryDate = table.Column<DateTime>(type: "date", nullable: false),
-                    IssueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    IssueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
                     ActivationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     ActivationChannel = table.Column<int>(type: "integer", nullable: true),
                     SecurityCode = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false, comment: "Encrypted security code"),
@@ -1652,7 +1652,7 @@ namespace Bank.Infrastructure.Migrations
                     NewStatus = table.Column<int>(type: "integer", nullable: false),
                     Reason = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     ChangedBy = table.Column<Guid>(type: "uuid", nullable: true),
-                    ChangeDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    ChangeDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
                     Notes = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     IpAddress = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
@@ -1698,7 +1698,7 @@ namespace Bank.Infrastructure.Migrations
                     Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     Reference = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     AuthorizationCode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    TransactionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    TransactionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
                     SettlementDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     IsInternational = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     IsOnline = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
@@ -2625,7 +2625,7 @@ namespace Bank.Infrastructure.Migrations
                 name: "IX_CardTransactions_AuthorizationCode",
                 table: "CardTransactions",
                 column: "AuthorizationCode",
-                filter: "[AuthorizationCode] IS NOT NULL");
+                filter: "\"AuthorizationCode\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CardTransactions_CardId",
