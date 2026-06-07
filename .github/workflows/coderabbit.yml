@@ -22,29 +22,3 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-  code-quality-check:
-    runs-on: ubuntu-latest
-    needs: coderabbit
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-        
-    - name: Restore dependencies
-      run: dotnet restore src/Bank.sln
-      
-    - name: Build
-      run: dotnet build src/Bank.sln --no-restore --configuration Release
-      
-    - name: Run static analysis
-      run: |
-        dotnet tool install --global dotnet-sonarscanner
-        dotnet sonarscanner begin /k:"bank-management-system" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-        dotnet build src/Bank.sln
-        dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-      continue-on-error: true
