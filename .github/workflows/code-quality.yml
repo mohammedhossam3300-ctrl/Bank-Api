@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: '0 1 * * *'  # Daily at 1 AM
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   codeql:
     name: CodeQL Analysis
@@ -22,7 +26,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: 'csharp'
         
@@ -37,6 +41,6 @@ jobs:
         dotnet build src/Bank.sln --no-restore
         
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: "/language:csharp"
