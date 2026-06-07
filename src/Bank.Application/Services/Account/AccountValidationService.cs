@@ -14,8 +14,11 @@ public class AccountValidationService : IAccountValidationService
     private readonly ILogger<AccountValidationService> _logger;
     private readonly IAuditLogService _auditLogService;
 
+    // Regex timeout to prevent ReDoS attacks
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
+
     // SWIFT code pattern: 4 letters (bank) + 2 letters (country) + 2 alphanumeric (location) + optional 3 alphanumeric (branch)
-    private static readonly Regex SwiftCodePattern = new(@"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$", RegexOptions.Compiled);
+    private static readonly Regex SwiftCodePattern = new(@"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$", RegexOptions.Compiled, RegexTimeout);
     
     // Default branch code when not specified in SWIFT code
     private const string DefaultBranchCode = "XXX";
@@ -23,20 +26,20 @@ public class AccountValidationService : IAccountValidationService
     // IBAN patterns by country (simplified - in production, use comprehensive IBAN registry)
     private static readonly Dictionary<string, (int Length, Regex Pattern)> IbanPatterns = new()
     {
-        { "AD", (24, new Regex(@"^AD\d{2}\d{4}\d{4}\d{12}$")) },
-        { "AE", (23, new Regex(@"^AE\d{2}\d{3}\d{16}$")) },
-        { "AL", (28, new Regex(@"^AL\d{2}\d{8}[A-Z0-9]{16}$")) },
-        { "AT", (20, new Regex(@"^AT\d{2}\d{5}\d{11}$")) },
-        { "BE", (16, new Regex(@"^BE\d{2}\d{3}\d{7}\d{2}$")) },
-        { "BG", (22, new Regex(@"^BG\d{2}[A-Z]{4}\d{6}[A-Z0-9]{8}$")) },
-        { "CH", (21, new Regex(@"^CH\d{2}\d{5}[A-Z0-9]{12}$")) },
-        { "DE", (22, new Regex(@"^DE\d{2}\d{8}\d{10}$")) },
-        { "ES", (24, new Regex(@"^ES\d{2}\d{4}\d{4}\d{1}\d{1}\d{10}$")) },
-        { "FR", (27, new Regex(@"^FR\d{2}\d{5}\d{5}[A-Z0-9]{11}\d{2}$")) },
-        { "GB", (22, new Regex(@"^GB\d{2}[A-Z]{4}\d{6}\d{8}$")) },
-        { "IT", (27, new Regex(@"^IT\d{2}[A-Z]{1}\d{5}\d{5}[A-Z0-9]{12}$")) },
-        { "NL", (18, new Regex(@"^NL\d{2}[A-Z]{4}\d{10}$")) },
-        { "US", (0, new Regex(@"^$")) } // US doesn't use IBAN
+        { "AD", (24, new Regex(@"^AD\d{2}\d{4}\d{4}\d{12}$", RegexOptions.None, RegexTimeout)) },
+        { "AE", (23, new Regex(@"^AE\d{2}\d{3}\d{16}$", RegexOptions.None, RegexTimeout)) },
+        { "AL", (28, new Regex(@"^AL\d{2}\d{8}[A-Z0-9]{16}$", RegexOptions.None, RegexTimeout)) },
+        { "AT", (20, new Regex(@"^AT\d{2}\d{5}\d{11}$", RegexOptions.None, RegexTimeout)) },
+        { "BE", (16, new Regex(@"^BE\d{2}\d{3}\d{7}\d{2}$", RegexOptions.None, RegexTimeout)) },
+        { "BG", (22, new Regex(@"^BG\d{2}[A-Z]{4}\d{6}[A-Z0-9]{8}$", RegexOptions.None, RegexTimeout)) },
+        { "CH", (21, new Regex(@"^CH\d{2}\d{5}[A-Z0-9]{12}$", RegexOptions.None, RegexTimeout)) },
+        { "DE", (22, new Regex(@"^DE\d{2}\d{8}\d{10}$", RegexOptions.None, RegexTimeout)) },
+        { "ES", (24, new Regex(@"^ES\d{2}\d{4}\d{4}\d{1}\d{1}\d{10}$", RegexOptions.None, RegexTimeout)) },
+        { "FR", (27, new Regex(@"^FR\d{2}\d{5}\d{5}[A-Z0-9]{11}\d{2}$", RegexOptions.None, RegexTimeout)) },
+        { "GB", (22, new Regex(@"^GB\d{2}[A-Z]{4}\d{6}\d{8}$", RegexOptions.None, RegexTimeout)) },
+        { "IT", (27, new Regex(@"^IT\d{2}[A-Z]{1}\d{5}\d{5}[A-Z0-9]{12}$", RegexOptions.None, RegexTimeout)) },
+        { "NL", (18, new Regex(@"^NL\d{2}[A-Z]{4}\d{10}$", RegexOptions.None, RegexTimeout)) },
+        { "US", (0, new Regex(@"^$", RegexOptions.None, RegexTimeout)) } // US doesn't use IBAN
     };
 
     public AccountValidationService(
