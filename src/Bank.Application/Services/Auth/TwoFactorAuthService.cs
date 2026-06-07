@@ -358,17 +358,23 @@ public class TwoFactorAuthService : ITwoFactorAuthService
             var b4 = chunk.Length > 3 ? chunk[3] : (byte)0;
             var b5 = chunk.Length > 4 ? chunk[4] : (byte)0;
             
-            output.Append(alphabet[b1 >> 3]);
-            output.Append(alphabet[((b1 & 0x07) << 2) | (b2 >> 6)]);
-            output.Append(chunk.Length > 1 ? alphabet[(b2 >> 1) & 0x1F] : '=');
-            output.Append(chunk.Length > 1 ? alphabet[((b2 & 0x01) << 4) | (b3 >> 4)] : '=');
-            output.Append(chunk.Length > 2 ? alphabet[((b3 & 0x0F) << 1) | (b4 >> 7)] : '=');
-            output.Append(chunk.Length > 3 ? alphabet[(b4 >> 2) & 0x1F] : '=');
-            output.Append(chunk.Length > 3 ? alphabet[((b4 & 0x03) << 3) | (b5 >> 5)] : '=');
-            output.Append(chunk.Length > 4 ? alphabet[b5 & 0x1F] : '=');
+            AppendBase32Characters(output, alphabet, chunk.Length, b1, b2, b3, b4, b5);
         }
         
         return output.ToString().TrimEnd('=');
+    }
+
+    private static void AppendBase32Characters(StringBuilder output, string alphabet, int chunkLength, 
+        byte b1, byte b2, byte b3, byte b4, byte b5)
+    {
+        output.Append(alphabet[b1 >> 3]);
+        output.Append(alphabet[((b1 & 0x07) << 2) | (b2 >> 6)]);
+        output.Append(chunkLength > 1 ? alphabet[(b2 >> 1) & 0x1F] : '=');
+        output.Append(chunkLength > 1 ? alphabet[((b2 & 0x01) << 4) | (b3 >> 4)] : '=');
+        output.Append(chunkLength > 2 ? alphabet[((b3 & 0x0F) << 1) | (b4 >> 7)] : '=');
+        output.Append(chunkLength > 3 ? alphabet[(b4 >> 2) & 0x1F] : '=');
+        output.Append(chunkLength > 3 ? alphabet[((b4 & 0x03) << 3) | (b5 >> 5)] : '=');
+        output.Append(chunkLength > 4 ? alphabet[b5 & 0x1F] : '=');
     }
 
     private static bool VerifyAuthenticatorToken(string secretKey, string token)
