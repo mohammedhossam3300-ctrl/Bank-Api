@@ -15,6 +15,7 @@ public class EmailService : IEmailService
     private readonly IConfiguration _configuration;
     private readonly ILogger<EmailService> _logger;
     private readonly SmtpClient _smtpClient;
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
 
     public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
     {
@@ -186,7 +187,7 @@ public class EmailService : IEmailService
         try
         {
             // Use regex for basic email validation
-            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase, RegexTimeout);
             return emailRegex.IsMatch(email);
         }
         catch

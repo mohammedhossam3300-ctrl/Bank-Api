@@ -13,6 +13,7 @@ public class SmsService : ISmsService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<SmsService> _logger;
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
 
     public SmsService(IConfiguration configuration, ILogger<SmsService> logger)
     {
@@ -77,7 +78,7 @@ public class SmsService : ISmsService
         try
         {
             // Basic phone number validation - supports international format
-            var phoneRegex = new Regex(@"^\+?[1-9]\d{1,14}$");
+            var phoneRegex = new Regex(@"^\+?[1-9]\d{1,14}$", RegexOptions.None, RegexTimeout);
             var cleanedNumber = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
             return phoneRegex.IsMatch(cleanedNumber);
         }

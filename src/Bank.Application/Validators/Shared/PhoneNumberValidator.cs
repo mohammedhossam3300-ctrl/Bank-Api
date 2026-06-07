@@ -7,6 +7,8 @@ namespace Bank.Application.Validators.Shared;
 /// </summary>
 public static class PhoneNumberValidator
 {
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
+
     /// <summary>
     /// Validates phone number format
     /// </summary>
@@ -18,7 +20,7 @@ public static class PhoneNumberValidator
             return false;
 
         // Remove common formatting characters
-        var cleaned = Regex.Replace(phoneNumber, @"[\s\-\(\)\+\.]", "");
+        var cleaned = Regex.Replace(phoneNumber, @"[\s\-\(\)\+\.]", "", RegexOptions.None, RegexTimeout);
         
         // Check if it's all digits and reasonable length
         return cleaned.All(char.IsDigit) && cleaned.Length >= 10 && cleaned.Length <= 15;

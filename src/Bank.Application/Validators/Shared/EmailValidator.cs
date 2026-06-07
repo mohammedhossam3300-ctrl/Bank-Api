@@ -7,6 +7,8 @@ namespace Bank.Application.Validators.Shared;
 /// </summary>
 public static class EmailValidator
 {
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
+
     /// <summary>
     /// Validates email format
     /// </summary>
@@ -19,7 +21,7 @@ public static class EmailValidator
 
         try
         {
-            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase, RegexTimeout);
             return emailRegex.IsMatch(email);
         }
         catch
