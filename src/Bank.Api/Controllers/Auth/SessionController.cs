@@ -175,8 +175,18 @@ public class SessionController : ControllerBase
         }
     }
 
-    private Guid GetCurrentUserId() => this.GetCurrentUserId();
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+            ?? User.FindFirst("sub")?.Value 
+            ?? User.FindFirst("id")?.Value;
 
-    private string? GetCurrentSessionToken() => this.GetCurrentSessionToken();
+        return userIdClaim != null && Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+    }
+
+    private string? GetCurrentSessionToken()
+    {
+        return User.FindFirst("session_token")?.Value ?? Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+    }
 }
 
