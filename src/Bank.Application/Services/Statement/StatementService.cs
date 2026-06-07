@@ -6,6 +6,7 @@ using Bank.Application.DTOs.Statement.Delivery;
 using Bank.Application.DTOs.Statement.Summary;
 using Bank.Application.DTOs.Statement.Transaction;
 using Bank.Application.Interfaces;
+using Bank.Application.Services.Shared;
 using Bank.Domain.Entities;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
@@ -129,7 +130,7 @@ public class StatementService : IStatementService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating statement for account {AccountId}", request.AccountId);
+            SecureLoggingService.LogErrorSecurely(_logger, ex, "statement generation");
             return new StatementGenerationResult
             {
                 Success = false,
@@ -331,7 +332,7 @@ public class StatementService : IStatementService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving statements for account {AccountId}", accountId);
+            SecureLoggingService.LogErrorSecurely(_logger, ex, "retrieving statements");
             return new List<StatementDto>();
         }
     }
@@ -397,7 +398,7 @@ public class StatementService : IStatementService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating statement summary for account {AccountId}", accountId);
+            SecureLoggingService.LogErrorSecurely(_logger, ex, "generating statement summary");
             return new StatementSummary { AccountId = accountId };
         }
     }
