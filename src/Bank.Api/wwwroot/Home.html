@@ -2,10 +2,104 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=/">
-    <title>Redirecting…</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bank Management API - A comprehensive banking system with accounts, transactions, loans, cards, and more.">
+    <title>Bank Management API</title>
+    <link rel="icon" type="image/x-icon" href="/images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" integrity="sha384-aW1uVZVn6TvDJvNI/aKwwVy+3YhEFN/eNKE3xdY/V6QMBr30U" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DQYMVA60sWY8sDRpaVaXGsPlFd4Y4mWP+RogNtUL3Bozq8Uu+Xtp7McBiLTdJsKg7pCe9Ok+PdUFXoiadQ1Vw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/community-car.css">
+    <style>
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cta-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .cta-btn-primary {
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .cta-btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to <a href="/">Home</a>…</p>
+    <nav>
+        <div class="intrologo">
+            <img src="/images/logo.png" alt="Bank Management API">
+        </div>
+        <button id="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div id="nav-links">
+            <a href="/"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/Docs.html"><i class="fa-solid fa-book"></i> Docs</a>
+            <a href="/swagger"><i class="fa-solid fa-code"></i> Swagger</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1><i class="fa-solid fa-bank"></i> Bank Management API</h1>
+            <p>A comprehensive banking system with accounts, transactions, loans, cards, and more.</p>
+            <div class="cta-buttons">
+                <a href="/Docs.html" class="cta-btn cta-btn-primary">
+                    <i class="fa-solid fa-book"></i> Read Documentation
+                </a>
+                <a href="/swagger" class="cta-btn cta-btn-secondary">
+                    <i class="fa-solid fa-code"></i> Try API
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Bank Management API. All rights reserved.</p>
+    </footer>
+
+    <script src="/site.js" defer></script>
 </body>
 </html>
