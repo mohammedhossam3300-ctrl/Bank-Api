@@ -61,64 +61,64 @@ public class BankDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<DepositCertificate> DepositCertificates => Set<DepositCertificate>();
     public DbSet<MaturityNotice> MaturityNotices => Set<MaturityNotice>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
         // Apply all entity configurations from the Configurations folder
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BankDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly(typeof(BankDbContext).Assembly);
 
         // Global soft delete query filter for entities inheriting BaseEntity
-        ApplySoftDeleteFilters(modelBuilder);
+        ApplySoftDeleteFilters(builder);
     }
 
-    private static void ApplySoftDeleteFilters(ModelBuilder modelBuilder)
+    private static void ApplySoftDeleteFilters(ModelBuilder builder)
     {
-        modelBuilder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Transaction>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<BatchJob>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<TwoFactorToken>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Session>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AccountLockout>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<IpWhitelist>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<PasswordPolicy>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<PasswordHistory>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AccountFee>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AccountHold>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AccountRestriction>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AccountStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<FeeSchedule>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<JointAccountHolder>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<RecurringPayment>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<RecurringPaymentExecution>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<PaymentTemplate>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Beneficiary>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AccountStatement>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<StatementTransaction>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Loan>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<LoanPayment>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<LoanDocument>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<LoanStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Card>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<CardTransaction>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<CardAuthorization>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<CardStatement>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<CardStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Notification>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<NotificationPreference>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Biller>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<BillPayment>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<BillPresentment>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<PaymentReceipt>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<PaymentRetry>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<BillerHealthCheck>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<DepositProduct>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<InterestTier>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<FixedDeposit>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<DepositTransaction>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<DepositCertificate>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<MaturityNotice>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Transaction>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<BatchJob>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<TwoFactorToken>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Session>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AccountLockout>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<IpWhitelist>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<PasswordPolicy>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<PasswordHistory>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AccountFee>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AccountHold>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AccountRestriction>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AccountStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<FeeSchedule>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<JointAccountHolder>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<RecurringPayment>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<RecurringPaymentExecution>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<PaymentTemplate>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Beneficiary>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AccountStatement>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<StatementTransaction>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Loan>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<LoanPayment>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<LoanDocument>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<LoanStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Card>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CardTransaction>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CardAuthorization>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CardStatement>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CardStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Notification>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<NotificationPreference>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Biller>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<BillPayment>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<BillPresentment>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<PaymentReceipt>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<PaymentRetry>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<BillerHealthCheck>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<DepositProduct>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<InterestTier>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<FixedDeposit>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<DepositTransaction>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<DepositCertificate>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<MaturityNotice>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
