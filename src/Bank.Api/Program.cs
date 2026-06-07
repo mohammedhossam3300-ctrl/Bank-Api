@@ -35,12 +35,13 @@ builder.WebHost.ConfigureKestrel(options =>
     options.ListenAnyIP(5000);
 });
 
-// Override connection string directly from DATABASE_URL environment variable (Replit PostgreSQL)
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+// Resolve database URL: prefer NEON_DATABASE_URL override, then fall back to DATABASE_URL
+var databaseUrl = Environment.GetEnvironmentVariable("NEON_DATABASE_URL")
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 if (!string.IsNullOrEmpty(databaseUrl))
 {
     // Convert PostgreSQL URI format to Npgsql key-value connection string
-    // e.g. postgresql://user:pass@host/db?sslmode=disable -> Host=host;Database=db;Username=user;Password=pass;SSL Mode=Disable
+    // e.g. postgresql://user:pass@host/db?sslmode=require -> Host=host;Database=db;Username=user;Password=pass;SSL Mode=Require
     var npgsqlConnStr = ConvertPostgresUrlToNpgsql(databaseUrl);
     builder.Configuration["ConnectionStrings:DefaultConnection"] = npgsqlConnStr;
 }
@@ -224,6 +225,7 @@ public partial class Program
                             "connect_timeout" => "Timeout",
                             "application_name" => "Application Name",
                             "search_path" => "Search Path",
+                            "channel_binding" => "Channel Binding",
                             _ => null
                         };
                         if (npgsqlKey != null)

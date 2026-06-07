@@ -4,8 +4,7 @@
 
 - .NET 9.0 SDK or later
 - Visual Studio 2022 (recommended) or VS Code
-- SQL Server 2019+ or SQL Server Express
-- SQL Server Management Studio (optional but recommended)
+- PostgreSQL 14+ (or any hosted PostgreSQL such as Neon, Supabase, or Railway)
 - Git
 
 ## Installation Steps
@@ -19,38 +18,24 @@ cd bank-management-system
 
 ### 2. Database Configuration
 
-#### Option A: Local SQL Server (Development)
-1. Install SQL Server 2019 Express or higher
-2. Create a new database named `BankDB`
-3. Update connection string in `src/Bank.Api/appsettings.Development.json`:
+Set the `DATABASE_URL` environment variable to your PostgreSQL connection string (standard URI format):
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=BankDB;Trusted_Connection=true;MultipleActiveResultSets=True;Encrypt=False;"
-  }
-}
+#### Option A: Local PostgreSQL (Development)
+```bash
+export DATABASE_URL="postgresql://postgres:password@localhost:5432/bankdb"
 ```
 
-#### Option B: SQL Server with Authentication (Development)
-If using SQL Server with specific user credentials:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=BankDB;User Id=sa;Password=YourPassword123;MultipleActiveResultSets=True;Encrypt=False;"
-  }
-}
+#### Option B: Neon (Production / Hosted)
+```bash
+export DATABASE_URL="postgresql://user:password@host.neon.tech/neondb?sslmode=require"
 ```
 
-#### Option C: Azure SQL Database (Production)
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=your-server.database.windows.net;Database=BankDB;User Id=admin-user;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;"
-  }
-}
+#### Option C: Any hosted PostgreSQL
+```bash
+export DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
 ```
+
+The app reads `DATABASE_URL` (or `NEON_DATABASE_URL` override) at startup and automatically converts it to the correct Npgsql connection string.
 
 ### 3. Build the Solution
 
@@ -76,124 +61,79 @@ cd Bank.Api
 dotnet run
 ```
 
-The API will be available at `https://localhost:7000`
+The API will be available at `http://localhost:5000`
 
 ### 6. Verify Installation
 
-1. Open `https://localhost:7000/swagger` in your browser
+1. Open `http://localhost:5000/swagger` in your browser
 2. Verify the API endpoints are accessible
-3. Check database connection by viewing the database in SQL Server Management Studio
+3. Check database tables were created (use psql or any PostgreSQL client)
 
 ## Development Environment
 
 ### Recommended Tools
 
 - **IDE**: Visual Studio 2022 Professional or Community Edition
-- **Database**: SQL Server Management Studio 19+
+- **Database**: DBeaver, pgAdmin, or TablePlus (for PostgreSQL management)
 - **API Testing**: Swagger UI (built-in), Postman, or Thunder Client
 - **Version Control**: Git and GitHub Desktop (optional)
 - **Code Editor**: Visual Studio Code with C# extensions (alternative to VS 2022)
 
 ### IDE Extensions (Visual Studio 2022)
-- SQL Server Object Explorer (for database management)
 - NuGet Package Manager
 - GitHub Copilot (optional)
+- REST Client (API testing)
+- GitLens (Git visualization)
 
-### IDE Extensions (VS Code)
+### VS Code Extensions
 - C# Dev Kit
 - REST Client
-- SQL Server mssql extension
-- GitHub Copilot (optional)
+- PostgreSQL (by Chris Kolkman)
+- GitLens
+
+## Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the `src/Bank.Api` directory:
+| Variable | Description | Required |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection URI | Yes |
+| `NEON_DATABASE_URL` | Neon PostgreSQL URI (overrides DATABASE_URL) | No |
+| `JWT_KEY` | Secret key for JWT token signing | Yes |
+| `EMAIL_SMTP_HOST` | SMTP server hostname | No |
+| `EMAIL_SMTP_PORT` | SMTP server port | No |
+| `EMAIL_USERNAME` | SMTP username | No |
+| `EMAIL_PASSWORD` | SMTP password | No |
 
-```
-ASPNETCORE_ENVIRONMENT=Development
-ConnectionStrings__DefaultConnection=Server=localhost;Database=BankDB;Trusted_Connection=true;MultipleActiveResultSets=True;Encrypt=False;
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-API_PORT=7000
-```
+### Application Settings
 
-Or set via system environment variables:
-```bash
-# Windows (PowerShell)
-$env:ConnectionStrings__DefaultConnection="Server=localhost;Database=BankDB;..."
-$env:JWT_SECRET="your-secret-key"
+Key settings in `appsettings.json`:
 
-# Linux/macOS (Bash)
-export ConnectionStrings__DefaultConnection="Server=localhost;Database=BankDB;..."
-export JWT_SECRET="your-secret-key"
-```
-
-## Testing
-
-### Run All Tests
-
-```bash
-dotnet test
-```
-
-### Run Unit Tests Only
-
-```bash
-dotnet test --filter Category=Unit
-```
-
-### Run Integration Tests
-
-```bash
-dotnet test --filter Category=Integration
-```
-
-### Run with Coverage Report
-
-```bash
-dotnet test /p:CollectCoverage=true /p:CoverageFormat=opencover
-```
-
-### Run Specific Test Project
-
-```bash
-dotnet test Bank.Tests/Bank.Tests.csproj
-```
+- `DatabaseSettings:SkipMigrations` — skip automatic migrations on startup (default: false)
+- `DatabaseSettings:SkipSeeding` — skip data seeding on startup (default: false)
+- `Jwt:Issuer` / `Jwt:Audience` — JWT issuer and audience claims
+- `Cors:AllowedOrigins` — allowed CORS origins
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Database Connection Failed**
-   - Verify SQL Server is running: `select @@version;` in SQL Server Management Studio
-   - Check connection string format in `appsettings.Development.json`
-   - Verify database exists: `SELECT name FROM sys.databases WHERE name='BankDB';`
-   - For Azure SQL: Verify firewall rules allow your IP address
-   - Connection string must include `Encrypt=True;TrustServerCertificate=False;` for Azure
+1. **Database connection fails**
+   - Verify `DATABASE_URL` is set correctly
+   - Test connection: `psql "$DATABASE_URL"`
+   - Check SSL mode — hosted databases typically require `?sslmode=require`
 
-2. **Build Errors**
-   - Run `dotnet clean` then `dotnet restore`
-   - Check .NET SDK version: `dotnet --version` (should be 9.0+)
-   - Rebuild solution in Visual Studio
+2. **Migrations fail**
+   - Ensure the database user has CREATE TABLE permissions
+   - Check the database exists and is accessible
+   - Set `DatabaseSettings:SkipMigrations=true` in appsettings to bypass
 
-3. **Port Already in Use**
-   - Change port in `src/Bank.Api/Properties/launchSettings.json`
-   - Or kill existing process: `netstat -ano | findstr :7000` (Windows)
-   - Then: `taskkill /PID <process-id> /F`
+3. **JWT authentication issues**
+   - Verify `JWT_KEY` environment variable is set and is at least 32 characters
 
-4. **Migration Errors**
-   - Ensure SQL Server is accessible
-   - Check connection string is correct
-   - Verify database user has CREATE TABLE permissions
-   - Run migrations manually: `dotnet ef database update`
+4. **CORS errors**
+   - Update `Cors:AllowedOrigins` in `appsettings.json` to include your frontend URL
 
-5. **Certificate Errors (Azure SQL)**
-   - Use `TrustServerCertificate=False;` in connection string
-   - Ensure `Encrypt=True;` is set
-   - Verify firewall rules allow your client IP
-
-### Getting Help
-
-- Check the [GitHub Issues](https://github.com/yourusername/bank-management-system/issues) page
-- Review the [Contributing Guide](CONTRIBUTING.md)
-- Check [DEPLOYMENT.md](DEPLOYMENT.md) for production setup issues
-- Contact the development team via email or Discord
+5. **Port conflicts**
+   - The API uses port 5000 by default
+   - Change via `ASPNETCORE_URLS=http://+:8080` environment variable

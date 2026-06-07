@@ -16,64 +16,59 @@ spec:
       serviceAccountName: database
       automountServiceAccountToken: false
       containers:
-      - name: mssql
-        image: mcr.microsoft.com/mssql/server:2022-cu14
+      - name: postgres
+        image: postgres:16
         ports:
-        - containerPort: 1433
+        - containerPort: 5432
         env:
-        - name: ACCEPT_EULA
-          value: "Y"
-        - name: SA_PASSWORD
+        - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
               name: bank-secrets
-              key: SA_PASSWORD
-        - name: MSSQL_PID
-          value: "Express"
+              key: DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: bank-secrets
+              key: DB_PASSWORD
+        - name: POSTGRES_DB
+          value: "bankdb"
         volumeMounts:
-        - name: mssql-storage
-          mountPath: /var/opt/mssql
+        - name: pg-storage
+          mountPath: /var/lib/postgresql/data
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "250m"
             ephemeralStorage: "5Gi"
           limits:
-            memory: "2Gi"
-            cpu: "1000m"
+            memory: "512Mi"
+            cpu: "500m"
             ephemeralStorage: "10Gi"
         livenessProbe:
           exec:
             command:
-            - /opt/mssql-tools/bin/sqlcmd
-            - -S
-            - localhost
+            - pg_isready
             - -U
-            - sa
-            - -P
-            - $(SA_PASSWORD)
-            - -Q
-            - SELECT 1
-          initialDelaySeconds: 60
+            - $(POSTGRES_USER)
+            - -d
+            - bankdb
+          initialDelaySeconds: 30
           periodSeconds: 30
         readinessProbe:
           exec:
             command:
-            - /opt/mssql-tools/bin/sqlcmd
-            - -S
-            - localhost
+            - pg_isready
             - -U
-            - sa
-            - -P
-            - $(SA_PASSWORD)
-            - -Q
-            - SELECT 1
-          initialDelaySeconds: 30
+            - $(POSTGRES_USER)
+            - -d
+            - bankdb
+          initialDelaySeconds: 10
           periodSeconds: 10
       volumes:
-      - name: mssql-storage
+      - name: pg-storage
         persistentVolumeClaim:
-          claimName: mssql-pvc
+          claimName: pg-pvc
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -91,14 +86,14 @@ spec:
   selector:
     app: database
   ports:
-  - port: 1433
-    targetPort: 1433
+  - port: 5432
+    targetPort: 5432
   type: ClusterIP
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mssql-pvc
+  name: pg-pvc
   namespace: bank-app
 spec:
   accessModes:

@@ -18,34 +18,29 @@
 - **📊 Comprehensive Banking**: Cards, Loans, Deposits, Bill Payments, Recurring Payments
 - **📋 Audit & Compliance**: Complete audit logging and regulatory compliance
 - **⚡ High Performance**: Optimized database with 50+ indexes and soft delete support
-- **🚀 Production Ready**: Deployed on Azure SQL Server with CI/CD pipelines
+- **🚀 Production Ready**: PostgreSQL-backed with CI/CD pipelines
 
 ## Database
 
-This project uses **SQL Server** as the primary database with Azure SQL Server hosting in production.
+This project uses **PostgreSQL** as the primary database (Neon serverless PostgreSQL in production).
 
-### Current Database Configuration
-- **Server**: `db48070.public.databaseasp.net`
-- **Database**: `db48070`
-- **Tables**: 17 core tables + Identity tables
-- **Features**: 
+### Database Schema
+- **Accounts Module**: Accounts, AccountFees, AccountHolds, AccountRestrictions, AccountStatusHistories, FeeSchedules, JointAccountHolders
+- **Transaction Module**: Transactions
+- **Authentication Module**: Sessions, TwoFactorTokens, AccountLockouts, PasswordPolicies, PasswordHistories, IpWhitelists
+- **Identity Tables**: AspNetRoles, AspNetUsers, AspNetUserRoles, AspNetUserClaims, AspNetUserLogins, AspNetUserTokens, AspNetRoleClaims
+- **Features**:
   - 50+ optimized indexes
   - 30+ foreign key relationships
   - Soft delete support on all business entities
   - Complete audit trail (CreatedAt, UpdatedAt)
   - Role-based access control via ASP.NET Core Identity
 
-### Database Schema (Phase 1)
-- **Accounts Module**: Accounts, AccountFees, AccountHolds, AccountRestrictions, AccountStatusHistories, FeeSchedules, JointAccountHolders
-- **Transaction Module**: Transactions
-- **Authentication Module**: Sessions, TwoFactorTokens, AccountLockouts, PasswordPolicies, PasswordHistories, IpWhitelists
-- **Identity Tables**: AspNetRoles, AspNetUsers, AspNetUserRoles, AspNetUserClaims, AspNetUserLogins, AspNetUserTokens, AspNetRoleClaims
-
 ## Quick Start
 
 ### Prerequisites
 - .NET 9.0 SDK
-- SQL Server 2019+ or Azure SQL Database
+- PostgreSQL 14+ (or a Neon / any hosted PostgreSQL)
 - Visual Studio 2022 or VS Code
 - Git
 
@@ -61,23 +56,21 @@ dotnet restore
 # Build the solution
 dotnet build
 
-# Run the API (migrations will apply automatically on startup)
+# Set the DATABASE_URL environment variable, then run the API
+# Migrations are applied automatically on startup
+export DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 dotnet run --project src/Bank.Api/Bank.Api.csproj
 ```
 
-The API will be available at `https://localhost:7000`
+The API will be available at `http://localhost:5000`
 
 ### Verify Installation
-Visit `https://localhost:7000/swagger` to explore the API using Swagger UI.
+Visit `http://localhost:5000/swagger` to explore the API using Swagger UI.
 
 ### Database Configuration
-Update connection string in `src/Bank.Api/appsettings.Development.json`:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=your-server;Database=your-database;User Id=your-user;Password=your-password;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;"
-  }
-}
+Set the `DATABASE_URL` environment variable (standard PostgreSQL URI format):
+```
+DATABASE_URL=postgresql://user:password@host:5432/dbname?sslmode=require
 ```
 
 ## Documentation

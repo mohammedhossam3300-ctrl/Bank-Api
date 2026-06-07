@@ -12,34 +12,37 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER:-sqlserver};Database=${DB_NAME:-BankDB};User Id=${DB_USER:-sa};Password=${DB_PASSWORD:-ChangeMe!Secure123};TrustServerCertificate=true;
-      - JwtSettings__SecretKey=${JWT_KEY:-your-secret-jwt-key-change-in-production}
-      - JwtSettings__Issuer=${JWT_ISSUER:-BankAPI}
-      - JwtSettings__Audience=${JWT_AUDIENCE:-BankClients}
-      - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION:-60}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/bankdb}
+      - JWT_KEY=${JWT_KEY:-your-secret-jwt-key-change-in-production}
     depends_on:
-      - sqlserver
+      postgres:
+        condition: service_healthy
     networks:
       - bank-network
     restart: unless-stopped
 
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
+  postgres:
+    image: postgres:16-alpine
+    container_name: bank-postgres
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD:-ChangeMe!Secure123}
-      - MSSQL_PID=Express
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-bankdb}
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - bank-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-bankdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  sqlserver_data:
+  postgres_data:
 
 networks:
   bank-network:

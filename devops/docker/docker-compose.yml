@@ -3,22 +3,22 @@ version: '3.8'
 services:
   # Database
   database:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: postgres:16
     container_name: bank-database
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD:-ChangeMe!Secure123}
-      - MSSQL_PID=Express
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-ChangeMe!Secure123}
+      - POSTGRES_DB=${DB_NAME:-bankdb}
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - bank_data:/var/opt/mssql
+      - bank_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
     networks:
       - bank-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD:-ChangeMe!Secure123} -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-bankdb}"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -31,13 +31,13 @@ services:
     container_name: bank-backend
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER:-database};Database=${DB_NAME:-BankDB};User Id=${DB_USER:-sa};Password=${DB_PASSWORD:-ChangeMe!Secure123};TrustServerCertificate=true;
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-ChangeMe!Secure123}@database:5432/${DB_NAME:-bankdb}
       - JwtSettings__SecretKey=${JWT_KEY:-your-secret-jwt-key-change-in-production}
       - JwtSettings__Issuer=${JWT_ISSUER:-BankAPI}
       - JwtSettings__Audience=${JWT_AUDIENCE:-BankClients}
       - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION:-60}
     ports:
-      - "5000:80"
+      - "5000:5000"
     depends_on:
       database:
         condition: service_healthy
@@ -45,7 +45,7 @@ services:
       - bank-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

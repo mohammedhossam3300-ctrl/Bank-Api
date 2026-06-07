@@ -11,12 +11,12 @@ public class IdentityUserLoginConfiguration : IEntityTypeConfiguration<IdentityU
 {
     public void Configure(EntityTypeBuilder<IdentityUserLogin<Guid>> builder)
     {
-        // Reduce key lengths to avoid SQL Server 900-byte limit warnings
+        // Reduce key lengths for index compatibility
         builder.Property(l => l.LoginProvider)
-            .HasMaxLength(128); // Reduced from default 450
+            .HasMaxLength(128);
             
         builder.Property(l => l.ProviderKey)
-            .HasMaxLength(128); // Reduced from default 450
+            .HasMaxLength(128);
     }
 }
 

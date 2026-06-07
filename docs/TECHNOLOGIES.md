@@ -9,8 +9,8 @@
 
 ### Database
 - **Entity Framework Core 9.0**: Object-relational mapping (ORM) framework
-- **SQL Server**: Primary database management system
-  - **SQL Server Provider**: `Microsoft.EntityFrameworkCore.SqlServer`
+- **PostgreSQL**: Primary database management system
+  - **PostgreSQL Provider**: `Npgsql.EntityFrameworkCore.PostgreSQL`
   - **Features**: Soft delete support, comprehensive indexing, audit trails
 - **LINQ**: Language-integrated query for data access
 - **Migrations**: EF Core Code-First migrations for database versioning
@@ -81,7 +81,7 @@
 ### Cloud Platforms
 - **Microsoft Azure**: Cloud computing platform
   - **Azure App Service**: Web application hosting
-  - **Azure SQL Database**: Managed SQL Server database
+  - **Azure Database for PostgreSQL**: Managed PostgreSQL database
   - **Azure Key Vault**: Secure secrets and certificate management
   - **Azure Application Insights**: Performance monitoring and analytics
   - **Azure Storage**: File and blob storage
@@ -131,7 +131,7 @@
 
 ### Performance Optimization
 - **Memory Cache**: In-memory caching
-- **Distributed Cache**: Redis or SQL Server caching
+- **Distributed Cache**: Redis or PostgreSQL caching
 - **Response Caching**: HTTP response caching
 
 ## Background Services

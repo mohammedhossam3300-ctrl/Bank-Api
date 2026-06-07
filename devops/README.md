@@ -158,7 +158,7 @@ Import the dashboard from `devops/monitoring/grafana-dashboard.json` to visualiz
 
 1. **Database restore:**
 ```bash
-kubectl exec -it database-pod -- /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q "RESTORE DATABASE [BankDB] FROM DISK = N'/backups/backup.bak'"
+kubectl exec -it database-pod -n bank-app -- psql -U $DB_USER -d bankdb -c "SELECT pg_restore_from_backup('/backups/backup.dump');"
 ```
 
 2. **Application rollback:**
@@ -194,7 +194,7 @@ kubectl logs <pod-name> -n bank-app
 
 2. **Database connection issues:**
 ```bash
-kubectl exec -it database-pod -n bank-app -- /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD
+kubectl exec -it database-pod -n bank-app -- psql -U $DB_USER -d bankdb
 ```
 
 3. **Ingress not working:**
@@ -217,7 +217,8 @@ kubectl get all -n bank-app
 
 ### Required Environment Variables
 
-- `SA_PASSWORD`: SQL Server SA password
+- `DB_PASSWORD`: PostgreSQL database password
+- `DB_USER`: PostgreSQL database user
 - `JWT_SECRET_KEY`: JWT signing key
 - `ASPNETCORE_ENVIRONMENT`: Application environment
 

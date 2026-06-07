@@ -6,7 +6,7 @@
 - [ ] Database migrations tested in staging environment
 - [ ] Backups created before deployment
 - [ ] Connection strings updated for target environment
-- [ ] Firewall rules configured (for Azure SQL)
+- [ ] Firewall rules / allowlist configured for PostgreSQL host
 - [ ] Database user permissions verified
 - [ ] Rollback plan documented
 
@@ -57,7 +57,7 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Bank.Api.dll"]
 ```
 
-### Docker Compose with SQL Server
+### Docker Compose with PostgreSQL
 
 #### For Local Development
 ```yaml
@@ -67,35 +67,30 @@ services:
   bank-api:
     build: .
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8080:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=bank-db;Database=BankDB;User=sa;Password=YourPassword123;MultipleActiveResultSets=True;Encrypt=False;
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=
-    volumes:
-      - ~/.aspnet/https:/https:ro
+      - DATABASE_URL=postgresql://postgres:YourPassword123@bank-db:5432/bankdb
     depends_on:
       - bank-db
     networks:
       - bank-network
 
   bank-db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: postgres:16
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourPassword123
-      - MSSQL_SA_PASSWORD=YourPassword123
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=YourPassword123
+      - POSTGRES_DB=bankdb
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - sqldata:/var/opt/mssql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - bank-network
 
 volumes:
-  sqldata:
+  pgdata:
 
 networks:
   bank-network:
@@ -116,7 +111,7 @@ services:
       - "443:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=your-sql-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;
+      - DATABASE_URL=postgresql://user:password@your-pg-host:5432/bankdb?sslmode=require
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERTIFICATE_PASSWORD}
     volumes:
@@ -142,49 +137,43 @@ services:
 - .NET 9.0 SDK
 - Azure App Service Plan
 
-### Step 1: Create Azure SQL Server and Database
+### Step 1: Create Azure Database for PostgreSQL
 
 ```bash
 # Set variables
 $resourceGroup="myResourceGroup"
-$sqlServer="mybanksqlserver"
-$sqlAdmin="sqladmin"
-$sqlPassword="YourPassword123!@"
+$pgServer="mybankpgserver"
+$pgAdmin="pgadmin"
+$pgPassword="YourPassword123!@"
 $location="eastus"
 
 # Create resource group
 az group create --name $resourceGroup --location $location
 
-# Create SQL Server
-az sql server create `
+# Create Azure Database for PostgreSQL Flexible Server
+az postgres flexible-server create `
   --resource-group $resourceGroup `
-  --name $sqlServer `
+  --name $pgServer `
   --location $location `
-  --admin-user $sqlAdmin `
-  --admin-password $sqlPassword
+  --admin-user $pgAdmin `
+  --admin-password $pgPassword `
+  --sku-name Standard_B1ms `
+  --tier Burstable `
+  --storage-size 32
 
-# Configure firewall to allow Azure services
-az sql server firewall-rule create `
+# Allow Azure services
+az postgres flexible-server firewall-rule create `
   --resource-group $resourceGroup `
-  --server $sqlServer `
-  --name "AllowAzureServices" `
+  --name $pgServer `
+  --rule-name "AllowAzureServices" `
   --start-ip-address 0.0.0.0 `
   --end-ip-address 0.0.0.0
 
-# Allow your client IP
-az sql server firewall-rule create `
-  --resource-group $resourceGroup `
-  --server $sqlServer `
-  --name "ClientIP" `
-  --start-ip-address <YOUR_IP> `
-  --end-ip-address <YOUR_IP>
-
 # Create database
-az sql db create `
+az postgres flexible-server db create `
   --resource-group $resourceGroup `
-  --server $sqlServer `
-  --name BankDB `
-  --service-objective Basic
+  --server-name $pgServer `
+  --database-name bankdb
 ```
 
 ### Step 2: Create App Service Plan and Web App
@@ -208,12 +197,11 @@ az webapp create `
 ### Step 3: Configure Connection String
 
 ```bash
-# Set connection string
-az webapp config connection-string set `
+# Set DATABASE_URL environment variable
+az webapp config appsettings set `
   --resource-group $resourceGroup `
   --name myBankApp `
-  --settings DefaultConnection="Server=tcp:$sqlServer.database.windows.net,1433;Initial Catalog=BankDB;Persist Security Info=False;User ID=$sqlAdmin;Password=$sqlPassword;MultipleActiveResultSets=False;Encrypt=True;Connection Timeout=30;TrustServerCertificate=False;" `
-  --connection-string-type SQLAzure
+  --settings "DATABASE_URL=postgresql://$pgAdmin:$pgPassword@$pgServer.postgres.database.azure.com:5432/bankdb?sslmode=require"
 ```
 
 ### Step 4: Deploy Application
@@ -271,9 +259,6 @@ az webapp log tail --resource-group $resourceGroup --name myBankApp
       "Microsoft.AspNetCore": "Warning"
     }
   },
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=BankDB;Trusted_Connection=true;MultipleActiveResultSets=True;Encrypt=False;"
-  },
   "JwtSettings": {
     "SecretKey": "dev-secret-key-change-in-production",
     "Issuer": "BankAPI",
@@ -284,6 +269,11 @@ az webapp log tail --resource-group $resourceGroup --name myBankApp
 }
 ```
 
+Set `DATABASE_URL` as an environment variable (not in appsettings) to avoid committing credentials:
+```bash
+export DATABASE_URL="postgresql://postgres:password@localhost:5432/bankdb"
+```
+
 ### Production Settings (appsettings.Production.json)
 ```json
 {
@@ -292,9 +282,6 @@ az webapp log tail --resource-group $resourceGroup --name myBankApp
       "Default": "Warning",
       "Microsoft.AspNetCore": "Warning"
     }
-  },
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=your-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;Connection Timeout=30;"
   },
   "JwtSettings": {
     "SecretKey": "#{JwtSecretKey}#",
@@ -309,8 +296,8 @@ az webapp log tail --resource-group $resourceGroup --name myBankApp
 ### Environment Variables (PowerShell)
 
 ```powershell
-# Database
-$env:ConnectionStrings__DefaultConnection="Server=your-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;"
+# Database (PostgreSQL URI)
+$env:DATABASE_URL="postgresql://user:password@your-pg-host:5432/bankdb?sslmode=require"
 
 # JWT
 $env:JwtSettings__SecretKey="your-super-secret-key"
@@ -325,8 +312,8 @@ $env:ASPNETCORE_URLS="https://0.0.0.0:443"
 ### Environment Variables (Bash/Linux)
 
 ```bash
-# Database
-export ConnectionStrings__DefaultConnection="Server=your-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;"
+# Database (PostgreSQL URI)
+export DATABASE_URL="postgresql://user:password@your-pg-host:5432/bankdb?sslmode=require"
 
 # JWT
 export JwtSettings__SecretKey="your-super-secret-key"
@@ -391,7 +378,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 ### Health Checks
 ```csharp
 builder.Services.AddHealthChecks()
-    .AddSqlServer(connectionString)
+    .AddNpgsql(connectionString)
     .AddCheck("self", () => HealthCheckResult.Healthy());
 
 app.MapHealthChecks("/health");

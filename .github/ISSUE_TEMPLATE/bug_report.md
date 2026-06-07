@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
  - .NET Version: [e.g. 9.0]
- - Database: [e.g. SQL Server 2022]
+ - Database: [e.g. PostgreSQL 16, Neon]
 
 **Additional context**
 Add any other context about the problem here.

@@ -63,7 +63,7 @@ public class SecurityFoundationVerificationTest
         Assert.Equal(PasswordComplexityLevel.Strong, strongPolicy.ComplexityLevel);
         Assert.Equal(PasswordComplexityLevel.Enterprise, enterprisePolicy.ComplexityLevel);
 
-        // Verify TimeSpan values are within SQL Server time limits (< 24 hours)
+        // Verify TimeSpan values are reasonable (< 24 hours)
         Assert.True(basicPolicy.MaxPasswordAge < TimeSpan.FromDays(1));
         Assert.True(standardPolicy.MaxPasswordAge < TimeSpan.FromDays(1));
         Assert.True(strongPolicy.MaxPasswordAge < TimeSpan.FromDays(1));

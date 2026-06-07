@@ -11,7 +11,7 @@ namespace Bank.Api.Extensions.Data;
 public static class DataSeedingExtensions
 {
     /// <summary>
-    /// Apply pending database migrations using SQL Server
+    /// Apply pending database migrations using PostgreSQL
     /// </summary>
     public static async Task ApplyDatabaseMigrationsAsync(this WebApplication app)
     {

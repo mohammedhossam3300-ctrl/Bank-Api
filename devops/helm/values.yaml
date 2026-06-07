@@ -75,14 +75,15 @@ affinity: {}
 # Database configuration
 database:
   enabled: true
-  image: mcr.microsoft.com/mssql/server:2022-latest
+  image: postgres:16
   storage: 10Gi
   # Secret credentials are managed via Kubernetes secrets
-  # Create the secret with: kubectl create secret generic db-credentials --from-literal=SA_PASSWORD=<your-secure-password>
+  # Create the secret with: kubectl create secret generic db-credentials --from-literal=DB_PASSWORD=<your-secure-password> --from-literal=DB_USER=postgres
   secrets:
     name: db-credentials
     keys:
-      password: SA_PASSWORD
+      password: DB_PASSWORD
+      user: DB_USER
 
 # Application configuration
 config:
