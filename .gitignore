@@ -48,3 +48,8 @@ Logs/
 *.db
 *.db-shm
 *.db-wal
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
