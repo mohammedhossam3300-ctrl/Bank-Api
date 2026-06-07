@@ -51,4 +51,6 @@ jobs:
           dotnet build src/Bank.sln --no-restore --configuration Release
           dotnet test src/Bank.sln --no-build --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverageFormat=opencover
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          echo "✅ SonarCloud analysis completed"
+          echo "📊 View results at: https://sonarcloud.io/dashboard?id=Bank-Api"
         fi
