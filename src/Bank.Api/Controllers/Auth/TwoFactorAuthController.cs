@@ -118,9 +118,8 @@ public class TwoFactorAuthController : ControllerBase
         if (userId == null) return Unauthorized();
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-        var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
 
-        var result = await _twoFactorService.VerifyTokenAsync(userId.Value, request.Token, ipAddress, userAgent);
+        var result = await _twoFactorService.VerifyTokenAsync(userId.Value, request.Token, ipAddress, request.UserAgent);
         
         if (!result.Success)
         {
