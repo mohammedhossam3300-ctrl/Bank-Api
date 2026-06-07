@@ -1,3 +1,4 @@
+using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 
 namespace Bank.Application.Interfaces;
