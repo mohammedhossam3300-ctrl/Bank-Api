@@ -77,10 +77,12 @@ database:
   enabled: true
   image: mcr.microsoft.com/mssql/server:2022-latest
   storage: 10Gi
-  # Password is managed via Kubernetes secret 'db-credentials'
-  # Use: kubectl create secret generic db-credentials --from-literal=password=<your-secure-password>
-  passwordSecretName: db-credentials
-  passwordSecretKey: password
+  # Secret credentials are managed via Kubernetes secrets
+  # Create the secret with: kubectl create secret generic db-credentials --from-literal=SA_PASSWORD=<your-secure-password>
+  secrets:
+    name: db-credentials
+    keys:
+      password: SA_PASSWORD
 
 # Application configuration
 config:
