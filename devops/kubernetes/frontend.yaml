@@ -17,16 +17,18 @@ spec:
       automountServiceAccountToken: false
       containers:
       - name: frontend
-        image: ghcr.io/yourusername/bank-management-system/frontend:latest
+        image: ghcr.io/yourusername/bank-management-system/frontend:1.0.0
         ports:
         - containerPort: 80
         resources:
           requests:
             memory: "128Mi"
             cpu: "100m"
+            ephemeralStorage: "500Mi"
           limits:
             memory: "256Mi"
             cpu: "200m"
+            ephemeralStorage: "1Gi"
         livenessProbe:
           httpGet:
             path: /health

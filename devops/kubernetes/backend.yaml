@@ -17,7 +17,7 @@ spec:
       automountServiceAccountToken: false
       containers:
       - name: backend
-        image: ghcr.io/yourusername/bank-management-system/backend:latest
+        image: ghcr.io/yourusername/bank-management-system/backend:1.0.0
         ports:
         - containerPort: 80
         env:
