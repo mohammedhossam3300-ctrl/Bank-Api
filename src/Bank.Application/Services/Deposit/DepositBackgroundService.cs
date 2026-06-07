@@ -22,16 +22,16 @@ public class DepositBackgroundService : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Deposit Background Service started");
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 await ProcessDepositTasksAsync();
-                await Task.Delay(_processingInterval, cancellationToken);
+                await Task.Delay(_processingInterval, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -41,7 +41,7 @@ public class DepositBackgroundService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in Deposit Background Service");
-                await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken); // Wait 5 minutes before retrying
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Wait 5 minutes before retrying
             }
         }
     }
@@ -131,9 +131,9 @@ public class DepositBackgroundService : BackgroundService
         }
     }
 
-    public override async Task StopAsync(CancellationToken cancellationToken)
+    public override async Task StopAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Deposit Background Service is stopping");
-        await base.StopAsync(cancellationToken);
+        await base.StopAsync(stoppingToken);
     }
 }
