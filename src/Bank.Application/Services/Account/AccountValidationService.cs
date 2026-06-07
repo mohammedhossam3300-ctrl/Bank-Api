@@ -409,69 +409,16 @@ public class AccountValidationService : IAccountValidationService
                 ValidationReference = Guid.NewGuid().ToString("N")[..8].ToUpper()
             };
 
-            var validationTasks = new List<Task>();
             var errors = new List<string>();
             var warnings = new List<string>();
 
-            // Perform parallel validations
-            if (!string.IsNullOrEmpty(request.SwiftCode))
-            {
-                result.SwiftValidation = await ValidateSwiftCodeAsync(request.SwiftCode);
-                if (!result.SwiftValidation.IsValid)
-                    errors.AddRange(result.SwiftValidation.ValidationErrors.Select(e => $"SWIFT: {e}"));
-            }
+            // Perform all validations
+            await PerformBankingCodeValidations(request, result, errors);
+            await PerformAccountValidation(request, result, errors);
+            PerformNameValidation(request, result, warnings);
+            await PerformSanctionsValidation(request, result, errors);
 
-            if (!string.IsNullOrEmpty(request.IbanNumber))
-            {
-                result.IbanValidation = await ValidateIbanAsync(request.IbanNumber);
-                if (!result.IbanValidation.IsValid)
-                    errors.AddRange(result.IbanValidation.ValidationErrors.Select(e => $"IBAN: {e}"));
-            }
-
-            if (!string.IsNullOrEmpty(request.RoutingNumber))
-            {
-                result.RoutingValidation = await ValidateRoutingNumberAsync(request.RoutingNumber, request.CountryCode);
-                if (!result.RoutingValidation.IsValid)
-                    errors.AddRange(result.RoutingValidation.ValidationErrors.Select(e => $"Routing: {e}"));
-            }
-
-            // Account validation
-            var accountRequest = new ExternalAccountValidationRequest
-            {
-                AccountNumber = request.AccountNumber,
-                BankCode = request.BankCode,
-                SwiftCode = request.SwiftCode,
-                IbanNumber = request.IbanNumber,
-                RoutingNumber = request.RoutingNumber,
-                CountryCode = request.CountryCode,
-                BeneficiaryType = request.BeneficiaryType
-            };
-
-            result.AccountValidation = await ValidateExternalAccountAsync(accountRequest);
-            result.AccountExists = result.AccountValidation.IsValid;
-
-            if (!result.AccountExists)
-                errors.AddRange(result.AccountValidation.ValidationErrors.Select(e => $"Account: {e}"));
-
-            // Name matching (if requested and account exists)
-            if (request.PerformNameMatching && result.AccountExists)
-            {
-                result.NameMatches = PerformNameMatching(request.BeneficiaryName, result.AccountValidation.AccountHolderName);
-                result.MatchedAccountHolderName = result.AccountValidation.AccountHolderName;
-                
-                if (!result.NameMatches)
-                    warnings.Add("Beneficiary name does not match account holder name");
-            }
-
-            // Sanctions check (if requested)
-            if (request.CheckSanctionsList)
-            {
-                result.PassesSanctionsCheck = await PerformSanctionsCheck(request.BeneficiaryName, request.SwiftCode);
-                if (!result.PassesSanctionsCheck)
-                    errors.Add("Beneficiary appears on sanctions list");
-            }
-
-            // Set bank name from any successful validation
+            // Set bank name from successful validation
             result.BankName = result.SwiftValidation?.BankName ?? 
                              result.RoutingValidation?.BankName ?? 
                              result.AccountValidation?.BankName;
@@ -497,6 +444,75 @@ public class AccountValidationService : IAccountValidationService
                 ValidationErrors = new List<string> { "Comprehensive validation service temporarily unavailable" }
             };
         }
+    }
+
+    private async Task PerformBankingCodeValidations(BeneficiaryAccountValidationRequest request, ComprehensiveValidationResult result, List<string> errors)
+    {
+        // Validate SWIFT code
+        if (!string.IsNullOrEmpty(request.SwiftCode))
+        {
+            result.SwiftValidation = await ValidateSwiftCodeAsync(request.SwiftCode);
+            if (!result.SwiftValidation.IsValid)
+                errors.AddRange(result.SwiftValidation.ValidationErrors.Select(e => $"SWIFT: {e}"));
+        }
+
+        // Validate IBAN
+        if (!string.IsNullOrEmpty(request.IbanNumber))
+        {
+            result.IbanValidation = await ValidateIbanAsync(request.IbanNumber);
+            if (!result.IbanValidation.IsValid)
+                errors.AddRange(result.IbanValidation.ValidationErrors.Select(e => $"IBAN: {e}"));
+        }
+
+        // Validate Routing number
+        if (!string.IsNullOrEmpty(request.RoutingNumber))
+        {
+            result.RoutingValidation = await ValidateRoutingNumberAsync(request.RoutingNumber, request.CountryCode);
+            if (!result.RoutingValidation.IsValid)
+                errors.AddRange(result.RoutingValidation.ValidationErrors.Select(e => $"Routing: {e}"));
+        }
+    }
+
+    private async Task PerformAccountValidation(BeneficiaryAccountValidationRequest request, ComprehensiveValidationResult result, List<string> errors)
+    {
+        var accountRequest = new ExternalAccountValidationRequest
+        {
+            AccountNumber = request.AccountNumber,
+            BankCode = request.BankCode,
+            SwiftCode = request.SwiftCode,
+            IbanNumber = request.IbanNumber,
+            RoutingNumber = request.RoutingNumber,
+            CountryCode = request.CountryCode,
+            BeneficiaryType = request.BeneficiaryType
+        };
+
+        result.AccountValidation = await ValidateExternalAccountAsync(accountRequest);
+        result.AccountExists = result.AccountValidation.IsValid;
+
+        if (!result.AccountExists)
+            errors.AddRange(result.AccountValidation.ValidationErrors.Select(e => $"Account: {e}"));
+    }
+
+    private void PerformNameValidation(BeneficiaryAccountValidationRequest request, ComprehensiveValidationResult result, List<string> warnings)
+    {
+        if (!request.PerformNameMatching || !result.AccountExists)
+            return;
+
+        result.NameMatches = PerformNameMatching(request.BeneficiaryName, result.AccountValidation.AccountHolderName);
+        result.MatchedAccountHolderName = result.AccountValidation.AccountHolderName;
+        
+        if (!result.NameMatches)
+            warnings.Add("Beneficiary name does not match account holder name");
+    }
+
+    private async Task PerformSanctionsValidation(BeneficiaryAccountValidationRequest request, ComprehensiveValidationResult result, List<string> errors)
+    {
+        if (!request.CheckSanctionsList)
+            return;
+
+        result.PassesSanctionsCheck = await PerformSanctionsCheck(request.BeneficiaryName, request.SwiftCode);
+        if (!result.PassesSanctionsCheck)
+            errors.Add("Beneficiary appears on sanctions list");
     }
 
     #region Private Helper Methods
