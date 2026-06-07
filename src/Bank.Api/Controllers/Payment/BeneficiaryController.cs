@@ -1,3 +1,4 @@
+using Bank.Api.Constants;
 using Bank.Api.Helpers;
 using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
@@ -96,14 +97,14 @@ public class BeneficiaryController : ControllerBase
             
             if (beneficiary == null)
             {
-                return NotFound("Beneficiary not found");
+                return NotFound(ErrorMessages.AccountNotFound);
             }
 
             // Verify user has access to this beneficiary
             var currentUserId = GetCurrentUserId();
             if (beneficiary.CustomerId != currentUserId && !User.IsInRole("Admin"))
             {
-                return Forbid("You don't have access to this beneficiary");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             return Ok(beneficiary);

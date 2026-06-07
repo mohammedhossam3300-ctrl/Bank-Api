@@ -67,7 +67,6 @@ public class LoanAnalyticsService : ILoanAnalyticsService
             if (loan == null)
                 throw new ArgumentException($"Loan {loanId} not found");
 
-            var customer = await _userRepository.GetByIdAsync(loan.CustomerId);
             var onTimePayments = loan.Payments.Count(p => p.Status == LoanPaymentStatus.Paid && p.PaymentDate <= p.DueDate);
             var latePayments = loan.Payments.Count(p => p.Status == LoanPaymentStatus.Paid && p.PaymentDate > p.DueDate);
             var totalPayments = onTimePayments + latePayments;
@@ -287,19 +286,19 @@ public class LoanAnalyticsService : ILoanAnalyticsService
             take: int.MaxValue);
     }
 
-    private decimal CalculateDelinquencyRate(List<Loan> loans)
+    private static decimal CalculateDelinquencyRate(List<Loan> loans)
     {
         var delinquentCount = loans.Count(l => l.Status == LoanStatus.Delinquent);
         return RiskCalculationHelper.CalculateDelinquencyRate(delinquentCount, loans.Count);
     }
 
-    private decimal CalculateDefaultRate(List<Loan> loans)
+    private static decimal CalculateDefaultRate(List<Loan> loans)
     {
         var defaultCount = loans.Count(l => l.Status == LoanStatus.DefaultStatus);
         return RiskCalculationHelper.CalculateDefaultRate(defaultCount, loans.Count);
     }
 
-    private LoanRiskLevel CalculateRiskLevel(Loan loan, int onTimePayments, int totalPayments)
+    private static LoanRiskLevel CalculateRiskLevel(Loan loan, int onTimePayments, int totalPayments)
     {
         var paymentRatio = totalPayments > 0 ? (decimal)onTimePayments / totalPayments : 1;
         var daysOverdue = loan.DaysOverdue;

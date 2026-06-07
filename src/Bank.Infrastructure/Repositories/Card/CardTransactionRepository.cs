@@ -131,9 +131,9 @@ public class CardTransactionRepository : ICardTransactionRepository
             // Filter by network based on card number prefix (simplified)
             query = network.Value switch
             {
-                CardNetwork.Visa => query.Where(t => t.Card!.CardNumber.StartsWith("4")),
-                CardNetwork.Mastercard => query.Where(t => t.Card!.CardNumber.StartsWith("5")),
-                CardNetwork.AmericanExpress => query.Where(t => t.Card!.CardNumber.StartsWith("3")),
+                CardNetwork.Visa => query.Where(t => t.Card!.CardNumber.StartsWith('4')),
+                CardNetwork.Mastercard => query.Where(t => t.Card!.CardNumber.StartsWith('5')),
+                CardNetwork.AmericanExpress => query.Where(t => t.Card!.CardNumber.StartsWith('3')),
                 _ => query
             };
         }

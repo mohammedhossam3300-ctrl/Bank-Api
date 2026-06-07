@@ -1,3 +1,4 @@
+using Bank.Api.Constants;
 using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
 using Bank.Domain.Enums;
@@ -43,13 +44,13 @@ public class InterestCalculationController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, userId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var account = await _accountService.GetAccountByIdAsync(request.AccountId);
             if (account == null)
             {
-                return NotFound("Account not found");
+                return NotFound(ErrorMessages.AccountNotFound);
             }
 
             var interestAmount = await _interestCalculationService.CalculateSimpleInterestAsync(
@@ -94,13 +95,13 @@ public class InterestCalculationController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, userId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var account = await _accountService.GetAccountByIdAsync(request.AccountId);
             if (account == null)
             {
-                return NotFound("Account not found");
+                return NotFound(ErrorMessages.AccountNotFound);
             }
 
             var compoundingFrequency = request.CompoundingFrequency ?? (int)account.CompoundingFrequency;
@@ -146,13 +147,13 @@ public class InterestCalculationController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, userId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var account = await _accountService.GetAccountByIdAsync(request.AccountId);
             if (account == null)
             {
-                return NotFound("Account not found");
+                return NotFound(ErrorMessages.AccountNotFound);
             }
 
             var interestAmount = await _interestCalculationService.CalculateDailyInterestAsync(
@@ -197,7 +198,7 @@ public class InterestCalculationController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, userId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var success = await _interestCalculationService.ApplyInterestAsync(request.AccountId, request.UserId);

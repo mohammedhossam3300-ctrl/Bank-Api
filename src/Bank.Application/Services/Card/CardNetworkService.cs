@@ -990,7 +990,7 @@ public class CardNetworkService : ICardNetworkService
         };
     }
 
-    private CardNetwork GetCardNetwork(string cardNumber)
+    private static CardNetwork GetCardNetwork(string cardNumber)
     {
         if (string.IsNullOrEmpty(cardNumber) || cardNumber.Length < 4)
             return CardNetwork.Visa; // Default
@@ -1006,7 +1006,7 @@ public class CardNetworkService : ICardNetworkService
         };
     }
 
-    private decimal GetInterchangeRate(CardNetwork network, MerchantCategory category, bool isInternational)
+    private static decimal GetInterchangeRate(CardNetwork network, MerchantCategory category, bool isInternational)
     {
         decimal baseRate = network switch
         {
@@ -1029,7 +1029,7 @@ public class CardNetworkService : ICardNetworkService
         return baseRate;
     }
 
-    private string GenerateAuthorizationCode()
+    private static string GenerateAuthorizationCode()
     {
         using var rng = RandomNumberGenerator.Create();
         var bytes = new byte[4];
@@ -1038,21 +1038,21 @@ public class CardNetworkService : ICardNetworkService
         return value.ToString();
     }
 
-    private string GenerateNewCardNumber()
+    private static string GenerateNewCardNumber()
     {
         // Generate a new 16-digit card number (simplified)
         using var rng = RandomNumberGenerator.Create();
-        var cardNumber = "4"; // Visa prefix
+        var cardNumberBuilder = new System.Text.StringBuilder("4"); // Visa prefix
         for (int i = 1; i < 16; i++)
         {
             var bytes = new byte[1];
             rng.GetBytes(bytes);
-            cardNumber += (bytes[0] % 10).ToString();
+            cardNumberBuilder.Append((bytes[0] % 10).ToString());
         }
-        return cardNumber;
+        return cardNumberBuilder.ToString();
     }
 
-    private string GenerateCVV()
+    private static string GenerateCVV()
     {
         using var rng = RandomNumberGenerator.Create();
         var bytes = new byte[2];

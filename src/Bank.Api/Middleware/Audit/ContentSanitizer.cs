@@ -37,12 +37,12 @@ public class ContentSanitizer
         @"""accountNumber""\s*:\s*""[^""]*"""
     };
 
-    public bool IsSecuritySensitiveHeader(string headerName)
+    public static bool IsSecuritySensitiveHeader(string headerName)
     {
         return SensitiveHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase);
     }
 
-    public bool IsLoggableContentType(string? contentType)
+    public static bool IsLoggableContentType(string? contentType)
     {
         if (string.IsNullOrEmpty(contentType))
             return false;
@@ -51,7 +51,7 @@ public class ContentSanitizer
             contentType.StartsWith(type, StringComparison.OrdinalIgnoreCase));
     }
 
-    public string SanitizeSensitiveData(string content)
+    public static string SanitizeSensitiveData(string content)
     {
         if (string.IsNullOrEmpty(content))
             return content;

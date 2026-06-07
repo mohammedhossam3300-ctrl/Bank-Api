@@ -1,3 +1,4 @@
+using Bank.Api.Constants;
 using Bank.Api.Helpers;
 using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
@@ -47,7 +48,7 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, currentUserId);
             if (!hasAccess)
             {
-                return this.CreateForbiddenResponse("You don't have access to this account");
+                return this.CreateForbiddenResponse(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var success = await _jointAccountService.AddJointHolderAsync(
@@ -81,7 +82,7 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, currentUserId);
             if (!hasAccess)
             {
-                return this.CreateForbiddenResponse("You don't have access to this account");
+                return this.CreateForbiddenResponse(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var success = await _jointAccountService.RemoveJointHolderAsync(
@@ -115,7 +116,7 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, currentUserId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var success = await _jointAccountService.UpdateJointHolderRoleAsync(
@@ -149,7 +150,7 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(accountId, currentUserId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var jointHolders = await _jointAccountService.GetJointHoldersAsync(accountId);
@@ -279,7 +280,7 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, currentUserId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var success = await _jointAccountService.ConvertToJointAccountAsync(request.AccountId, currentUserId);
@@ -326,7 +327,7 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(request.AccountId, currentUserId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var success = await _jointAccountService.ConvertToSingleAccountAsync(
@@ -360,13 +361,13 @@ public class JointAccountController : ControllerBase
             var hasAccess = await _accountService.CanUserAccessAccountAsync(accountId, currentUserId);
             if (!hasAccess)
             {
-                return Forbid("You don't have access to this account");
+                return Forbid(ErrorMessages.YouDontHaveAccessToThisAccount);
             }
 
             var account = await _accountService.GetAccountByIdAsync(accountId);
             if (account == null)
             {
-                return NotFound("Account not found");
+                return NotFound(ErrorMessages.AccountNotFound);
             }
 
             var jointHolders = await _jointAccountService.GetJointHoldersAsync(accountId);

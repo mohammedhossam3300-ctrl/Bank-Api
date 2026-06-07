@@ -946,19 +946,19 @@ public class CardService : ICardService
     }
 
     // Private helper methods
-    private string GenerateActivationCode()
+    private static string GenerateActivationCode()
     {
         // Generate 6-digit activation code using centralized helper
         return TokenGenerationHelper.GenerateNumericToken(6);
     }
 
-    private string GenerateRandomPin()
+    private static string GenerateRandomPin()
     {
         // Generate 4-digit PIN using centralized helper
         return TokenGenerationHelper.GenerateRandomPin(4);
     }
 
-    private string HashSecurityCode(string securityCode)
+    private static string HashSecurityCode(string securityCode)
     {
         // In real implementation, use proper encryption/hashing
         using var sha256 = SHA256.Create();
@@ -966,7 +966,7 @@ public class CardService : ICardService
         return Convert.ToBase64String(hashedBytes);
     }
 
-    private string HashPin(string pin)
+    private static string HashPin(string pin)
     {
         // In real implementation, use proper encryption/hashing with salt
         using var sha256 = SHA256.Create();
@@ -974,13 +974,13 @@ public class CardService : ICardService
         return Convert.ToBase64String(hashedBytes);
     }
 
-    private bool VerifyPin(string pin, string hashedPin)
+    private static bool VerifyPin(string pin, string hashedPin)
     {
         var hashedInput = HashPin(pin);
         return hashedInput == hashedPin;
     }
 
-    private decimal GetDefaultDailyLimit(CardType cardType)
+    private static decimal GetDefaultDailyLimit(CardType cardType)
     {
         return cardType switch
         {
@@ -993,7 +993,7 @@ public class CardService : ICardService
         };
     }
 
-    private decimal GetDefaultMonthlyLimit(CardType cardType)
+    private static decimal GetDefaultMonthlyLimit(CardType cardType)
     {
         return cardType switch
         {
@@ -1006,7 +1006,7 @@ public class CardService : ICardService
         };
     }
 
-    private decimal GetDefaultAtmDailyLimit(CardType cardType)
+    private static decimal GetDefaultAtmDailyLimit(CardType cardType)
     {
         return cardType switch
         {

@@ -33,13 +33,6 @@ public class AuditLogger
         string requestId)
     {
         var action = $"{method} {path}";
-        var additionalData = JsonSerializer.Serialize(new
-        {
-            Request = requestDetails,
-            Response = responseDetails,
-            DurationMs = durationMs,
-            StatusCode = statusCode
-        });
 
         _logger.LogInformation(
             "Audit: {Action} | User: {UserId} | IP: {IpAddress} | Status: {StatusCode} | Duration: {DurationMs}ms | RequestId: {RequestId}",
@@ -65,13 +58,13 @@ public class AuditLogger
             action, userId?.ToString() ?? "anonymous", ipAddress, path, requestId, additionalData);
     }
 
-    private Guid? GetUserId(HttpContext context)
+    private static Guid? GetUserId(HttpContext context)
     {
         var userIdClaim = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
     }
 
-    private string? GetClientIpAddress(HttpContext context)
+    private static string? GetClientIpAddress(HttpContext context)
     {
         var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
         if (!string.IsNullOrEmpty(forwardedFor))

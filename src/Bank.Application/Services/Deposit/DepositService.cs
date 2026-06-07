@@ -424,7 +424,6 @@ public class DepositService : IDepositService
         var principal = deposit.PrincipalAmount;
         var rate = deposit.InterestRate / 100;
         var days = (toDate - fromDate).Days;
-        var years = days / 365.0m;
 
         return deposit.InterestCalculationMethod switch
         {

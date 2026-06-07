@@ -1,3 +1,4 @@
+using Bank.Api.Constants;
 using Bank.Application.Interfaces;
 using Bank.Application.DTOs;
 using Bank.Api.Helpers;
@@ -37,7 +38,7 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> GetAccountById(Guid id)
     {
         var account = await _accountService.GetAccountByIdAsync(id);
-        if (account == null) return this.CreateNotFoundResponse("Account not found");
+        if (account == null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
         return this.CreateSuccessResponse("Account retrieved successfully", account);
     }
 
@@ -60,7 +61,7 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] UpdateAccountRequest request)
     {
         var account = await _accountService.GetAccountByIdAsync(id);
-        if (account == null) return this.CreateNotFoundResponse("Account not found");
+        if (account == null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
 
         // Verify ownership
         var userId = this.GetCurrentUserIdRequired();
@@ -79,7 +80,7 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> DeleteAccount(Guid id)
     {
         var account = await _accountService.GetAccountByIdAsync(id);
-        if (account == null) return this.CreateNotFoundResponse("Account not found");
+        if (account == null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
 
         var userId = this.GetCurrentUserIdRequired();
         if (account.UserId != userId) return this.CreateForbiddenResponse("Access denied");

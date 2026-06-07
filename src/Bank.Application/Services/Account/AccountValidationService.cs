@@ -517,7 +517,7 @@ public class AccountValidationService : IAccountValidationService
 
     #region Private Helper Methods
 
-    private async Task<bool> SimulateExternalBankApiCall(ExternalAccountValidationRequest request)
+    private static async Task<bool> SimulateExternalBankApiCall(ExternalAccountValidationRequest request)
     {
         // Simulate API call delay
         await Task.Delay(100);
@@ -526,7 +526,7 @@ public class AccountValidationService : IAccountValidationService
         return request.AccountNumber.Length >= 8 && request.AccountNumber.All(char.IsDigit);
     }
 
-    private async Task<BankInformationResult?> SimulateSwiftDirectoryLookup(string swiftCode)
+    private static async Task<BankInformationResult?> SimulateSwiftDirectoryLookup(string swiftCode)
     {
         await Task.Delay(50);
         
@@ -542,7 +542,7 @@ public class AccountValidationService : IAccountValidationService
         return mockBanks.TryGetValue(swiftCode, out var bank) ? bank : null;
     }
 
-    private async Task<BankInformationResult?> SimulateFedLookup(string routingNumber)
+    private static async Task<BankInformationResult?> SimulateFedLookup(string routingNumber)
     {
         await Task.Delay(50);
         
@@ -557,13 +557,13 @@ public class AccountValidationService : IAccountValidationService
         return mockBanks.TryGetValue(routingNumber, out var bank) ? bank : null;
     }
 
-    private async Task<string> GetBankNameFromCode(string bankCode)
+    private static async Task<string> GetBankNameFromCode(string bankCode)
     {
         await Task.Delay(10);
         return $"Bank {bankCode}"; // Simplified for demo
     }
 
-    private bool ValidateIbanChecksum(string iban)
+    private static bool ValidateIbanChecksum(string iban)
     {
         // Move first 4 characters to end
         var rearranged = iban[4..] + iban[..4];
@@ -582,7 +582,7 @@ public class AccountValidationService : IAccountValidationService
         return CalculateMod97(numericString) == 1;
     }
 
-    private int CalculateMod97(string numericString)
+    private static int CalculateMod97(string numericString)
     {
         var remainder = 0;
         foreach (char digit in numericString)
@@ -592,7 +592,7 @@ public class AccountValidationService : IAccountValidationService
         return remainder;
     }
 
-    private void ExtractIbanComponents(string iban, IbanValidationResult result)
+    private static void ExtractIbanComponents(string iban, IbanValidationResult result)
     {
         // Country-specific IBAN component extraction (simplified)
         switch (result.CountryCode)
@@ -616,7 +616,7 @@ public class AccountValidationService : IAccountValidationService
         }
     }
 
-    private bool ValidateUSRoutingNumberChecksum(string routingNumber)
+    private static bool ValidateUSRoutingNumberChecksum(string routingNumber)
     {
         var weights = new[] { 3, 7, 1, 3, 7, 1, 3, 7, 1 };
         var sum = 0;
@@ -629,7 +629,7 @@ public class AccountValidationService : IAccountValidationService
         return sum % 10 == 0;
     }
 
-    private string GetCountryName(string countryCode)
+    private static string GetCountryName(string countryCode)
     {
         var countries = new Dictionary<string, string>
         {
@@ -648,7 +648,7 @@ public class AccountValidationService : IAccountValidationService
         return countries.TryGetValue(countryCode, out var name) ? name : countryCode;
     }
 
-    private List<string> GetSupportedCurrencies(string countryCode)
+    private static List<string> GetSupportedCurrencies(string countryCode)
     {
         var currencies = new Dictionary<string, List<string>>
         {
@@ -662,7 +662,7 @@ public class AccountValidationService : IAccountValidationService
         return currencies.TryGetValue(countryCode, out var currencyList) ? currencyList : new List<string> { "USD" };
     }
 
-    private string FormatAccountNumber(string accountNumber, string countryCode)
+    private static string FormatAccountNumber(string accountNumber, string countryCode)
     {
         return countryCode.ToUpper() switch
         {
@@ -673,7 +673,7 @@ public class AccountValidationService : IAccountValidationService
         };
     }
 
-    private bool PerformNameMatching(string beneficiaryName, string? accountHolderName)
+    private static bool PerformNameMatching(string beneficiaryName, string? accountHolderName)
     {
         if (string.IsNullOrEmpty(accountHolderName))
             return false;
@@ -685,7 +685,7 @@ public class AccountValidationService : IAccountValidationService
         return normalizedBeneficiary.Contains(normalizedAccount) || normalizedAccount.Contains(normalizedBeneficiary);
     }
 
-    private async Task<bool> PerformSanctionsCheck(string beneficiaryName, string? swiftCode)
+    private static async Task<bool> PerformSanctionsCheck(string beneficiaryName, string? swiftCode)
     {
         await Task.Delay(50); // Simulate sanctions database lookup
         
@@ -699,7 +699,7 @@ public class AccountValidationService : IAccountValidationService
         return !nameSanctioned && !swiftSanctioned;
     }
 
-    private string GenerateValidationSummary(ComprehensiveValidationResult result)
+    private static string GenerateValidationSummary(ComprehensiveValidationResult result)
     {
         var summary = new List<string>();
 

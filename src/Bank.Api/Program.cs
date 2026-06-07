@@ -14,7 +14,7 @@ if (File.Exists(envPath))
 {
     foreach (var line in await File.ReadAllLinesAsync(envPath))
     {
-        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
             continue;
 
         var parts = line.Split('=', 2);
@@ -136,7 +136,7 @@ public partial class Program
         }
 
         var jwtKey = config["Jwt:Key"];
-        if (!string.IsNullOrEmpty(jwtKey) && jwtKey.StartsWith("{") && jwtKey.EndsWith("}"))
+        if (!string.IsNullOrEmpty(jwtKey) && jwtKey.StartsWith('{') && jwtKey.EndsWith('}'))
         {
             var processedKey = ReplacePlaceholders(jwtKey);
             ((IConfigurationBuilder)config).AddInMemoryCollection(new Dictionary<string, string?>
