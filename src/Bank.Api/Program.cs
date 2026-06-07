@@ -120,6 +120,12 @@ app.Run();
 public partial class Program
 {
     /// <summary>
+    /// Private constructor to prevent direct instantiation of Program class.
+    /// This class is primarily used as an entry point and for static configuration methods.
+    /// </summary>
+    private Program() { }
+
+    /// <summary>
     /// Process configuration to replace {PLACEHOLDER} values with environment variables
     /// </summary>
     private static void ProcessConfigurationPlaceholders(IConfiguration config)

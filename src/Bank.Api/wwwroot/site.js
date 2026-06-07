@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateActiveTab() {
             let current = '';
             sections.forEach(sec => {
-                if (window.scrollY >= sec.offsetTop - 230) {
+                if (globalThis.scrollY >= sec.offsetTop - 230) {
                     current = sec.id;
                 }
             });
@@ -47,17 +47,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.classList.add('active');
                 const target = document.getElementById(link.dataset.section);
                 if (target) {
-                    window.scrollTo({ top: target.offsetTop - 190, behavior: 'smooth' });
+                    globalThis.scrollTo({ top: target.offsetTop - 190, behavior: 'smooth' });
                 }
             });
         });
 
-        window.addEventListener('scroll', updateActiveTab, { passive: true });
+        globalThis.addEventListener('scroll', updateActiveTab, { passive: true });
         updateActiveTab();
     }
 
     /* ── Scroll-reveal via IntersectionObserver ── */
-    if ('IntersectionObserver' in window) {
+    if ('IntersectionObserver' in globalThis) {
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {

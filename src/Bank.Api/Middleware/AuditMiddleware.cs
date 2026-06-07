@@ -14,7 +14,6 @@ public class AuditMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<AuditMiddleware> _logger;
     private readonly AuditPathFilter _pathFilter;
-    private readonly ContentSanitizer _sanitizer;
     private readonly RequestCapture _requestCapture;
     private readonly ResponseCapture _responseCapture;
     private readonly AuditLogger _auditLogger;
@@ -26,7 +25,6 @@ public class AuditMiddleware
         
         // Initialize specialized components
         _pathFilter = new AuditPathFilter();
-        _sanitizer = new ContentSanitizer();
         _requestCapture = new RequestCapture();
         _responseCapture = new ResponseCapture();
         _auditLogger = new AuditLogger(auditLoggerLogger);

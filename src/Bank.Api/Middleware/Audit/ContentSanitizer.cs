@@ -5,7 +5,7 @@ namespace Bank.Api.Middleware.Audit;
 /// <summary>
 /// Handles sanitization of sensitive data in request/response content
 /// </summary>
-public class ContentSanitizer
+public static class ContentSanitizer
 {
     private static readonly string[] SensitiveHeaders = new[]
     {

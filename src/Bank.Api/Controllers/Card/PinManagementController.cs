@@ -169,7 +169,7 @@ public class PinManagementController : ControllerBase
                 return Unauthorized("User not authenticated");
             }
 
-            var code = await _pinManagementService.GenerateVerificationCodeAsync(
+            await _pinManagementService.GenerateVerificationCodeAsync(
                 request.CardId, 
                 request.VerificationMethod, 
                 userId);
