@@ -5,6 +5,7 @@ using Bank.Application.DTOs.Loan.Disbursement;
 using Bank.Application.DTOs.Loan.Repayment;
 using Bank.Application.DTOs.Loan.Analytics;
 using Bank.Application.DTOs.Loan.Configuration;
+using Bank.Application.Validators.Base;
 using FluentValidation;
 
 namespace Bank.Application.Validators.Loan;
@@ -16,20 +17,8 @@ public class LoanSearchRequestValidator : AbstractValidator<LoanSearchRequest>
 {
     public LoanSearchRequestValidator()
     {
-        RuleFor(x => x.MinAmount)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Minimum amount cannot be negative")
-            .When(x => x.MinAmount.HasValue);
-
-        RuleFor(x => x.MaxAmount)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Maximum amount cannot be negative")
-            .When(x => x.MaxAmount.HasValue);
-
-        RuleFor(x => x)
-            .Must(x => !x.MinAmount.HasValue || !x.MaxAmount.HasValue || x.MinAmount <= x.MaxAmount)
-            .WithMessage("Minimum amount cannot be greater than maximum amount")
-            .WithName("AmountRange");
+        // Add amount range validation
+        AmountRangeValidator.AddAmountRangeRules(this, x => x.MinAmount, x => x.MaxAmount);
 
         RuleFor(x => x)
             .Must(x => !x.ApplicationDateFrom.HasValue || !x.ApplicationDateTo.HasValue || x.ApplicationDateFrom <= x.ApplicationDateTo)

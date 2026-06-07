@@ -1,4 +1,5 @@
 using Bank.Application.DTOs.Statement.Core;
+using Bank.Application.Validators.Base;
 using Bank.Domain.Enums;
 using FluentValidation;
 
@@ -50,20 +51,7 @@ public class GenerateStatementRequestValidator : AbstractValidator<GenerateState
         // Validate amount filters if provided
         When(x => x.MinAmount.HasValue || x.MaxAmount.HasValue, () =>
         {
-            RuleFor(x => x.MinAmount)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("Minimum amount cannot be negative")
-                .When(x => x.MinAmount.HasValue);
-
-            RuleFor(x => x.MaxAmount)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("Maximum amount cannot be negative")
-                .When(x => x.MaxAmount.HasValue);
-
-            RuleFor(x => x)
-                .Must(x => !x.MinAmount.HasValue || !x.MaxAmount.HasValue || x.MinAmount <= x.MaxAmount)
-                .WithMessage("Minimum amount must be less than or equal to maximum amount")
-                .WithName("AmountRange");
+            AmountRangeValidator.AddAmountRangeRules(this, x => x.MinAmount, x => x.MaxAmount);
         });
 
         // Validate custom title if provided
