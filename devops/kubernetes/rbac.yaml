@@ -1,0 +1,109 @@
+---
+# RBAC configuration for Bank Management System
+# This file defines roles and role bindings for fine-grained access control
+
+# Backend service account (already defined in backend.yaml with automountServiceAccountToken: false)
+# If the backend needs to access the Kubernetes API, uncomment the Role and RoleBinding below
+
+# Role: Backend - Minimal permissions needed by backend pod
+# Currently: No permissions (empty role) - uncomment below if needed
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: Role
+#metadata:
+#  name: backend
+#  namespace: bank-app
+#rules:
+#  # Example: If backend needs to read ConfigMaps
+#  # - apiGroups: [""]
+#  #   resources: ["configmaps"]
+#  #   verbs: ["get", "list", "watch"]
+#  #   resourceNames: ["bank-config"]  # Restrict to specific ConfigMap
+#  
+#  # Example: If backend needs to read Secrets
+#  # - apiGroups: [""]
+#  #   resources: ["secrets"]
+#  #   verbs: ["get"]
+#  #   resourceNames: ["bank-secrets"]  # Restrict to specific Secret
+#---
+#
+## RoleBinding: Bind backend ServiceAccount to backend Role
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: RoleBinding
+#metadata:
+#  name: backend
+#  namespace: bank-app
+#roleRef:
+#  apiGroup: rbac.authorization.k8s.io
+#  kind: Role
+#  name: backend
+#subjects:
+#  - kind: ServiceAccount
+#    name: backend
+#    namespace: bank-app
+#---
+
+# Frontend service account and role (if frontend pod needs API access)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  namespace: bank-app
+automountServiceAccountToken: false
+---
+
+# Example ClusterRole for read-only access to resources (if needed)
+# This is not applied by default but can be used as a template
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bank-read-only
+rules:
+  # Read pods (for debugging/monitoring)
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  # Read services
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+  # Read configmaps and secrets (use with caution)
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+
+# Example: Namespace-scoped Role with no permissions (principle of least privilege)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: empty-role
+  namespace: bank-app
+rules: []
+---
+
+# Notes on RBAC best practices:
+#
+# 1. Default: No permissions
+#    - Set automountServiceAccountToken: false
+#    - Only enable API access if needed
+#
+# 2. Principle of Least Privilege:
+#    - Grant minimum required permissions
+#    - Use ResourceNames to limit to specific resources
+#    - Use namespace-scoped Roles, not ClusterRoles
+#
+# 3. Specific verbs needed:
+#    - "get": Read single resource
+#    - "list": List resources
+#    - "watch": Monitor resource changes
+#    - Avoid "create", "update", "delete", "patch" unless required
+#
+# 4. Service Account separation:
+#    - One SA per component (backend, frontend, etc.)
+#    - Each SA bound to minimal Role
+#    - Different SA for different environments
+#
+# 5. Auditing:
+#    - Enable Kubernetes audit logging
+#    - Monitor service account token usage
+#    - Alert on unauthorized API access attempts
