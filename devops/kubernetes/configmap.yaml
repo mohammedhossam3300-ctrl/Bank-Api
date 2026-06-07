@@ -16,6 +16,6 @@ metadata:
   namespace: bank-app
 type: Opaque
 stringData:
-  ConnectionStrings__DefaultConnection: "Server=database-service;Database=BankDB;User Id=sa;Password=BankApp123!;TrustServerCertificate=true;"
-  JwtSettings__SecretKey: "your-super-secret-jwt-key-here-make-it-long-and-secure"
-  SA_PASSWORD: "BankApp123!"
+  ConnectionStrings__DefaultConnection: "Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};Encrypt=True;TrustServerCertificate=false;"
+  JwtSettings__SecretKey: "${JWT_KEY}"
+  SA_PASSWORD: "${SA_PASSWORD}"

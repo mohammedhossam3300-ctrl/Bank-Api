@@ -53,3 +53,11 @@ Logs/
 .env
 .env.local
 .env.*.local
+
+# Kubernetes Secrets (DO NOT COMMIT)
+devops/kubernetes/secrets.env
+devops/kubernetes/sealed-secret.yaml
+devops/kubernetes/*-secret.yaml
+!devops/kubernetes/*.example
+!devops/kubernetes/*.template
+

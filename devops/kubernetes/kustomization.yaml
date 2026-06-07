@@ -1,0 +1,46 @@
+# Kustomization file for Bank API Kubernetes deployment
+# This file helps manage environment-specific configurations and secrets
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: bank-app
+
+# Base resources
+resources:
+  - configmap.yaml
+
+# Namespace creation
+commonLabels:
+  app: bank-api
+  version: v1
+
+commonAnnotations:
+  managed-by: kustomize
+
+# Image customization
+images:
+  - name: bank-api
+    newTag: latest
+
+# ConfigMap generator for environment-specific values
+configMapGenerator:
+  - name: bank-config
+    behavior: merge
+    literals:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - JwtSettings__Issuer=BankAPI
+      - JwtSettings__Audience=BankClients
+      - JwtSettings__ExpirationMinutes=60
+
+# Secret generator - NOTE: This should be managed via sealed-secrets or external-secrets in production
+# DO NOT commit actual secret values to this file
+secretGenerator:
+  - name: bank-secrets
+    behavior: merge
+    envs:
+      - secrets.env
+
+replicas:
+  - name: bank-api-deployment
+    count: 3
