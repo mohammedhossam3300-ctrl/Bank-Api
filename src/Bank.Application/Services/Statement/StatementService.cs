@@ -11,6 +11,7 @@ using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
@@ -27,19 +28,22 @@ public class StatementService : IStatementService
     private readonly IAuditLogService _auditLogService;
     private readonly IEmailService _emailService;
     private readonly ILogger<StatementService> _logger;
+    private readonly IConfiguration _configuration;
 
     public StatementService(
         IUnitOfWork unitOfWork,
         IStatementGenerator statementGenerator,
         IAuditLogService auditLogService,
         IEmailService emailService,
-        ILogger<StatementService> logger)
+        ILogger<StatementService> logger,
+        IConfiguration configuration)
     {
         _unitOfWork = unitOfWork;
         _statementGenerator = statementGenerator;
         _auditLogService = auditLogService;
         _emailService = emailService;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task<StatementGenerationResult> GenerateStatementAsync(GenerateStatementRequest request, Guid requestedByUserId)
