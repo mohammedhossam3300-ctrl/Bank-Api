@@ -37,7 +37,7 @@ public static class DataSeedingExtensions
             
             if (pendingMigrations.Any())
             {
-                logger.LogInformation($"📋 Found {pendingMigrations.Count()} pending migrations");
+                logger.LogInformation("📋 Found {MigrationCount} pending migrations", pendingMigrations.Count());
                 await dbContext.Database.MigrateAsync();
                 logger.LogInformation("✅ Database migrations applied successfully!");
             }

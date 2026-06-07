@@ -12,7 +12,7 @@ using System.Text.Json;
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
 if (File.Exists(envPath))
 {
-    foreach (var line in File.ReadAllLines(envPath))
+    foreach (var line in await File.ReadAllLinesAsync(envPath))
     {
         if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
             continue;
@@ -107,10 +107,14 @@ app.ConfigureDevelopmentMiddleware();
 // 2. Security & audit middleware
 app.ConfigureSecurityMiddleware();
 
-// 3. Standard ASP.NET Core middleware
-app.ConfigureStandardMiddleware();
+app.UseRouting();
 
-app.Run();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+await app.RunAsync();
 
 // Make Program class accessible for testing
 public partial class Program
