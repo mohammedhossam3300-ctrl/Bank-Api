@@ -6,6 +6,7 @@ using Bank.Api.Extensions.Infrastructure;
 using Bank.Api.Extensions.Middleware;
 using Bank.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 // Load environment variables from .env file
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
@@ -27,6 +28,9 @@ if (File.Exists(envPath))
 }
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Process appsettings.json to replace placeholders with environment variables
+ProcessConfigurationPlaceholders(builder.Configuration);
 
 // Add controllers with JSON configuration
 builder.Services.AddControllers()
@@ -109,4 +113,53 @@ app.ConfigureStandardMiddleware();
 app.Run();
 
 // Make Program class accessible for testing
-public partial class Program { }
+public partial class Program
+{
+    /// <summary>
+    /// Process configuration to replace {PLACEHOLDER} values with environment variables
+    /// </summary>
+    private static void ProcessConfigurationPlaceholders(IConfiguration config)
+    {
+        var connectionString = config.GetConnectionString("DefaultConnection");
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            var processedConnection = ReplacePlaceholders(connectionString);
+            // Force set the processed connection string
+            ((IConfigurationBuilder)config).AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:DefaultConnection"] = processedConnection
+            });
+        }
+
+        var jwtKey = config["Jwt:Key"];
+        if (!string.IsNullOrEmpty(jwtKey) && jwtKey.StartsWith("{") && jwtKey.EndsWith("}"))
+        {
+            var processedKey = ReplacePlaceholders(jwtKey);
+            ((IConfigurationBuilder)config).AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Jwt:Key"] = processedKey
+            });
+        }
+    }
+
+    private static string ReplacePlaceholders(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+
+        var result = value;
+        var pattern = @"\{([^}]+)\}";
+        
+        foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(value, pattern))
+        {
+            var placeholder = match.Groups[1].Value;
+            var envValue = Environment.GetEnvironmentVariable(placeholder);
+            if (!string.IsNullOrEmpty(envValue))
+            {
+                result = result.Replace(match.Value, envValue);
+            }
+        }
+
+        return result;
+    }
+}
