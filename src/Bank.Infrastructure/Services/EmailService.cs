@@ -10,7 +10,7 @@ namespace Bank.Infrastructure.Services;
 /// <summary>
 /// Email service implementation using SMTP
 /// </summary>
-public class EmailService : IEmailService
+public class EmailService : IEmailService, IDisposable
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<EmailService> _logger;
@@ -229,6 +229,20 @@ public class EmailService : IEmailService
 
     public void Dispose()
     {
-        _smtpClient?.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _smtpClient?.Dispose();
+        }
+    }
+
+    ~EmailService()
+    {
+        Dispose(false);
     }
 }
