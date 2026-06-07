@@ -311,6 +311,6 @@ public class BillPresentmentController : ControllerBase
 }
 
 // Request DTOs for the controller
-public record UpdateBillPresentmentStatusRequest(Bank.Domain.Enums.BillPresentmentStatus Status);
-public record MarkBillPresentmentAsPaidRequest(Guid PaymentId);
-public record SynchronizeBillPresentmentsRequest(Guid BillerId, Guid? CustomerId = null);
+public record UpdateBillPresentmentStatusRequest([property: System.Text.Json.Serialization.JsonRequired] Bank.Domain.Enums.BillPresentmentStatus Status);
+public record MarkBillPresentmentAsPaidRequest([property: System.Text.Json.Serialization.JsonRequired] Guid PaymentId);
+public record SynchronizeBillPresentmentsRequest([property: System.Text.Json.Serialization.JsonRequired] Guid BillerId, Guid? CustomerId = null);

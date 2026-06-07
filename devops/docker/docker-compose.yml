@@ -7,7 +7,7 @@ services:
     container_name: bank-database
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=BankApp123!
+      - SA_PASSWORD=${SA_PASSWORD:-ChangeMe!Secure123}
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
@@ -18,7 +18,7 @@ services:
       - bank-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BankApp123! -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD:-ChangeMe!Secure123} -Q 'SELECT 1'"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -30,12 +30,12 @@ services:
       dockerfile: devops/docker/Dockerfile.backend
     container_name: bank-backend
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=database;Database=BankDB;User Id=sa;Password=BankApp123!;TrustServerCertificate=true;
-      - JwtSettings__SecretKey=your-super-secret-jwt-key-here-make-it-long-and-secure
-      - JwtSettings__Issuer=BankAPI
-      - JwtSettings__Audience=BankClients
-      - JwtSettings__ExpirationMinutes=60
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER:-database};Database=${DB_NAME:-BankDB};User Id=${DB_USER:-sa};Password=${DB_PASSWORD:-ChangeMe!Secure123};TrustServerCertificate=true;
+      - JwtSettings__SecretKey=${JWT_KEY:-your-secret-jwt-key-change-in-production}
+      - JwtSettings__Issuer=${JWT_ISSUER:-BankAPI}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-BankClients}
+      - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION:-60}
     ports:
       - "5000:80"
     depends_on:

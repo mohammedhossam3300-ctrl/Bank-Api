@@ -10,8 +10,37 @@ services:
       - "8080:80"
       - "8443:443"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=BankDB;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
-      - JwtSettings__SecretKey=YourSuperSecretKeyForJWTTokenGeneration123456789
-      - Jw
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER:-sqlserver};Database=${DB_NAME:-BankDB};User Id=${DB_USER:-sa};Password=${DB_PASSWORD:-ChangeMe!Secure123};TrustServerCertificate=true;
+      - JwtSettings__SecretKey=${JWT_KEY:-your-secret-jwt-key-change-in-production}
+      - JwtSettings__Issuer=${JWT_ISSUER:-BankAPI}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-BankClients}
+      - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION:-60}
+    depends_on:
+      - sqlserver
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD:-ChangeMe!Secure123}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+
+networks:
+  bank-network:
+    driver: bridge
