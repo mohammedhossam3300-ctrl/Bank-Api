@@ -89,7 +89,7 @@ namespace Bank.Tests
                 paymentRetryService ?? new Mock<IPaymentRetryService>().Object,
                 paymentReceiptService ?? new Mock<IPaymentReceiptService>().Object,
                 unitOfWork ?? new Mock<IUnitOfWork>().Object,
-                logger ?? new Mock<ILogger<BillPaymentOrchestrationService>>().Object);
+                logger ?? new Mock<ILogger<BillPaymentProcessingService>>().Object);
         }
 
         [Fact]
