@@ -27,8 +27,8 @@ public class AuditMiddleware
         // Initialize specialized components
         _pathFilter = new AuditPathFilter();
         _sanitizer = new ContentSanitizer();
-        _requestCapture = new RequestCapture(_sanitizer);
-        _responseCapture = new ResponseCapture(_sanitizer);
+        _requestCapture = new RequestCapture();
+        _responseCapture = new ResponseCapture();
         _auditLogger = new AuditLogger(auditLoggerLogger);
     }
 

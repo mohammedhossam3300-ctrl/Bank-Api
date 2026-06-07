@@ -8,11 +8,8 @@ namespace Bank.Api.Middleware.Audit;
 /// </summary>
 public class RequestCapture
 {
-    private readonly ContentSanitizer _sanitizer;
-
-    public RequestCapture(ContentSanitizer sanitizer)
+    public RequestCapture()
     {
-        _sanitizer = sanitizer ?? throw new ArgumentNullException(nameof(sanitizer));
     }
 
     public async Task<string> CaptureRequestDetailsAsync(HttpRequest request)
