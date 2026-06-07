@@ -747,7 +747,6 @@ nav a.active { color: #fff; }
 }
 .tab-link i { font-size: 0.95rem; }
 .docs-content-full { width: 100%; min-width: 0; }
-.docs-features-section { min-width: 0; overflow: clip; }
 
 /* ============================================================
    ENDPOINT CARDS GRID
@@ -964,7 +963,11 @@ footer a::after { display: none; }
     line-height: 1.75;
 }
 
-.docs-features-section { margin-bottom: 40px; }
+.docs-features-section { 
+    min-width: 0; 
+    overflow: clip;
+    margin-bottom: 40px; 
+}
 
 /* ============================================================
    QUICKSTART SECTION
