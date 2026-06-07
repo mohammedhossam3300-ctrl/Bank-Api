@@ -25,13 +25,14 @@ public class SmsService : ISmsService
         {
             if (!IsValidPhoneNumber(phoneNumber))
             {
-                _logger.LogWarning("Invalid phone number: {PhoneNumber}", phoneNumber);
+                _logger.LogWarning("Invalid phone number format provided for SMS (masked: {PhoneNumberMasked})", MaskPhoneNumber(phoneNumber));
                 return false;
             }
 
             // Mock implementation - log the SMS instead of actually sending
-            // In production, integrate with SMS provider
-            _logger.LogInformation("SMS would be sent to {PhoneNumber}: {Message}", phoneNumber, message);
+            // In production, integrate with SMS provider (Twilio, AWS SNS, etc.)
+            // Never log the full phone number or message content (may contain OTP codes)
+            _logger.LogInformation("SMS dispatched to {PhoneNumberMasked}", MaskPhoneNumber(phoneNumber));
 
             // Simulate API call delay
             await Task.Delay(100);
@@ -42,7 +43,7 @@ public class SmsService : ISmsService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send SMS to {PhoneNumber}", phoneNumber);
+            _logger.LogError(ex, "Failed to send SMS to {PhoneNumberMasked}", MaskPhoneNumber(phoneNumber));
             return false;
         }
     }
@@ -63,7 +64,7 @@ public class SmsService : ISmsService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send templated SMS to {PhoneNumber} with template {TemplateId}", phoneNumber, templateId);
+            _logger.LogError(ex, "Failed to send templated SMS to {PhoneNumberMasked} with template {TemplateId}", MaskPhoneNumber(phoneNumber), templateId);
             return false;
         }
     }
@@ -106,5 +107,20 @@ public class SmsService : ISmsService
             result = result.Replace($"{{{parameter.Key}}}", parameter.Value);
         }
         return result;
+    }
+
+    /// <summary>
+    /// Masks a phone number for safe logging: keeps country code prefix and last 4 digits.
+    /// e.g. "+12025551234" → "+1******1234"
+    /// </summary>
+    private static string MaskPhoneNumber(string? phoneNumber)
+    {
+        if (string.IsNullOrEmpty(phoneNumber)) return "[empty]";
+        var cleaned = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+        if (cleaned.Length <= 4) return "[redacted]";
+        var prefix = cleaned.StartsWith('+') ? cleaned[..2] : cleaned[..1];
+        var suffix = cleaned[^4..];
+        var masked = new string('*', Math.Max(0, cleaned.Length - prefix.Length - 4));
+        return $"{prefix}{masked}{suffix}";
     }
 }

@@ -30,34 +30,35 @@ public class GlobalExceptionMiddleware
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        
-        var response = new 
-        {
-            Message = "An error occurred on the server.",
-            Detailed = exception.ToString(), // Full exception including inner exceptions
-            StackTrace = (string?)null
-        };
+
+        string message;
+        int statusCode;
 
         switch (exception)
         {
             case UnauthorizedAccessException:
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                response = new { Message = "Unauthorized access.", Detailed = exception.Message, StackTrace = (string?)null };
+                statusCode = (int)HttpStatusCode.Unauthorized;
+                message = "Unauthorized access.";
                 break;
             case InvalidOperationException:
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                response = new { Message = "Invalid operation.", Detailed = exception.Message, StackTrace = (string?)null };
+                statusCode = (int)HttpStatusCode.BadRequest;
+                message = "Invalid operation.";
                 break;
             case KeyNotFoundException:
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                response = new { Message = "Resource not found.", Detailed = exception.Message, StackTrace = (string?)null };
+                statusCode = (int)HttpStatusCode.NotFound;
+                message = "Resource not found.";
                 break;
             default:
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                statusCode = (int)HttpStatusCode.InternalServerError;
+                message = "An unexpected error occurred. Please try again later.";
                 break;
         }
 
-        var result = JsonSerializer.Serialize(response);
+        context.Response.StatusCode = statusCode;
+
+        // Never expose internal exception details, stack traces, or message text to the client.
+        // All details are logged server-side by the catch block above.
+        var result = JsonSerializer.Serialize(new { Message = message });
         return context.Response.WriteAsync(result);
     }
 }

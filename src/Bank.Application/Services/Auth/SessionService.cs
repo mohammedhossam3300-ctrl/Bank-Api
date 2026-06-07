@@ -139,7 +139,7 @@ public class SessionService : ISessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving session with token {SessionToken}", sessionToken);
+            _logger.LogError(ex, "Error retrieving session with token {SessionTokenMasked}", MaskToken(sessionToken));
             return null;
         }
     }
@@ -158,7 +158,7 @@ public class SessionService : ISessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating session activity for token {SessionToken}", sessionToken);
+            _logger.LogError(ex, "Error updating session activity for token {SessionTokenMasked}", MaskToken(sessionToken));
         }
     }
 
@@ -189,7 +189,7 @@ public class SessionService : ISessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error terminating session with token {SessionToken}", sessionToken);
+            _logger.LogError(ex, "Error terminating session with token {SessionTokenMasked}", MaskToken(sessionToken));
         }
     }
 
@@ -285,7 +285,7 @@ public class SessionService : ISessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error refreshing session with refresh token {RefreshToken}", refreshToken);
+            _logger.LogError(ex, "Error refreshing session with refresh token {RefreshTokenMasked}", MaskToken(refreshToken));
             return new SessionResult { Success = false, ErrorMessage = "Failed to refresh session" };
         }
     }
@@ -356,7 +356,7 @@ public class SessionService : ISessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error validating session with token {SessionToken}", sessionToken);
+            _logger.LogError(ex, "Error validating session with token {SessionTokenMasked}", MaskToken(sessionToken));
             return false;
         }
     }
@@ -388,5 +388,16 @@ public class SessionService : ISessionService
     private static string GenerateSecureToken()
     {
         return TokenGenerationHelper.GenerateSecureToken(32);
+    }
+
+    /// <summary>
+    /// Masks a sensitive token for safe logging — shows only the first 4 and last 4 characters.
+    /// Never log raw session or refresh tokens.
+    /// </summary>
+    private static string MaskToken(string? token)
+    {
+        if (string.IsNullOrEmpty(token)) return "[empty]";
+        if (token.Length <= 8) return "[redacted]";
+        return $"{token[..4]}...{token[^4..]}";
     }
 }

@@ -146,8 +146,8 @@ public class LoanService : ILoanService
 
             await _loanRepository.UpdateAsync(loan);
 
-            _logger.LogInformation("Credit scoring completed for loan {LoanId}: Score {CreditScore}", 
-                loanId, creditScore);
+            _logger.LogInformation("Credit scoring completed for loan {LoanId}: range {ScoreRange}", 
+                loanId, scoreRange);
 
             return new CreditScoreResult
             {

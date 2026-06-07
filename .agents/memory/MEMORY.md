@@ -1,0 +1,1 @@
+- [Security hardening decisions](security-hardening.md) — JWT key required (throws if missing), lockout enabled, 60min token expiry, PII masking in logs.

@@ -43,7 +43,7 @@
             <h1 class="hero-title">Bank Management API</h1>
             <p class="hero-subtitle">
                 A production-ready RESTful banking platform built with
-                ASP.NET Core 9, Clean Architecture, CQRS, and SQL Server.
+                ASP.NET Core 9, Clean Architecture, CQRS, and PostgreSQL.
             </p>
             <div class="home-buttons">
                 <a href="/Docs.html" class="home-btn">
@@ -87,7 +87,7 @@
         <section class="home-section" data-reveal>
             <div class="section-label">CAPABILITIES</div>
             <h2 class="section-heading">Everything a banking platform needs</h2>
-            <p class="section-sub">All modules are fully wired — not stubs. Each exposes real business logic backed by a SQL Server database with EF Core migrations.</p>
+            <p class="section-sub">All modules are fully wired — not stubs. Each exposes real business logic backed by a PostgreSQL database with EF Core migrations.</p>
             <div class="features-grid">
                 <div class="feature-card">
                     <i class="fa-solid fa-wallet feature-icon"></i>
@@ -219,7 +219,7 @@
                     <div class="arch-num">03</div>
                     <i class="fa-solid fa-server arch-icon"></i>
                     <h4>Infrastructure</h4>
-                    <p>EF Core + SQL Server, repository implementations, Identity, email/SMS stubs, rate limiter, AutoMapper.</p>
+                    <p>EF Core + PostgreSQL, repository implementations, Identity, email/SMS stubs, rate limiter, AutoMapper.</p>
                     <div class="arch-tags">
                         <span>EF Core</span><span>Repositories</span><span>Identity</span><span>AutoMapper</span>
                     </div>
@@ -298,7 +298,7 @@ Authorization: Bearer eyJhbGci...</code></pre>
             </p>
             <div class="badges-row">
                 <span class="tech-badge"><i class="fa-brands fa-microsoft"></i> ASP.NET Core 9</span>
-                <span class="tech-badge"><i class="fa-solid fa-database"></i> SQL Server + EF Core</span>
+                <span class="tech-badge"><i class="fa-solid fa-database"></i> PostgreSQL + EF Core</span>
                 <span class="tech-badge"><i class="fa-solid fa-arrows-split-up-and-left"></i> CQRS / MediatR</span>
                 <span class="tech-badge"><i class="fa-solid fa-check-double"></i> FluentValidation</span>
                 <span class="tech-badge"><i class="fa-solid fa-clock"></i> Hangfire Jobs</span>

@@ -101,13 +101,13 @@ public class AccountValidationService : IAccountValidationService
             result.IsValid = errors.Count == 0;
 
             await _auditLogService.LogAsync("External Account Validation", 
-                $"Validated account {request.AccountNumber} at bank {request.BankCode}. Result: {result.IsValid}");
+                $"Validated account {MaskAccountNumber(request.AccountNumber)} at bank {request.BankCode}. Result: {result.IsValid}");
 
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error validating external account {AccountNumber}", request.AccountNumber);
+            _logger.LogError(ex, "Error validating external account {AccountNumberMasked}", MaskAccountNumber(request.AccountNumber));
             return new AccountValidationResult
             {
                 IsValid = false,
@@ -431,7 +431,7 @@ public class AccountValidationService : IAccountValidationService
             result.ValidationSummary = GenerateValidationSummary(result);
 
             await _auditLogService.LogAsync("Comprehensive Beneficiary Validation", 
-                $"Validated beneficiary {request.BeneficiaryName} account {request.AccountNumber}. Result: {result.IsValid}");
+                $"Validated beneficiary account {MaskAccountNumber(request.AccountNumber)}. Result: {result.IsValid}");
 
             return result;
         }
@@ -516,6 +516,17 @@ public class AccountValidationService : IAccountValidationService
     }
 
     #region Private Helper Methods
+
+    /// <summary>
+    /// Masks an account number for safe logging — shows only the last 4 digits.
+    /// e.g. "1234567890" → "******7890"
+    /// </summary>
+    private static string MaskAccountNumber(string? accountNumber)
+    {
+        if (string.IsNullOrEmpty(accountNumber)) return "[empty]";
+        if (accountNumber.Length <= 4) return "[redacted]";
+        return $"{"*".PadRight(accountNumber.Length - 4, '*')}{accountNumber[^4..]}";
+    }
 
     private static async Task<bool> SimulateExternalBankApiCall(ExternalAccountValidationRequest request)
     {
