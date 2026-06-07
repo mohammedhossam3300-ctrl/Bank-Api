@@ -759,52 +759,56 @@ public class AccountLifecycleService : IAccountLifecycleService
                 return false;
             }
 
-            var fromDate = account.LastFeeCalculationDate ?? account.OpenedDate;
-            var toDate = DateTime.UtcNow;
-
-            var totalFees = await CalculateAccountFeesAsync(accountId, fromDate, toDate);
-
-            if (totalFees > 0)
-            {
-                // Create fee record
-                var fee = new AccountFee
-                {
-                    AccountId = accountId,
-                    Type = FeeType.MonthlyMaintenance,
-                    Amount = totalFees,
-                    Description = $"Monthly maintenance fee for period {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}",
-                    AppliedDate = DateTime.UtcNow
-                };
-
-                await _unitOfWork.Repository<AccountFee>().AddAsync(fee);
-
-                // Update account balance and fee calculation date
-                account.Balance -= totalFees;
-                account.LastFeeCalculationDate = DateTime.UtcNow;
-                account.UpdatedAt = DateTime.UtcNow;
-                account.UpdatedBy = userId.ToString();
-
-                _unitOfWork.Repository<Account>().Update(account);
-
-                await _auditLogService.LogUserActionAsync(
-                    userId,
-                    "FEES_APPLIED",
-                    "Account",
-                    accountId.ToString(),
-                    null,
-                    $"Fees applied: {totalFees:C}");
-
-                _logger.LogInformation("Fees {Amount} applied to account {AccountId}", totalFees, accountId);
-            }
-
-            await _unitOfWork.SaveChangesAsync();
-            return true;
+            return await ApplyAccountFeesCoreAsync(account, userId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error applying fees to account {AccountId}", accountId);
             return false;
         }
+    }
+
+    /// <summary>
+    /// Core fee application logic. Accepts an already-loaded <see cref="Account"/> so
+    /// batch callers (e.g. <see cref="ProcessMonthlyMaintenanceFeesAsync"/>) avoid the N+1 re-fetch.
+    /// </summary>
+    private async Task<bool> ApplyAccountFeesCoreAsync(Account account, Guid userId)
+    {
+        var fromDate = account.LastFeeCalculationDate ?? account.OpenedDate;
+        var toDate   = DateTime.UtcNow;
+
+        var totalFees = await CalculateAccountFeesAsync(account.Id, fromDate, toDate);
+
+        if (totalFees > 0)
+        {
+            var fee = new AccountFee
+            {
+                AccountId   = account.Id,
+                Type        = FeeType.MonthlyMaintenance,
+                Amount      = totalFees,
+                Description = $"Monthly maintenance fee for period {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}",
+                AppliedDate = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Repository<AccountFee>().AddAsync(fee);
+
+            account.Balance              -= totalFees;
+            account.LastFeeCalculationDate = toDate;
+            account.UpdatedAt            = toDate;
+            account.UpdatedBy            = userId.ToString();
+
+            _unitOfWork.Repository<Account>().Update(account);
+
+            await _auditLogService.LogUserActionAsync(
+                userId, "FEES_APPLIED", "Account", account.Id.ToString(),
+                null, $"Fees applied: {totalFees:C}");
+
+            _logger.LogInformation(
+                "Fees {Amount} applied to account {AccountId}", totalFees, account.Id);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+        return true;
     }
 
     public async Task<List<Account>> GetDormantAccountsAsync(int daysSinceLastActivity)
@@ -850,12 +854,11 @@ public class AccountLifecycleService : IAccountLifecycleService
             var accounts = await GetAccountsForFeeProcessingAsync();
             var processedCount = 0;
 
+            // Use ApplyAccountFeesCoreAsync directly — accounts are already loaded, avoiding N+1.
             foreach (var account in accounts)
             {
-                if (await ApplyAccountFeesAsync(account.Id, Guid.Empty)) // System process
-                {
+                if (await ApplyAccountFeesCoreAsync(account, Guid.Empty))
                     processedCount++;
-                }
             }
 
             await _auditLogService.LogSystemEventAsync(

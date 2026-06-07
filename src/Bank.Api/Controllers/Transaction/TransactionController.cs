@@ -1,7 +1,6 @@
 using Bank.Application.DTOs;
-using Bank.Application.Interfaces;
-using Bank.Application.Commands;
-using Bank.Domain.Entities;
+using Bank.Application.Commands.Transaction;
+using Bank.Application.Queries.Transaction;
 using Bank.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -14,76 +13,38 @@ namespace Bank.Api.Controllers.Transaction;
 [Route("api/[controller]")]
 public class TransactionController : ControllerBase
 {
-    private readonly ITransactionService _transactionService;
     private readonly IMediator _mediator;
 
-    public TransactionController(ITransactionService transactionService, IMediator mediator)
-    {
-        _transactionService = transactionService;
-        _mediator = mediator;
-    }
+    public TransactionController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
     public async Task<IActionResult> InitiateTransaction([FromBody] InitiateTransactionCommand request)
     {
-        try
-        {
-            var transaction = await _mediator.Send(request);
-            return Ok(transaction);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var transaction = await _mediator.Send(request);
+        return Ok(transaction);
     }
 
     [HttpGet("history/{accountId}")]
     public async Task<IActionResult> GetHistory(Guid accountId)
     {
-        var history = await _transactionService.GetTransactionHistoryAsync(accountId);
+        var history = await _mediator.Send(new GetTransactionHistoryQuery(accountId));
         return Ok(history);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTransaction(Guid id)
     {
-        var transaction = await _transactionService.GetTransactionByIdAsync(id);
-        if (transaction == null)
-            return NotFound();
-        
-        return Ok(transaction);
+        var transaction = await _mediator.Send(new GetTransactionByIdQuery(id));
+        return transaction is null ? NotFound() : Ok(transaction);
     }
 
     [HttpPost("search")]
-    public async Task<IActionResult> SearchTransactions(
-        [FromBody] TransactionSearchRequest request)
+    public async Task<IActionResult> SearchTransactions([FromBody] TransactionSearchRequest request)
     {
-        var criteria = new TransactionSearchCriteria
-        {
-            AccountId = request.AccountId,
-            FromDate = request.FromDate,
-            ToDate = request.ToDate,
-            Type = request.Type,
-            Status = request.Status,
-            MinAmount = request.MinAmount,
-            MaxAmount = request.MaxAmount,
-            Description = request.Description,
-            Reference = request.Reference,
-            FromAccountId = request.FromAccountId,
-            ToAccountId = request.ToAccountId
-        };
+        var result = await _mediator.Send(
+            new SearchTransactionsQuery(MapCriteria(request), request.PageNumber, request.PageSize));
 
-        var (transactions, totalCount) = await _transactionService.SearchTransactionsAsync(
-            criteria, request.PageNumber, request.PageSize);
-
-        return Ok(new
-        {
-            Transactions = transactions,
-            TotalCount = totalCount,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize,
-            TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize)
-        });
+        return Ok(result);
     }
 
     [HttpGet("by-date-range/{accountId}")]
@@ -92,8 +53,8 @@ public class TransactionController : ControllerBase
         [FromQuery] DateTime fromDate,
         [FromQuery] DateTime toDate)
     {
-        var transactions = await _transactionService.GetTransactionsByDateRangeAsync(
-            accountId, fromDate, toDate);
+        var transactions = await _mediator.Send(
+            new GetTransactionsByDateRangeQuery(accountId, fromDate, toDate));
         return Ok(transactions);
     }
 
@@ -102,7 +63,7 @@ public class TransactionController : ControllerBase
         Guid accountId,
         [FromQuery] TransactionType type)
     {
-        var transactions = await _transactionService.GetTransactionsByTypeAsync(accountId, type);
+        var transactions = await _mediator.Send(new GetTransactionsByTypeQuery(accountId, type));
         return Ok(transactions);
     }
 
@@ -112,8 +73,8 @@ public class TransactionController : ControllerBase
         [FromQuery] decimal minAmount,
         [FromQuery] decimal maxAmount)
     {
-        var transactions = await _transactionService.GetTransactionsByAmountRangeAsync(
-            accountId, minAmount, maxAmount);
+        var transactions = await _mediator.Send(
+            new GetTransactionsByAmountRangeQuery(accountId, minAmount, maxAmount));
         return Ok(transactions);
     }
 
@@ -122,55 +83,8 @@ public class TransactionController : ControllerBase
         Guid accountId,
         [FromQuery] TransactionStatus status)
     {
-        var transactions = await _transactionService.GetTransactionsByStatusAsync(accountId, status);
+        var transactions = await _mediator.Send(new GetTransactionsByStatusQuery(accountId, status));
         return Ok(transactions);
-    }
-
-    [HttpPost("export/csv")]
-    public async Task<IActionResult> ExportToCsv([FromBody] TransactionSearchRequest request)
-    {
-        var criteria = new TransactionSearchCriteria
-        {
-            AccountId = request.AccountId,
-            FromDate = request.FromDate,
-            ToDate = request.ToDate,
-            Type = request.Type,
-            Status = request.Status,
-            MinAmount = request.MinAmount,
-            MaxAmount = request.MaxAmount,
-            Description = request.Description,
-            Reference = request.Reference,
-            FromAccountId = request.FromAccountId,
-            ToAccountId = request.ToAccountId
-        };
-
-        var csvData = await _transactionService.ExportTransactionsToCsvAsync(criteria);
-        
-        return File(csvData, "text/csv", $"transactions_{DateTime.UtcNow:yyyyMMdd_HHmmss}.csv");
-    }
-
-    [HttpPost("export/excel")]
-    public async Task<IActionResult> ExportToExcel([FromBody] TransactionSearchRequest request)
-    {
-        var criteria = new TransactionSearchCriteria
-        {
-            AccountId = request.AccountId,
-            FromDate = request.FromDate,
-            ToDate = request.ToDate,
-            Type = request.Type,
-            Status = request.Status,
-            MinAmount = request.MinAmount,
-            MaxAmount = request.MaxAmount,
-            Description = request.Description,
-            Reference = request.Reference,
-            FromAccountId = request.FromAccountId,
-            ToAccountId = request.ToAccountId
-        };
-
-        var excelData = await _transactionService.ExportTransactionsToExcelAsync(criteria);
-        
-        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-                   $"transactions_{DateTime.UtcNow:yyyyMMdd_HHmmss}.xlsx");
     }
 
     [HttpGet("statistics/{accountId}")]
@@ -179,8 +93,42 @@ public class TransactionController : ControllerBase
         [FromQuery] DateTime fromDate,
         [FromQuery] DateTime toDate)
     {
-        var statistics = await _transactionService.GetTransactionStatisticsAsync(
-            accountId, fromDate, toDate);
+        var statistics = await _mediator.Send(
+            new GetTransactionStatisticsQuery(accountId, fromDate, toDate));
         return Ok(statistics);
     }
+
+    // Export endpoints delegate to the service through the mediator pipeline but return
+    // file content directly — kept with mediator-dispatched commands for consistency.
+    [HttpPost("export/csv")]
+    public async Task<IActionResult> ExportToCsv([FromBody] TransactionSearchRequest request)
+    {
+        var csvData = await _mediator.Send(new ExportTransactionsCsvCommand(MapCriteria(request)));
+        return File(csvData, "text/csv", $"transactions_{DateTime.UtcNow:yyyyMMdd_HHmmss}.csv");
+    }
+
+    [HttpPost("export/excel")]
+    public async Task<IActionResult> ExportToExcel([FromBody] TransactionSearchRequest request)
+    {
+        var excelData = await _mediator.Send(new ExportTransactionsExcelCommand(MapCriteria(request)));
+        return File(excelData,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"transactions_{DateTime.UtcNow:yyyyMMdd_HHmmss}.xlsx");
+    }
+
+    // Single shared mapping — eliminates the previous 3× copy-paste of this logic.
+    private static TransactionSearchCriteria MapCriteria(TransactionSearchRequest r) => new()
+    {
+        AccountId    = r.AccountId,
+        FromDate     = r.FromDate,
+        ToDate       = r.ToDate,
+        Type         = r.Type,
+        Status       = r.Status,
+        MinAmount    = r.MinAmount,
+        MaxAmount    = r.MaxAmount,
+        Description  = r.Description,
+        Reference    = r.Reference,
+        FromAccountId = r.FromAccountId,
+        ToAccountId  = r.ToAccountId
+    };
 }

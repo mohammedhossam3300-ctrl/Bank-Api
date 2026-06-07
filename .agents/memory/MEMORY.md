@@ -1,1 +1,2 @@
 - [Security hardening decisions](security-hardening.md) — JWT key required (throws if missing), lockout enabled, 60min token expiry, PII masking in logs.
+- [CQRS MediatR structure](cqrs-structure.md) — Namespace alias pattern required; ValidationBehavior wired; N+1 core-method pattern for batch loops.

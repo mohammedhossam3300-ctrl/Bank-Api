@@ -1,10 +1,11 @@
 using Bank.Api.Constants;
-using Bank.Application.Interfaces;
-using Bank.Application.DTOs;
 using Bank.Api.Helpers;
+using Bank.Application.Commands.Account;
+using Bank.Application.Queries.Account;
+using Bank.Application.DTOs;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Bank.Api.Controllers.Account;
 
@@ -13,80 +14,56 @@ namespace Bank.Api.Controllers.Account;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
-    private readonly IAccountService _accountService;
+    private readonly IMediator _mediator;
 
-    public AccountController(IAccountService accountService)
-    {
-        _accountService = accountService;
-    }
+    public AccountController(IMediator mediator) => _mediator = mediator;
 
-    /// <summary>
-    /// GET /api/account — List all accounts for the logged-in user.
-    /// </summary>
+    /// <summary>GET /api/account — List all accounts for the logged-in user.</summary>
     [HttpGet]
     public async Task<IActionResult> GetMyAccounts()
     {
         var userId = this.GetCurrentUserIdRequired();
-        var accounts = await _accountService.GetUserAccountsAsync(userId);
+        var accounts = await _mediator.Send(new GetUserAccountsQuery(userId));
         return this.CreateSuccessResponse("Accounts retrieved successfully", accounts);
     }
 
-    /// <summary>
-    /// GET /api/account/{id} — Get a specific account by ID.
-    /// </summary>
+    /// <summary>GET /api/account/{id} — Get a specific account by ID.</summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAccountById(Guid id)
     {
-        var account = await _accountService.GetAccountByIdAsync(id);
-        if (account == null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
+        var account = await _mediator.Send(new GetAccountByIdQuery(id));
+        if (account is null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
         return this.CreateSuccessResponse("Account retrieved successfully", account);
     }
 
-    /// <summary>
-    /// POST /api/account — Create a new account for the logged-in user.
-    /// </summary>
+    /// <summary>POST /api/account — Create a new account for the logged-in user.</summary>
     [HttpPost]
     public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
     {
         var userId = this.GetCurrentUserIdRequired();
-        var account = await _accountService.CreateAccountAsync(userId, request.AccountNickname);
-        return CreatedAtAction(nameof(GetAccountById), new { id = account.Id }, 
+        var account = await _mediator.Send(new CreateAccountCommand(userId, request.AccountNickname));
+        return CreatedAtAction(nameof(GetAccountById), new { id = account.Id },
             new { Success = true, Message = "Account created successfully", Data = account });
     }
 
-    /// <summary>
-    /// PUT /api/account/{id} — Update an account's holder name.
-    /// </summary>
+    /// <summary>PUT /api/account/{id} — Update an account's holder name.</summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] UpdateAccountRequest request)
     {
-        var account = await _accountService.GetAccountByIdAsync(id);
-        if (account == null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
-
-        // Verify ownership
         var userId = this.GetCurrentUserIdRequired();
-        if (account.UserId != userId) return this.CreateForbiddenResponse("Access denied");
-
-        account.AccountHolderName = request.AccountHolderName;
-        account.UpdatedAt = DateTime.UtcNow;
-        await _accountService.UpdateAccountAsync(account);
+        // Handler throws KeyNotFoundException (→ 404) or UnauthorizedAccessException (→ 401)
+        var account = await _mediator.Send(
+            new UpdateAccountCommand(id, request.AccountHolderName, userId));
         return this.CreateSuccessResponse("Account updated successfully", account);
     }
 
-    /// <summary>
-    /// DELETE /api/account/{id} — Delete an account.
-    /// </summary>
+    /// <summary>DELETE /api/account/{id} — Soft-delete an account.</summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAccount(Guid id)
     {
-        var account = await _accountService.GetAccountByIdAsync(id);
-        if (account == null) return this.CreateNotFoundResponse(ErrorMessages.AccountNotFound);
-
         var userId = this.GetCurrentUserIdRequired();
-        if (account.UserId != userId) return this.CreateForbiddenResponse("Access denied");
-
-        account.SoftDelete(userId.ToString());
-        await _accountService.UpdateAccountAsync(account);
+        // Handler throws KeyNotFoundException (→ 404) or UnauthorizedAccessException (→ 401)
+        await _mediator.Send(new DeleteAccountCommand(id, userId));
         return NoContent();
     }
 }

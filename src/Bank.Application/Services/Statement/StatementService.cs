@@ -8,7 +8,6 @@ using Bank.Application.DTOs.Statement.Transaction;
 using Bank.Application.Interfaces;
 using Bank.Application.Services.Shared;
 using Bank.Domain.Entities;
-using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -51,28 +50,22 @@ public class StatementService : IStatementService
     {
         try
         {
-            // Validate request
-            var (isValid, errors) = await ValidateStatementRequestAsync(request);
-            if (!isValid)
-            {
+            // Validate parameters only (no DB call) — avoids the double-fetch that
+            // would occur if we called ValidateStatementRequestAsync here (which also
+            // fetches the account) and then fetched again below.
+            var paramErrors = ValidateStatementParameters(request);
+            if (paramErrors.Count > 0)
                 return new StatementGenerationResult
                 {
                     Success = false,
                     Message = "Invalid statement request",
-                    Errors = errors
+                    Errors = paramErrors
                 };
-            }
 
-            // Get account
+            // Single account fetch for this entire method.
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(request.AccountId);
             if (account == null)
-            {
-                return new StatementGenerationResult
-                {
-                    Success = false,
-                    Message = "Account not found"
-                };
-            }
+                return new StatementGenerationResult { Success = false, Message = "Account not found" };
 
             // Create statement entity
             var statement = await CreateStatementEntityAsync(request, account, requestedByUserId);
@@ -574,6 +567,25 @@ public class StatementService : IStatementService
             errors.Add("Account not found");
 
         return (errors.Count == 0, errors);
+    }
+
+    /// <summary>
+    /// Parameter-only validation (no database access). Used by
+    /// <see cref="GenerateStatementAsync"/> to skip the redundant account fetch
+    /// that <see cref="ValidateStatementRequestAsync"/> performs internally.
+    /// </summary>
+    private static List<string> ValidateStatementParameters(GenerateStatementRequest request)
+    {
+        var errors = new List<string>();
+        if (request.AccountId == Guid.Empty)
+            errors.Add("Account ID is required");
+        if (request.StartDate >= request.EndDate)
+            errors.Add("Start date must be before end date");
+        if (request.EndDate > DateTime.UtcNow)
+            errors.Add("End date cannot be in the future");
+        if ((request.EndDate - request.StartDate).TotalDays > 365)
+            errors.Add("Statement period cannot exceed 365 days");
+        return errors;
     }
 
     #region Private Helper Methods
