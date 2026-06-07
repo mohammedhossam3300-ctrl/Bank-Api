@@ -16,14 +16,11 @@ namespace Bank.Api.Controllers.Card;
 public class PinManagementController : ControllerBase
 {
     private readonly IPinManagementService _pinManagementService;
-    private readonly ILogger<PinManagementController> _logger;
 
     public PinManagementController(
-        IPinManagementService pinManagementService,
-        ILogger<PinManagementController> logger)
+        IPinManagementService pinManagementService)
     {
         _pinManagementService = pinManagementService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -32,32 +29,20 @@ public class PinManagementController : ControllerBase
     [HttpPost("set-pin")]
     public async Task<ActionResult<PinOperationResponse>> SetPin([FromBody] SetPinRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
-
-            var result = await _pinManagementService.SetPinAsync(request, userId);
-            
-            if (!result.Success)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
         }
-        catch (Exception ex)
+
+        var result = await _pinManagementService.SetPinAsync(request, userId);
+        
+        if (!result.Success)
         {
-            _logger.LogError(ex, "Error setting PIN for card {CardId}", request.CardId);
-            return StatusCode(500, new PinOperationResponse
-            {
-                Success = false,
-                Message = ApiConstants.PinSetErrorMessage
-            });
+            return BadRequest(result);
         }
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -66,32 +51,20 @@ public class PinManagementController : ControllerBase
     [HttpPost("change-pin")]
     public async Task<ActionResult<PinOperationResponse>> ChangePin([FromBody] SetPinRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
-
-            var result = await _pinManagementService.ChangePinAsync(request, userId);
-            
-            if (!result.Success)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
         }
-        catch (Exception ex)
+
+        var result = await _pinManagementService.ChangePinAsync(request, userId);
+        
+        if (!result.Success)
         {
-            _logger.LogError(ex, "Error changing PIN for card {CardId}", request.CardId);
-            return StatusCode(500, new PinOperationResponse
-            {
-                Success = false,
-                Message = ApiConstants.PinChangeErrorMessage
-            });
+            return BadRequest(result);
         }
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -100,32 +73,20 @@ public class PinManagementController : ControllerBase
     [HttpPost("reset-pin")]
     public async Task<ActionResult<PinOperationResponse>> ResetPin([FromBody] ResetPinRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
-
-            var result = await _pinManagementService.ResetPinAsync(request, userId);
-            
-            if (!result.Success)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
         }
-        catch (Exception ex)
+
+        var result = await _pinManagementService.ResetPinAsync(request, userId);
+        
+        if (!result.Success)
         {
-            _logger.LogError(ex, "Error resetting PIN for card {CardId}", request.CardId);
-            return StatusCode(500, new PinOperationResponse
-            {
-                Success = false,
-                Message = ApiConstants.PinResetErrorMessage
-            });
+            return BadRequest(result);
         }
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -134,26 +95,14 @@ public class PinManagementController : ControllerBase
     [HttpPost("verify-pin")]
     public async Task<ActionResult<PinVerificationResult>> VerifyPin([FromBody] VerifyPinRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
+        }
 
-            var result = await _pinManagementService.VerifyPinAsync(request, userId);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error verifying PIN for card {CardId}", request.CardId);
-            return StatusCode(500, new PinVerificationResult
-            {
-                IsValid = false,
-                Message = ApiConstants.PinVerifyErrorMessage
-            });
-        }
+        var result = await _pinManagementService.VerifyPinAsync(request, userId);
+        return Ok(result);
     }
 
     /// <summary>
@@ -162,26 +111,18 @@ public class PinManagementController : ControllerBase
     [HttpPost("generate-verification-code")]
     public async Task<ActionResult<object>> GenerateVerificationCode([FromBody] GenerateVerificationCodeRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
-
-            await _pinManagementService.GenerateVerificationCodeAsync(
-                request.CardId, 
-                request.VerificationMethod, 
-                userId);
-
-            return Ok(new { success = true, message = "Verification code sent successfully" });
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating verification code for card {CardId}", request.CardId);
-            return StatusCode(500, new { success = false, message = ApiConstants.PinGenerationErrorMessage });
-        }
+
+        await _pinManagementService.GenerateVerificationCodeAsync(
+            request.CardId, 
+            request.VerificationMethod, 
+            userId);
+
+        return Ok(new { success = true, message = "Verification code sent successfully" });
     }
 
     /// <summary>
@@ -190,32 +131,20 @@ public class PinManagementController : ControllerBase
     [HttpPost("unblock-card")]
     public async Task<ActionResult<PinOperationResponse>> UnblockCard([FromBody] UnblockCardRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
-
-            var result = await _pinManagementService.UnblockCardAsync(request.CardId, userId);
-            
-            if (!result.Success)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
         }
-        catch (Exception ex)
+
+        var result = await _pinManagementService.UnblockCardAsync(request.CardId, userId);
+        
+        if (!result.Success)
         {
-            _logger.LogError(ex, "Error unblocking card {CardId}", request.CardId);
-            return StatusCode(500, new PinOperationResponse
-            {
-                Success = false,
-                Message = ApiConstants.CardUnblockErrorMessage
-            });
+            return BadRequest(result);
         }
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -224,22 +153,14 @@ public class PinManagementController : ControllerBase
     [HttpGet("has-pin/{cardId}")]
     public async Task<ActionResult<object>> HasPinSet(string cardId)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
-            }
+            return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
+        }
 
-            var hasPinSet = await _pinManagementService.HasPinSetAsync(cardId, userId);
-            return Ok(new { hasPinSet });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error checking PIN status for card {CardId}", cardId);
-            return StatusCode(500, new { error = "An error occurred while checking PIN status" });
-        }
+        var hasPinSet = await _pinManagementService.HasPinSetAsync(cardId, userId);
+        return Ok(new { hasPinSet });
     }
 }
 

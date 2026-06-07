@@ -16,12 +16,10 @@ namespace Bank.Api.Controllers.Admin;
 public class AuditController : ControllerBase
 {
     private readonly IAuditLogService _auditLogService;
-    private readonly ILogger<AuditController> _logger;
 
-    public AuditController(IAuditLogService auditLogService, ILogger<AuditController> logger)
+    public AuditController(IAuditLogService auditLogService)
     {
         _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
@@ -34,24 +32,16 @@ public class AuditController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
     {
-        try
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdClaim, out var userId))
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!Guid.TryParse(userIdClaim, out var userId))
-            {
-                return Unauthorized("Invalid user ID");
-            }
-
-            var auditLogs = await _auditLogService.GetUserAuditLogsAsync(
-                userId, fromDate, toDate, pageNumber, pageSize);
-
-            return Ok(auditLogs);
+            return Unauthorized("Invalid user ID");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving user audit logs");
-            return StatusCode(500, "An error occurred while retrieving audit logs");
-        }
+
+        var auditLogs = await _auditLogService.GetUserAuditLogsAsync(
+            userId, fromDate, toDate, pageNumber, pageSize);
+
+        return Ok(auditLogs);
     }
 
     /// <summary>
@@ -66,18 +56,10 @@ public class AuditController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
     {
-        try
-        {
-            var auditLogs = await _auditLogService.GetUserAuditLogsAsync(
-                userId, fromDate, toDate, pageNumber, pageSize);
+        var auditLogs = await _auditLogService.GetUserAuditLogsAsync(
+            userId, fromDate, toDate, pageNumber, pageSize);
 
-            return Ok(auditLogs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving user audit logs for user {UserId}", userId);
-            return StatusCode(500, "An error occurred while retrieving audit logs");
-        }
+        return Ok(auditLogs);
     }
 
     /// <summary>
@@ -93,18 +75,10 @@ public class AuditController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
     {
-        try
-        {
-            var auditLogs = await _auditLogService.GetEntityAuditLogsAsync(
-                entityType, entityId, fromDate, toDate, pageNumber, pageSize);
+        var auditLogs = await _auditLogService.GetEntityAuditLogsAsync(
+            entityType, entityId, fromDate, toDate, pageNumber, pageSize);
 
-            return Ok(auditLogs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving entity audit logs for {EntityType}:{EntityId}", entityType, entityId);
-            return StatusCode(500, "An error occurred while retrieving audit logs");
-        }
+        return Ok(auditLogs);
     }
 
     /// <summary>
@@ -119,18 +93,10 @@ public class AuditController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
     {
-        try
-        {
-            var auditLogs = await _auditLogService.GetAuditLogsByEventTypeAsync(
-                eventType, fromDate, toDate, pageNumber, pageSize);
+        var auditLogs = await _auditLogService.GetAuditLogsByEventTypeAsync(
+            eventType, fromDate, toDate, pageNumber, pageSize);
 
-            return Ok(auditLogs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving audit logs by event type {EventType}", eventType);
-            return StatusCode(500, "An error occurred while retrieving audit logs");
-        }
+        return Ok(auditLogs);
     }
 
     /// <summary>
@@ -145,18 +111,10 @@ public class AuditController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
     {
-        try
-        {
-            var auditLogs = await _auditLogService.GetAuditLogsByActionAsync(
-                action, fromDate, toDate, pageNumber, pageSize);
+        var auditLogs = await _auditLogService.GetAuditLogsByActionAsync(
+            action, fromDate, toDate, pageNumber, pageSize);
 
-            return Ok(auditLogs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving audit logs by action {Action}", action);
-            return StatusCode(500, "An error occurred while retrieving audit logs");
-        }
+        return Ok(auditLogs);
     }
 
     /// <summary>
@@ -171,18 +129,10 @@ public class AuditController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
     {
-        try
-        {
-            var auditLogs = await _auditLogService.GetAuditLogsByIpAddressAsync(
-                ipAddress, fromDate, toDate, pageNumber, pageSize);
+        var auditLogs = await _auditLogService.GetAuditLogsByIpAddressAsync(
+            ipAddress, fromDate, toDate, pageNumber, pageSize);
 
-            return Ok(auditLogs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving audit logs by IP address {IpAddress}", ipAddress);
-            return StatusCode(500, "An error occurred while retrieving audit logs");
-        }
+        return Ok(auditLogs);
     }
 
     /// <summary>
@@ -194,26 +144,18 @@ public class AuditController : ControllerBase
         [FromQuery] DateTime fromDate,
         [FromQuery] DateTime toDate)
     {
-        try
+        if (fromDate == default || toDate == default)
         {
-            if (fromDate == default || toDate == default)
-            {
-                return BadRequest("Both fromDate and toDate are required");
-            }
-
-            if (fromDate > toDate)
-            {
-                return BadRequest("fromDate cannot be greater than toDate");
-            }
-
-            var statistics = await _auditLogService.GetAuditLogStatisticsAsync(fromDate, toDate);
-
-            return Ok(statistics);
+            return BadRequest("Both fromDate and toDate are required");
         }
-        catch (Exception ex)
+
+        if (fromDate > toDate)
         {
-            _logger.LogError(ex, "Error retrieving audit log statistics");
-            return StatusCode(500, "An error occurred while retrieving audit log statistics");
+            return BadRequest("fromDate cannot be greater than toDate");
         }
+
+        var statistics = await _auditLogService.GetAuditLogStatisticsAsync(fromDate, toDate);
+
+        return Ok(statistics);
     }
 }

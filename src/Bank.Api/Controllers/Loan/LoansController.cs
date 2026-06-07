@@ -18,20 +18,17 @@ namespace Bank.Api.Controllers.Loan;
 public class LoansController : ControllerBase
 {
     private readonly ILoanService _loanService;
-    private readonly ILogger<LoansController> _logger;
     private readonly IValidator<LoanApplicationRequest> _loanApplicationValidator;
     private readonly IValidator<LoanPaymentRequest> _loanPaymentValidator;
     private readonly IValidator<ApprovalDecision> _approvalDecisionValidator;
 
     public LoansController(
-        ILoanService loanService, 
-        ILogger<LoansController> logger,
+        ILoanService loanService,
         IValidator<LoanApplicationRequest> loanApplicationValidator,
         IValidator<LoanPaymentRequest> loanPaymentValidator,
         IValidator<ApprovalDecision> approvalDecisionValidator)
     {
         _loanService = loanService;
-        _logger = logger;
         _loanApplicationValidator = loanApplicationValidator;
         _loanPaymentValidator = loanPaymentValidator;
         _approvalDecisionValidator = approvalDecisionValidator;
@@ -43,34 +40,26 @@ public class LoansController : ControllerBase
     [HttpPost("apply")]
     public async Task<ActionResult<LoanApplicationResult>> SubmitApplication([FromBody] LoanApplicationRequest request)
     {
-        try
+        // Validate the request
+        var validationResult = await _loanApplicationValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
         {
-            // Validate the request
-            var validationResult = await _loanApplicationValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
+            return BadRequest(new LoanApplicationResult
             {
-                return BadRequest(new LoanApplicationResult
-                {
-                    IsSuccess = false,
-                    Message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
-                });
-            }
+                IsSuccess = false,
+                Message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
+            });
+        }
 
-            var customerId = GetCurrentUserId();
-            var result = await _loanService.SubmitApplicationAsync(customerId, request);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            
-            return BadRequest(result);
-        }
-        catch (Exception ex)
+        var customerId = GetCurrentUserId();
+        var result = await _loanService.SubmitApplicationAsync(customerId, request);
+        
+        if (result.IsSuccess)
         {
-            _logger.LogError(ex, "Error submitting loan application");
-            return StatusCode(500, new { Message = "An error occurred while processing your application" });
+            return Ok(result);
         }
+        
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -79,17 +68,9 @@ public class LoansController : ControllerBase
     [HttpGet("my-loans")]
     public async Task<ActionResult<List<LoanDto>>> GetMyLoans()
     {
-        try
-        {
-            var customerId = GetCurrentUserId();
-            var loans = await _loanService.GetCustomerLoansAsync(customerId);
-            return Ok(loans);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving customer loans");
-            return StatusCode(500, new { Message = "An error occurred while retrieving your loans" });
-        }
+        var customerId = GetCurrentUserId();
+        var loans = await _loanService.GetCustomerLoansAsync(customerId);
+        return Ok(loans);
     }
 
     /// <summary>
@@ -98,29 +79,21 @@ public class LoansController : ControllerBase
     [HttpGet("{loanId}")]
     public async Task<ActionResult<LoanDto>> GetLoan(Guid loanId)
     {
-        try
+        var loan = await _loanService.GetLoanByIdAsync(loanId);
+        
+        if (loan == null)
         {
-            var loan = await _loanService.GetLoanByIdAsync(loanId);
-            
-            if (loan == null)
-            {
-                return NotFound(new { Message = "Loan not found" });
-            }
-
-            // Ensure customer can only access their own loans (admins bypass this check)
-            var customerId = GetCurrentUserId();
-            if (!User.IsInRole("Admin") && loan.CustomerId != customerId)
-            {
-                return Forbid();
-            }
-
-            return Ok(loan);
+            return NotFound(new { Message = "Loan not found" });
         }
-        catch (Exception ex)
+
+        // Ensure customer can only access their own loans (admins bypass this check)
+        var customerId = GetCurrentUserId();
+        if (!User.IsInRole("Admin") && loan.CustomerId != customerId)
         {
-            _logger.LogError(ex, "Error retrieving loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred while retrieving the loan" });
+            return Forbid();
         }
+
+        return Ok(loan);
     }
 
     /// <summary>
@@ -129,22 +102,14 @@ public class LoansController : ControllerBase
     [HttpGet("{loanId}/repayment-schedule")]
     public async Task<ActionResult<RepaymentSchedule>> GetRepaymentSchedule(Guid loanId)
     {
-        try
+        var schedule = await _loanService.GenerateRepaymentScheduleAsync(loanId);
+        
+        if (schedule.LoanId == Guid.Empty)
         {
-            var schedule = await _loanService.GenerateRepaymentScheduleAsync(loanId);
-            
-            if (schedule.LoanId == Guid.Empty)
-            {
-                return NotFound(new { Message = "Loan not found" });
-            }
+            return NotFound(new { Message = "Loan not found" });
+        }
 
-            return Ok(schedule);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating repayment schedule for loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred while generating the repayment schedule" });
-        }
+        return Ok(schedule);
     }
 
     /// <summary>
@@ -153,16 +118,8 @@ public class LoansController : ControllerBase
     [HttpGet("{loanId}/payments")]
     public async Task<ActionResult<List<Domain.Entities.LoanPayment>>> GetPaymentHistory(Guid loanId)
     {
-        try
-        {
-            var payments = await _loanService.GetLoanPaymentHistoryAsync(loanId);
-            return Ok(payments);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving payment history for loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred while retrieving payment history" });
-        }
+        var payments = await _loanService.GetLoanPaymentHistoryAsync(loanId);
+        return Ok(payments);
     }
 
     /// <summary>
@@ -171,34 +128,26 @@ public class LoansController : ControllerBase
     [HttpPost("payments")]
     public async Task<ActionResult<PaymentResult>> MakePayment([FromBody] LoanPaymentRequest request)
     {
-        try
+        // Validate the request
+        var validationResult = await _loanPaymentValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
         {
-            // Validate the request
-            var validationResult = await _loanPaymentValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
+            return BadRequest(new PaymentResult
             {
-                return BadRequest(new PaymentResult
-                {
-                    IsSuccess = false,
-                    Message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
-                });
-            }
+                IsSuccess = false,
+                Message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
+            });
+        }
 
-            var customerId = GetCurrentUserId();
-            var result = await _loanService.ProcessPaymentAsync(request, customerId);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            
-            return BadRequest(result);
-        }
-        catch (Exception ex)
+        var customerId = GetCurrentUserId();
+        var result = await _loanService.ProcessPaymentAsync(request, customerId);
+        
+        if (result.IsSuccess)
         {
-            _logger.LogError(ex, "Error processing loan payment");
-            return StatusCode(500, new { Message = "An error occurred while processing the payment" });
+            return Ok(result);
         }
+        
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -207,22 +156,14 @@ public class LoansController : ControllerBase
     [HttpGet("{loanId}/next-payment")]
     public async Task<ActionResult<RepaymentScheduleEntry>> GetNextPayment(Guid loanId)
     {
-        try
+        var nextPayment = await _loanService.GetNextPaymentDetailsAsync(loanId);
+        
+        if (nextPayment == null)
         {
-            var nextPayment = await _loanService.GetNextPaymentDetailsAsync(loanId);
-            
-            if (nextPayment == null)
-            {
-                return NotFound(new { Message = "No upcoming payments found" });
-            }
+            return NotFound(new { Message = "No upcoming payments found" });
+        }
 
-            return Ok(nextPayment);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving next payment for loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred while retrieving next payment details" });
-        }
+        return Ok(nextPayment);
     }
 
     /// <summary>
@@ -232,24 +173,16 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<object>> SearchLoans([FromBody] LoanSearchRequest request)
     {
-        try
+        var (loans, totalCount) = await _loanService.SearchLoansAsync(request);
+        
+        return Ok(new
         {
-            var (loans, totalCount) = await _loanService.SearchLoansAsync(request);
-            
-            return Ok(new
-            {
-                Loans = loans,
-                TotalCount = totalCount,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
-                TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize)
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error searching loans");
-            return StatusCode(500, new { Message = "An error occurred while searching loans" });
-        }
+            Loans = loans,
+            TotalCount = totalCount,
+            PageNumber = request.PageNumber,
+            PageSize = request.PageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize)
+        });
     }
 
     /// <summary>
@@ -259,30 +192,22 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<CreditScoreResult>> PerformCreditScoring(Guid loanId)
     {
-        try
+        var loan = await _loanService.GetLoanByIdAsync(loanId);
+        if (loan == null)
         {
-            var loan = await _loanService.GetLoanByIdAsync(loanId);
-            if (loan == null)
-            {
-                return NotFound(new { Message = "Loan not found" });
-            }
+            return NotFound(new { Message = "Loan not found" });
+        }
 
-            // Get customer ID from loan (this would need to be retrieved from the loan service)
-            // For now, we'll use a placeholder approach
-            var result = await _loanService.PerformCreditScoringAsync(Guid.Empty, loanId);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            
-            return BadRequest(result);
-        }
-        catch (Exception ex)
+        // Get customer ID from loan (this would need to be retrieved from the loan service)
+        // For now, we'll use a placeholder approach
+        var result = await _loanService.PerformCreditScoringAsync(Guid.Empty, loanId);
+        
+        if (result.IsSuccess)
         {
-            _logger.LogError(ex, "Error performing credit scoring for loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred during credit scoring" });
+            return Ok(result);
         }
+        
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -292,34 +217,26 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<LoanApprovalResult>> ProcessApproval(Guid loanId, [FromBody] ApprovalDecision decision)
     {
-        try
+        // Validate the request
+        var validationResult = await _approvalDecisionValidator.ValidateAsync(decision);
+        if (!validationResult.IsValid)
         {
-            // Validate the request
-            var validationResult = await _approvalDecisionValidator.ValidateAsync(decision);
-            if (!validationResult.IsValid)
+            return BadRequest(new LoanApprovalResult
             {
-                return BadRequest(new LoanApprovalResult
-                {
-                    IsSuccess = false,
-                    Message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
-                });
-            }
+                IsSuccess = false,
+                Message = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
+            });
+        }
 
-            var approvedBy = GetCurrentUserId();
-            var result = await _loanService.ProcessApprovalAsync(loanId, decision, approvedBy);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            
-            return BadRequest(result);
-        }
-        catch (Exception ex)
+        var approvedBy = GetCurrentUserId();
+        var result = await _loanService.ProcessApprovalAsync(loanId, decision, approvedBy);
+        
+        if (result.IsSuccess)
         {
-            _logger.LogError(ex, "Error processing loan approval for loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred while processing the approval" });
+            return Ok(result);
         }
+        
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -329,23 +246,15 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<DisbursementResult>> DisburseLoan(Guid loanId)
     {
-        try
+        var disbursedBy = GetCurrentUserId();
+        var result = await _loanService.DisburseLoanAsync(loanId, disbursedBy);
+        
+        if (result.IsSuccess)
         {
-            var disbursedBy = GetCurrentUserId();
-            var result = await _loanService.DisburseLoanAsync(loanId, disbursedBy);
-            
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            
-            return BadRequest(result);
+            return Ok(result);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error disbursing loan {LoanId}", loanId);
-            return StatusCode(500, new { Message = "An error occurred during loan disbursement" });
-        }
+        
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -355,22 +264,14 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<object>> ProcessDelinquentLoans()
     {
-        try
+        var processedCount = await _loanService.ProcessDelinquentLoansAsync();
+        
+        return Ok(new
         {
-            var processedCount = await _loanService.ProcessDelinquentLoansAsync();
-            
-            return Ok(new
-            {
-                Message = $"Processed {processedCount} delinquent loans",
-                ProcessedCount = processedCount,
-                ProcessedAt = DateTime.UtcNow
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing delinquent loans");
-            return StatusCode(500, new { Message = "An error occurred while processing delinquent loans" });
-        }
+            Message = $"Processed {processedCount} delinquent loans",
+            ProcessedCount = processedCount,
+            ProcessedAt = DateTime.UtcNow
+        });
     }
 
     private Guid GetCurrentUserId()

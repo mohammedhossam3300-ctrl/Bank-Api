@@ -56,9 +56,19 @@ public class GlobalExceptionMiddleware
                 body = new { Message = "Invalid operation." };
                 break;
 
+            case ArgumentException:
+                statusCode = (int)HttpStatusCode.BadRequest;
+                body = new { Message = "Invalid argument." };
+                break;
+
             case KeyNotFoundException:
                 statusCode = (int)HttpStatusCode.NotFound;
                 body = new { Message = "Resource not found." };
+                break;
+
+            case FileNotFoundException:
+                statusCode = (int)HttpStatusCode.NotFound;
+                body = new { Message = "The requested file was not found." };
                 break;
 
             default:

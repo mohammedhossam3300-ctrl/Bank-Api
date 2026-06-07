@@ -16,12 +16,10 @@ namespace Bank.Api.Controllers.Auth;
 public class SessionController : ControllerBase
 {
     private readonly ISessionService _sessionService;
-    private readonly ILogger<SessionController> _logger;
 
-    public SessionController(ISessionService sessionService, ILogger<SessionController> logger)
+    public SessionController(ISessionService sessionService)
     {
         _sessionService = sessionService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -30,31 +28,23 @@ public class SessionController : ControllerBase
     [HttpGet("active")]
     public async Task<ActionResult<List<SessionInfo>>> GetActiveSessions()
     {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var sessions = await _sessionService.GetUserActiveSessionsAsync(userId);
+        var userId = GetCurrentUserId();
+        var sessions = await _sessionService.GetUserActiveSessionsAsync(userId);
 
-            var sessionInfos = sessions.Select(s => new SessionInfo
-            {
-                Id = s.Id,
-                SessionToken = s.SessionToken[..8] + "...", // Mask token for security
-                ExpiresAt = s.ExpiresAt,
-                Status = s.Status,
-                IpAddress = s.IpAddress,
-                UserAgent = s.UserAgent,
-                LastActivityAt = s.LastActivityAt,
-                IsAdminSession = s.IsAdminSession,
-                CreatedAt = s.CreatedAt
-            }).ToList();
-
-            return Ok(sessionInfos);
-        }
-        catch (Exception ex)
+        var sessionInfos = sessions.Select(s => new SessionInfo
         {
-            _logger.LogError(ex, "Error retrieving active sessions for user");
-            return StatusCode(500, "Failed to retrieve active sessions");
-        }
+            Id = s.Id,
+            SessionToken = s.SessionToken[..8] + "...", // Mask token for security
+            ExpiresAt = s.ExpiresAt,
+            Status = s.Status,
+            IpAddress = s.IpAddress,
+            UserAgent = s.UserAgent,
+            LastActivityAt = s.LastActivityAt,
+            IsAdminSession = s.IsAdminSession,
+            CreatedAt = s.CreatedAt
+        }).ToList();
+
+        return Ok(sessionInfos);
     }
 
     /// <summary>
@@ -63,25 +53,17 @@ public class SessionController : ControllerBase
     [HttpDelete("{sessionId}")]
     public async Task<ActionResult> TerminateSession(Guid sessionId)
     {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var sessions = await _sessionService.GetUserActiveSessionsAsync(userId);
-            var session = sessions.FirstOrDefault(s => s.Id == sessionId);
+        var userId = GetCurrentUserId();
+        var sessions = await _sessionService.GetUserActiveSessionsAsync(userId);
+        var session = sessions.FirstOrDefault(s => s.Id == sessionId);
 
-            if (session == null)
-            {
-                return NotFound("Session not found");
-            }
-
-            await _sessionService.TerminateSessionAsync(session.SessionToken, "User requested termination");
-            return Ok(new { message = "Session terminated successfully" });
-        }
-        catch (Exception ex)
+        if (session == null)
         {
-            _logger.LogError(ex, "Error terminating session {SessionId}", sessionId);
-            return StatusCode(500, "Failed to terminate session");
+            return NotFound("Session not found");
         }
+
+        await _sessionService.TerminateSessionAsync(session.SessionToken, "User requested termination");
+        return Ok(new { message = "Session terminated successfully" });
     }
 
     /// <summary>
@@ -90,19 +72,11 @@ public class SessionController : ControllerBase
     [HttpDelete("terminate-all")]
     public async Task<ActionResult> TerminateAllOtherSessions()
     {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var currentSessionToken = GetCurrentSessionToken();
+        var userId = GetCurrentUserId();
+        var currentSessionToken = GetCurrentSessionToken();
 
-            await _sessionService.TerminateAllUserSessionsAsync(userId, "User requested termination of all other sessions", currentSessionToken);
-            return Ok(new { message = "All other sessions terminated successfully" });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error terminating all sessions for user");
-            return StatusCode(500, "Failed to terminate sessions");
-        }
+        await _sessionService.TerminateAllUserSessionsAsync(userId, "User requested termination of all other sessions", currentSessionToken);
+        return Ok(new { message = "All other sessions terminated successfully" });
     }
 
     /// <summary>
@@ -112,16 +86,8 @@ public class SessionController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<SessionStatistics>> GetSessionStatistics()
     {
-        try
-        {
-            var statistics = await _sessionService.GetSessionStatisticsAsync();
-            return Ok(statistics);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving session statistics");
-            return StatusCode(500, "Failed to retrieve session statistics");
-        }
+        var statistics = await _sessionService.GetSessionStatisticsAsync();
+        return Ok(statistics);
     }
 
     /// <summary>
@@ -130,27 +96,19 @@ public class SessionController : ControllerBase
     [HttpPost("refresh")]
     public async Task<ActionResult<SessionResult>> RefreshSession([FromBody] RefreshTokenRequest request)
     {
-        try
+        if (string.IsNullOrEmpty(request.RefreshToken))
         {
-            if (string.IsNullOrEmpty(request.RefreshToken))
-            {
-                return BadRequest("Refresh token is required");
-            }
-
-            var result = await _sessionService.RefreshSessionAsync(request.RefreshToken);
-            
-            if (!result.Success)
-            {
-                return Unauthorized(result.ErrorMessage);
-            }
-
-            return Ok(result);
+            return BadRequest("Refresh token is required");
         }
-        catch (Exception ex)
+
+        var result = await _sessionService.RefreshSessionAsync(request.RefreshToken);
+        
+        if (!result.Success)
         {
-            _logger.LogError(ex, "Error refreshing session");
-            return StatusCode(500, "Failed to refresh session");
+            return Unauthorized(result.ErrorMessage);
         }
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -159,20 +117,12 @@ public class SessionController : ControllerBase
     [HttpPost("activity")]
     public async Task<ActionResult> UpdateActivity()
     {
-        try
+        var sessionToken = GetCurrentSessionToken();
+        if (!string.IsNullOrEmpty(sessionToken))
         {
-            var sessionToken = GetCurrentSessionToken();
-            if (!string.IsNullOrEmpty(sessionToken))
-            {
-                await _sessionService.UpdateSessionActivityAsync(sessionToken);
-            }
-            return Ok();
+            await _sessionService.UpdateSessionActivityAsync(sessionToken);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating session activity");
-            return StatusCode(500, "Failed to update session activity");
-        }
+        return Ok();
     }
 
     private Guid GetCurrentUserId()

@@ -9,7 +9,7 @@ using Bank.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Bank.Application.Services.Payment
+namespace Bank.Application.Services
 {
     public class BeneficiaryService : IBeneficiaryService
     {

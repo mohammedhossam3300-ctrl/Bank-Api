@@ -6,7 +6,7 @@ using Bank.Application.DTOs.Statement.Delivery;
 using Bank.Application.DTOs.Statement.Summary;
 using Bank.Application.DTOs.Statement.Transaction;
 using Bank.Application.Interfaces;
-using Bank.Application.Services.Shared;
+using Bank.Application.Services;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Bank.Application.Services.Shared;
+namespace Bank.Application.Services;
 
 /// <summary>
 /// Service for secure logging of sensitive information without exposing actual values

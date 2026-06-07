@@ -16,12 +16,10 @@ namespace Bank.Api.Controllers.Card;
 public class CardController : ControllerBase
 {
     private readonly ICardService _cardService;
-    private readonly ILogger<CardController> _logger;
 
-    public CardController(ICardService cardService, ILogger<CardController> logger)
+    public CardController(ICardService cardService)
     {
         _cardService = cardService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -30,28 +28,20 @@ public class CardController : ControllerBase
     [HttpPost("issue")]
     public async Task<ActionResult<CardIssuanceResult>> IssueCard([FromBody] CardIssuanceRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only issue cards for your own account");
-            }
-
-            var result = await _cardService.IssueCardAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only issue cards for your own account");
         }
-        catch (Exception ex)
+
+        var result = await _cardService.IssueCardAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error issuing card for customer {CustomerId}", request.CustomerId);
-            return StatusCode(500, "An error occurred while issuing the card");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -60,29 +50,21 @@ public class CardController : ControllerBase
     [HttpPost("{cardId}/activate")]
     public async Task<ActionResult<CardActivationResult>> ActivateCard(Guid cardId, [FromBody] CardActivationRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only activate your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.ActivateCardAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only activate your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.ActivateCardAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error activating card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while activating the card");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -91,29 +73,21 @@ public class CardController : ControllerBase
     [HttpPost("{cardId}/block")]
     public async Task<ActionResult<CardBlockResult>> BlockCard(Guid cardId, [FromBody] CardBlockRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only block your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.BlockCardAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only block your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.BlockCardAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error blocking card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while blocking the card");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -122,29 +96,21 @@ public class CardController : ControllerBase
     [HttpPost("{cardId}/unblock")]
     public async Task<ActionResult<CardBlockResult>> UnblockCard(Guid cardId, [FromBody] CardUnblockRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only unblock your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.UnblockCardAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only unblock your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.UnblockCardAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error unblocking card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while unblocking the card");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
     /// <summary>
     /// Update card spending limits
@@ -152,29 +118,21 @@ public class CardController : ControllerBase
     [HttpPut("{cardId}/limits")]
     public async Task<ActionResult<CardLimitUpdateResult>> UpdateLimits(Guid cardId, [FromBody] CardLimitUpdateRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only update limits for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.UpdateLimitsAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only update limits for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.UpdateLimitsAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error updating limits for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while updating card limits");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -183,23 +141,15 @@ public class CardController : ControllerBase
     [HttpGet("{cardId}")]
     public async Task<ActionResult<CardDetailsDto>> GetCardDetails(Guid cardId)
     {
-        try
+        var userId = GetCurrentUserId();
+        var cardDetails = await _cardService.GetCardDetailsAsync(cardId, userId);
+        
+        if (cardDetails == null)
         {
-            var userId = GetCurrentUserId();
-            var cardDetails = await _cardService.GetCardDetailsAsync(cardId, userId);
-            
-            if (cardDetails == null)
-            {
-                return NotFound("Card not found");
-            }
+            return NotFound("Card not found");
+        }
 
-            return Ok(cardDetails);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting card details for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while retrieving card details");
-        }
+        return Ok(cardDetails);
     }
 
     /// <summary>
@@ -208,18 +158,10 @@ public class CardController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<CardSummaryDto>>> GetCustomerCards()
     {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var cards = await _cardService.GetCustomerCardsAsync(userId);
-            
-            return Ok(cards);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting cards for customer {CustomerId}", GetCurrentUserId());
-            return StatusCode(500, "An error occurred while retrieving cards");
-        }
+        var userId = GetCurrentUserId();
+        var cards = await _cardService.GetCustomerCardsAsync(userId);
+        
+        return Ok(cards);
     }
 
     /// <summary>
@@ -230,46 +172,38 @@ public class CardController : ControllerBase
         Guid cardId,
         [FromQuery] CardTransactionFilterRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        
+        // Merge path and query parameters
+        var searchRequest = new CardTransactionSearchRequest
         {
-            var userId = GetCurrentUserId();
-            
-            // Merge path and query parameters
-            var searchRequest = new CardTransactionSearchRequest
-            {
-                CardId = cardId,
-                CustomerId = userId,
-                FromDate = request.FromDate,
-                ToDate = request.ToDate,
-                MinAmount = request.MinAmount,
-                MaxAmount = request.MaxAmount,
-                MerchantName = request.MerchantName,
-                IsInternational = request.IsInternational,
-                Page = request.Page,
-                PageSize = Math.Min(request.PageSize, 100), // Limit page size
-                SortBy = request.SortBy,
-                SortDescending = request.SortDescending
-            };
+            CardId = cardId,
+            CustomerId = userId,
+            FromDate = request.FromDate,
+            ToDate = request.ToDate,
+            MinAmount = request.MinAmount,
+            MaxAmount = request.MaxAmount,
+            MerchantName = request.MerchantName,
+            IsInternational = request.IsInternational,
+            Page = request.Page,
+            PageSize = Math.Min(request.PageSize, 100), // Limit page size
+            SortBy = request.SortBy,
+            SortDescending = request.SortDescending
+        };
 
-            // Parse enums if provided
-            if (Enum.TryParse<Domain.Enums.CardTransactionType>(request.TransactionType, true, out var txType))
-                searchRequest.TransactionType = txType;
-            
-            if (Enum.TryParse<Domain.Enums.CardTransactionStatus>(request.Status, true, out var txStatus))
-                searchRequest.Status = txStatus;
-            
-            if (Enum.TryParse<Domain.Enums.MerchantCategory>(request.MerchantCategory, true, out var category))
-                searchRequest.MerchantCategory = category;
+        // Parse enums if provided
+        if (Enum.TryParse<Domain.Enums.CardTransactionType>(request.TransactionType, true, out var txType))
+            searchRequest.TransactionType = txType;
+        
+        if (Enum.TryParse<Domain.Enums.CardTransactionStatus>(request.Status, true, out var txStatus))
+            searchRequest.Status = txStatus;
+        
+        if (Enum.TryParse<Domain.Enums.MerchantCategory>(request.MerchantCategory, true, out var category))
+            searchRequest.MerchantCategory = category;
 
-            var result = await _cardService.GetCardTransactionsAsync(searchRequest);
-            
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting transactions for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while retrieving card transactions");
-        }
+        var result = await _cardService.GetCardTransactionsAsync(searchRequest);
+        
+        return Ok(result);
     }
     /// <summary>
     /// Change card PIN
@@ -277,29 +211,21 @@ public class CardController : ControllerBase
     [HttpPost("{cardId}/change-pin")]
     public async Task<ActionResult<CardPinChangeResult>> ChangePin(Guid cardId, [FromBody] CardPinChangeRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only change PIN for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.ChangePinAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only change PIN for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.ChangePinAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error changing PIN for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while changing PIN");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -308,29 +234,21 @@ public class CardController : ControllerBase
     [HttpPost("{cardId}/reset-pin")]
     public async Task<ActionResult<CardPinResetResult>> ResetPin(Guid cardId, [FromBody] CardPinResetRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only reset PIN for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.ResetPinAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only reset PIN for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.ResetPinAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error resetting PIN for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while resetting PIN");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -341,29 +259,21 @@ public class CardController : ControllerBase
         Guid cardId, 
         [FromBody] CardMerchantRestrictionsRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only update restrictions for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.UpdateMerchantRestrictionsAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only update restrictions for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.UpdateMerchantRestrictionsAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error updating merchant restrictions for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while updating merchant restrictions");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -374,29 +284,21 @@ public class CardController : ControllerBase
         Guid cardId, 
         [FromBody] CardContactlessRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only update settings for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.UpdateContactlessSettingsAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only update settings for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.UpdateContactlessSettingsAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error updating contactless settings for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while updating contactless settings");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -407,29 +309,21 @@ public class CardController : ControllerBase
         Guid cardId, 
         [FromBody] CardOnlineTransactionsRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only update settings for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.UpdateOnlineTransactionsAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only update settings for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.UpdateOnlineTransactionsAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error updating online transactions settings for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while updating online transactions settings");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -440,29 +334,21 @@ public class CardController : ControllerBase
         Guid cardId, 
         [FromBody] CardInternationalTransactionsRequest request)
     {
-        try
+        var userId = GetCurrentUserId();
+        if (request.CustomerId != userId)
         {
-            var userId = GetCurrentUserId();
-            if (request.CustomerId != userId)
-            {
-                return Forbid("You can only update settings for your own cards");
-            }
-
-            request.CardId = cardId;
-            var result = await _cardService.UpdateInternationalTransactionsAsync(request);
-            
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Forbid("You can only update settings for your own cards");
         }
-        catch (Exception ex)
+
+        request.CardId = cardId;
+        var result = await _cardService.UpdateInternationalTransactionsAsync(request);
+        
+        if (result.Success)
         {
-            _logger.LogError(ex, "Error updating international transactions settings for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while updating international transactions settings");
+            return Ok(result);
         }
+
+        return BadRequest(result);
     }
 
     /// <summary>
@@ -474,23 +360,15 @@ public class CardController : ControllerBase
         [FromQuery] DateTime? fromDate = null,
         [FromQuery] DateTime? toDate = null)
     {
-        try
-        {
-            var userId = GetCurrentUserId();
-            
-            // Default to last 30 days if no dates provided
-            var from = fromDate ?? DateTime.UtcNow.AddDays(-30);
-            var to = toDate ?? DateTime.UtcNow;
+        var userId = GetCurrentUserId();
+        
+        // Default to last 30 days if no dates provided
+        var from = fromDate ?? DateTime.UtcNow.AddDays(-30);
+        var to = toDate ?? DateTime.UtcNow;
 
-            var stats = await _cardService.GetCardUsageStatsAsync(cardId, userId, from, to);
-            
-            return Ok(stats);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting usage stats for card {CardId}", cardId);
-            return StatusCode(500, "An error occurred while retrieving card usage statistics");
-        }
+        var stats = await _cardService.GetCardUsageStatsAsync(cardId, userId, from, to);
+        
+        return Ok(stats);
     }
 
     private Guid GetCurrentUserId() => this.GetCurrentUserIdRequired();

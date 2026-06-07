@@ -15,14 +15,11 @@ namespace Bank.Api.Controllers.Loan;
 public class LoanAnalyticsController : ControllerBase
 {
     private readonly ILoanAnalyticsService _loanAnalyticsService;
-    private readonly ILogger<LoanAnalyticsController> _logger;
 
     public LoanAnalyticsController(
-        ILoanAnalyticsService loanAnalyticsService,
-        ILogger<LoanAnalyticsController> logger)
+        ILoanAnalyticsService loanAnalyticsService)
     {
         _loanAnalyticsService = loanAnalyticsService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -32,16 +29,8 @@ public class LoanAnalyticsController : ControllerBase
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<LoanAnalyticsDto>> GetLoanAnalytics([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
-        try
-        {
-            var analytics = await _loanAnalyticsService.GetLoanAnalyticsAsync(fromDate, toDate);
-            return Ok(analytics);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting loan analytics");
-            return StatusCode(500, "An error occurred while generating loan analytics");
-        }
+        var analytics = await _loanAnalyticsService.GetLoanAnalyticsAsync(fromDate, toDate);
+        return Ok(analytics);
     }
 
     /// <summary>
@@ -50,20 +39,8 @@ public class LoanAnalyticsController : ControllerBase
     [HttpGet("performance/{loanId}")]
     public async Task<ActionResult<LoanPerformanceMetrics>> GetLoanPerformance(Guid loanId)
     {
-        try
-        {
-            var performance = await _loanAnalyticsService.GetLoanPerformanceAsync(loanId);
-            return Ok(performance);
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting loan performance for loan {LoanId}", loanId);
-            return StatusCode(500, "An error occurred while getting loan performance");
-        }
+        var performance = await _loanAnalyticsService.GetLoanPerformanceAsync(loanId);
+        return Ok(performance);
     }
 
     /// <summary>
@@ -73,16 +50,8 @@ public class LoanAnalyticsController : ControllerBase
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<Dictionary<LoanType, LoanAnalyticsDto>>> GetPortfolioByType()
     {
-        try
-        {
-            var portfolio = await _loanAnalyticsService.GetPortfolioByTypeAsync();
-            return Ok(portfolio);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting portfolio by type");
-            return StatusCode(500, "An error occurred while getting portfolio by type");
-        }
+        var portfolio = await _loanAnalyticsService.GetPortfolioByTypeAsync();
+        return Ok(portfolio);
     }
 
     /// <summary>
@@ -92,16 +61,8 @@ public class LoanAnalyticsController : ControllerBase
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<List<LoanDto>>> GetDelinquencyReport()
     {
-        try
-        {
-            var report = await _loanAnalyticsService.GetDelinquencyReportAsync();
-            return Ok(report);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating delinquency report");
-            return StatusCode(500, "An error occurred while generating delinquency report");
-        }
+        var report = await _loanAnalyticsService.GetDelinquencyReportAsync();
+        return Ok(report);
     }
 
     /// <summary>
@@ -111,16 +72,8 @@ public class LoanAnalyticsController : ControllerBase
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<List<LoanDto>>> GetLoansApproachingMaturity([FromQuery] int daysAhead = 30)
     {
-        try
-        {
-            var loans = await _loanAnalyticsService.GetLoansApproachingMaturityAsync(daysAhead);
-            return Ok(loans);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting loans approaching maturity");
-            return StatusCode(500, "An error occurred while getting loans approaching maturity");
-        }
+        var loans = await _loanAnalyticsService.GetLoansApproachingMaturityAsync(daysAhead);
+        return Ok(loans);
     }
 
     /// <summary>
@@ -130,16 +83,8 @@ public class LoanAnalyticsController : ControllerBase
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<PortfolioRiskMetrics>> GetPortfolioRisk()
     {
-        try
-        {
-            var risk = await _loanAnalyticsService.CalculatePortfolioRiskAsync();
-            return Ok(risk);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error calculating portfolio risk");
-            return StatusCode(500, "An error occurred while calculating portfolio risk");
-        }
+        var risk = await _loanAnalyticsService.CalculatePortfolioRiskAsync();
+        return Ok(risk);
     }
 
     /// <summary>
@@ -149,16 +94,8 @@ public class LoanAnalyticsController : ControllerBase
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<List<LoanOriginationTrend>>> GetOriginationTrends([FromQuery] int months = 12)
     {
-        try
-        {
-            var trends = await _loanAnalyticsService.GetOriginationTrendsAsync(months);
-            return Ok(trends);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting origination trends");
-            return StatusCode(500, "An error occurred while getting origination trends");
-        }
+        var trends = await _loanAnalyticsService.GetOriginationTrendsAsync(months);
+        return Ok(trends);
     }
 
     /// <summary>
@@ -167,23 +104,15 @@ public class LoanAnalyticsController : ControllerBase
     [HttpGet("customer-summary/{customerId}")]
     public async Task<ActionResult<CustomerLoanSummary>> GetCustomerLoanSummary(Guid customerId)
     {
-        try
+        // Ensure user can only access their own data or is admin/manager
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId != customerId && !User.IsInRole("Admin") && !User.IsInRole("Manager"))
         {
-            // Ensure user can only access their own data or is admin/manager
-            var currentUserId = GetCurrentUserId();
-            if (currentUserId != customerId && !User.IsInRole("Admin") && !User.IsInRole("Manager"))
-            {
-                return Forbid("You can only access your own loan summary");
-            }
+            return Forbid("You can only access your own loan summary");
+        }
 
-            var summary = await _loanAnalyticsService.GetCustomerLoanSummaryAsync(customerId);
-            return Ok(summary);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting customer loan summary for customer {CustomerId}", customerId);
-            return StatusCode(500, "An error occurred while getting customer loan summary");
-        }
+        var summary = await _loanAnalyticsService.GetCustomerLoanSummaryAsync(customerId);
+        return Ok(summary);
     }
 
     /// <summary>
@@ -192,17 +121,9 @@ public class LoanAnalyticsController : ControllerBase
     [HttpGet("my-summary")]
     public async Task<ActionResult<CustomerLoanSummary>> GetMyLoanSummary()
     {
-        try
-        {
-            var customerId = GetCurrentUserId();
-            var summary = await _loanAnalyticsService.GetCustomerLoanSummaryAsync(customerId);
-            return Ok(summary);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting loan summary for current user");
-            return StatusCode(500, "An error occurred while getting your loan summary");
-        }
+        var customerId = GetCurrentUserId();
+        var summary = await _loanAnalyticsService.GetCustomerLoanSummaryAsync(customerId);
+        return Ok(summary);
     }
 
     #region Private Helper Methods

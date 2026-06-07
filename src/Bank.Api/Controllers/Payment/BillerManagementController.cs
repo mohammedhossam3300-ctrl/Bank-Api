@@ -41,42 +41,34 @@ public class BillerManagementController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BillerDto>> CreateBiller([FromBody] CreateBillerRequest request)
     {
-        try
+        // Check if biller already exists with same account/routing number
+        var exists = await _billerRepository.ExistsAsync(request.AccountNumber, request.RoutingNumber);
+        if (exists)
         {
-            // Check if biller already exists with same account/routing number
-            var exists = await _billerRepository.ExistsAsync(request.AccountNumber, request.RoutingNumber);
-            if (exists)
-            {
-                return BadRequest("A biller with the same account and routing number already exists");
-            }
-
-            var biller = new Bank.Domain.Entities.Biller
-            {
-                Name = request.Name,
-                Category = request.Category,
-                AccountNumber = request.AccountNumber,
-                RoutingNumber = request.RoutingNumber,
-                Address = request.Address,
-                SupportedPaymentMethods = System.Text.Json.JsonSerializer.Serialize(request.SupportedPaymentMethods),
-                MinAmount = request.MinAmount,
-                MaxAmount = request.MaxAmount,
-                ProcessingDays = request.ProcessingDays,
-                IsActive = true
-            };
-
-            await _billerRepository.AddAsync(biller);
-            await _unitOfWork.SaveChangesAsync();
-
-            _logger.LogInformation("Biller created: {BillerId} - {BillerName}", biller.Id, biller.Name);
-
-            var billerDto = MapToBillerDto(biller);
-            return CreatedAtAction(nameof(GetBillerById), new { billerId = biller.Id }, billerDto);
+            return BadRequest("A biller with the same account and routing number already exists");
         }
-        catch (Exception ex)
+
+        var biller = new Bank.Domain.Entities.Biller
         {
-            _logger.LogError(ex, "Error creating biller");
-            return StatusCode(500, "An error occurred while creating the biller");
-        }
+            Name = request.Name,
+            Category = request.Category,
+            AccountNumber = request.AccountNumber,
+            RoutingNumber = request.RoutingNumber,
+            Address = request.Address,
+            SupportedPaymentMethods = System.Text.Json.JsonSerializer.Serialize(request.SupportedPaymentMethods),
+            MinAmount = request.MinAmount,
+            MaxAmount = request.MaxAmount,
+            ProcessingDays = request.ProcessingDays,
+            IsActive = true
+        };
+
+        await _billerRepository.AddAsync(biller);
+        await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Biller created: {BillerId} - {BillerName}", biller.Id, biller.Name);
+
+        var billerDto = MapToBillerDto(biller);
+        return CreatedAtAction(nameof(GetBillerById), new { billerId = biller.Id }, billerDto);
     }
 
     /// <summary>
@@ -85,51 +77,43 @@ public class BillerManagementController : ControllerBase
     [HttpPut("{billerId}")]
     public async Task<ActionResult<BillerDto>> UpdateBiller(Guid billerId, [FromBody] UpdateBillerRequest request)
     {
-        try
+        var biller = await _billerRepository.GetByIdAsync(billerId);
+        if (biller == null)
         {
-            var biller = await _billerRepository.GetByIdAsync(billerId);
-            if (biller == null)
-            {
-                return NotFound("Biller not found");
-            }
-
-            // Check if another biller exists with same account/routing number (excluding current biller)
-            var existingBillers = await _billerRepository.GetAllAsync();
-            var duplicateBiller = existingBillers.FirstOrDefault(b => 
-                b.Id != billerId && 
-                b.AccountNumber == request.AccountNumber && 
-                b.RoutingNumber == request.RoutingNumber);
-
-            if (duplicateBiller != null)
-            {
-                return BadRequest("Another biller with the same account and routing number already exists");
-            }
-
-            // Update biller properties
-            biller.Name = request.Name;
-            biller.Category = request.Category;
-            biller.AccountNumber = request.AccountNumber;
-            biller.RoutingNumber = request.RoutingNumber;
-            biller.Address = request.Address;
-            biller.SupportedPaymentMethods = System.Text.Json.JsonSerializer.Serialize(request.SupportedPaymentMethods);
-            biller.MinAmount = request.MinAmount;
-            biller.MaxAmount = request.MaxAmount;
-            biller.ProcessingDays = request.ProcessingDays;
-            biller.IsActive = request.IsActive;
-
-            _billerRepository.Update(biller);
-            await _unitOfWork.SaveChangesAsync();
-
-            _logger.LogInformation("Biller updated: {BillerId} - {BillerName}", biller.Id, biller.Name);
-
-            var billerDto = MapToBillerDto(biller);
-            return Ok(billerDto);
+            return NotFound("Biller not found");
         }
-        catch (Exception ex)
+
+        // Check if another biller exists with same account/routing number (excluding current biller)
+        var existingBillers = await _billerRepository.GetAllAsync();
+        var duplicateBiller = existingBillers.FirstOrDefault(b => 
+            b.Id != billerId && 
+            b.AccountNumber == request.AccountNumber && 
+            b.RoutingNumber == request.RoutingNumber);
+
+        if (duplicateBiller != null)
         {
-            _logger.LogError(ex, "Error updating biller {BillerId}", billerId);
-            return StatusCode(500, "An error occurred while updating the biller");
+            return BadRequest("Another biller with the same account and routing number already exists");
         }
+
+        // Update biller properties
+        biller.Name = request.Name;
+        biller.Category = request.Category;
+        biller.AccountNumber = request.AccountNumber;
+        biller.RoutingNumber = request.RoutingNumber;
+        biller.Address = request.Address;
+        biller.SupportedPaymentMethods = System.Text.Json.JsonSerializer.Serialize(request.SupportedPaymentMethods);
+        biller.MinAmount = request.MinAmount;
+        biller.MaxAmount = request.MaxAmount;
+        biller.ProcessingDays = request.ProcessingDays;
+        biller.IsActive = request.IsActive;
+
+        _billerRepository.Update(biller);
+        await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Biller updated: {BillerId} - {BillerName}", biller.Id, biller.Name);
+
+        var billerDto = MapToBillerDto(biller);
+        return Ok(billerDto);
     }
 
     /// <summary>
@@ -138,22 +122,14 @@ public class BillerManagementController : ControllerBase
     [HttpGet("{billerId}")]
     public async Task<ActionResult<BillerDto>> GetBillerById(Guid billerId)
     {
-        try
+        var biller = await _billerRepository.GetByIdAsync(billerId);
+        if (biller == null)
         {
-            var biller = await _billerRepository.GetByIdAsync(billerId);
-            if (biller == null)
-            {
-                return NotFound("Biller not found");
-            }
+            return NotFound("Biller not found");
+        }
 
-            var billerDto = MapToBillerDto(biller);
-            return Ok(billerDto);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving biller {BillerId}", billerId);
-            return StatusCode(500, "An error occurred while retrieving the biller");
-        }
+        var billerDto = MapToBillerDto(biller);
+        return Ok(billerDto);
     }
 
     /// <summary>
@@ -162,20 +138,12 @@ public class BillerManagementController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<BillerDto>>> GetAllBillers([FromQuery] bool activeOnly = false)
     {
-        try
-        {
-            var billers = activeOnly 
-                ? await _billerRepository.GetActiveBillersAsync()
-                : (await _billerRepository.GetAllAsync()).ToList();
+        var billers = activeOnly 
+            ? await _billerRepository.GetActiveBillersAsync()
+            : (await _billerRepository.GetAllAsync()).ToList();
 
-            var billerDtos = billers.Select(MapToBillerDto).ToList();
-            return Ok(billerDtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving billers");
-            return StatusCode(500, "An error occurred while retrieving billers");
-        }
+        var billerDtos = billers.Select(MapToBillerDto).ToList();
+        return Ok(billerDtos);
     }
 
     /// <summary>
@@ -184,36 +152,28 @@ public class BillerManagementController : ControllerBase
     [HttpDelete("{billerId}")]
     public async Task<ActionResult> DeleteBiller(Guid billerId)
     {
-        try
+        var biller = await _billerRepository.GetByIdAsync(billerId);
+        if (biller == null)
         {
-            var biller = await _billerRepository.GetByIdAsync(billerId);
-            if (biller == null)
-            {
-                return NotFound("Biller not found");
-            }
-
-            // Check if biller has any pending payments
-            var billerWithPayments = await _billerRepository.GetBillerWithPaymentsAsync(billerId);
-            var hasPendingPayments = billerWithPayments?.BillPayments?.Any(bp => 
-                bp.Status == BillPaymentStatus.Pending || bp.Status == BillPaymentStatus.Processing) == true;
-
-            if (hasPendingPayments)
-            {
-                return BadRequest("Cannot delete biller with pending payments. Please wait for all payments to complete or cancel them first.");
-            }
-
-            _billerRepository.Remove(biller);
-            await _unitOfWork.SaveChangesAsync();
-
-            _logger.LogInformation("Biller deleted: {BillerId} - {BillerName}", biller.Id, biller.Name);
-
-            return Ok(new { message = "Biller deleted successfully" });
+            return NotFound("Biller not found");
         }
-        catch (Exception ex)
+
+        // Check if biller has any pending payments
+        var billerWithPayments = await _billerRepository.GetBillerWithPaymentsAsync(billerId);
+        var hasPendingPayments = billerWithPayments?.BillPayments?.Any(bp => 
+            bp.Status == BillPaymentStatus.Pending || bp.Status == BillPaymentStatus.Processing) == true;
+
+        if (hasPendingPayments)
         {
-            _logger.LogError(ex, "Error deleting biller {BillerId}", billerId);
-            return StatusCode(500, "An error occurred while deleting the biller");
+            return BadRequest("Cannot delete biller with pending payments. Please wait for all payments to complete or cancel them first.");
         }
+
+        _billerRepository.Remove(biller);
+        await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Biller deleted: {BillerId} - {BillerName}", biller.Id, biller.Name);
+
+        return Ok(new { message = "Biller deleted successfully" });
     }
 
     /// <summary>
@@ -222,28 +182,20 @@ public class BillerManagementController : ControllerBase
     [HttpPost("{billerId}/toggle-status")]
     public async Task<ActionResult> ToggleBillerStatus(Guid billerId)
     {
-        try
+        var biller = await _billerRepository.GetByIdAsync(billerId);
+        if (biller == null)
         {
-            var biller = await _billerRepository.GetByIdAsync(billerId);
-            if (biller == null)
-            {
-                return NotFound("Biller not found");
-            }
-
-            biller.IsActive = !biller.IsActive;
-            _billerRepository.Update(biller);
-            await _unitOfWork.SaveChangesAsync();
-
-            var status = biller.IsActive ? "activated" : "deactivated";
-            _logger.LogInformation("Biller {Status}: {BillerId} - {BillerName}", status, biller.Id, biller.Name);
-
-            return Ok(new { message = $"Biller {status} successfully", isActive = biller.IsActive });
+            return NotFound("Biller not found");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error toggling biller status for {BillerId}", billerId);
-            return StatusCode(500, "An error occurred while updating biller status");
-        }
+
+        biller.IsActive = !biller.IsActive;
+        _billerRepository.Update(biller);
+        await _unitOfWork.SaveChangesAsync();
+
+        var status = biller.IsActive ? "activated" : "deactivated";
+        _logger.LogInformation("Biller {Status}: {BillerId} - {BillerName}", status, biller.Id, biller.Name);
+
+        return Ok(new { message = $"Biller {status} successfully", isActive = biller.IsActive });
     }
 
     /// <summary>
@@ -252,17 +204,9 @@ public class BillerManagementController : ControllerBase
     [HttpGet("{billerId}/health-history")]
     public async Task<ActionResult<List<BillerHealthCheckDto>>> GetBillerHealthHistory(Guid billerId, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
     {
-        try
-        {
-            var healthChecks = await _billerHealthCheckRepository.GetHealthCheckHistoryAsync(billerId, fromDate, toDate);
-            var healthCheckDtos = healthChecks.Select(MapToBillerHealthCheckDto).ToList();
-            return Ok(healthCheckDtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving health check history for biller {BillerId}", billerId);
-            return StatusCode(500, "An error occurred while retrieving health check history");
-        }
+        var healthChecks = await _billerHealthCheckRepository.GetHealthCheckHistoryAsync(billerId, fromDate, toDate);
+        var healthCheckDtos = healthChecks.Select(MapToBillerHealthCheckDto).ToList();
+        return Ok(healthCheckDtos);
     }
 
     /// <summary>
@@ -271,17 +215,9 @@ public class BillerManagementController : ControllerBase
     [HttpGet("unhealthy")]
     public async Task<ActionResult<List<BillerHealthCheckDto>>> GetUnhealthyBillers()
     {
-        try
-        {
-            var unhealthyBillers = await _billerHealthCheckRepository.GetUnhealthyBillersAsync();
-            var healthCheckDtos = unhealthyBillers.Select(MapToBillerHealthCheckDto).ToList();
-            return Ok(healthCheckDtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving unhealthy billers");
-            return StatusCode(500, "An error occurred while retrieving unhealthy billers");
-        }
+        var unhealthyBillers = await _billerHealthCheckRepository.GetUnhealthyBillersAsync();
+        var healthCheckDtos = unhealthyBillers.Select(MapToBillerHealthCheckDto).ToList();
+        return Ok(healthCheckDtos);
     }
 
     /// <summary>
@@ -290,16 +226,8 @@ public class BillerManagementController : ControllerBase
     [HttpGet("health-statistics")]
     public async Task<ActionResult<Dictionary<string, object>>> GetHealthCheckStatistics([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
     {
-        try
-        {
-            var statistics = await _billerHealthCheckRepository.GetHealthCheckStatisticsAsync(fromDate, toDate);
-            return Ok(statistics);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving health check statistics");
-            return StatusCode(500, "An error occurred while retrieving health check statistics");
-        }
+        var statistics = await _billerHealthCheckRepository.GetHealthCheckStatisticsAsync(fromDate, toDate);
+        return Ok(statistics);
     }
 
     /// <summary>
@@ -308,37 +236,29 @@ public class BillerManagementController : ControllerBase
     [HttpPost("health-check-all")]
     public async Task<ActionResult<List<BillerHealthCheckResponse>>> PerformHealthCheckForAllBillers()
     {
-        try
+        var activeBillers = await _billerRepository.GetActiveBillersAsync();
+        var healthCheckTasks = activeBillers.Select(async biller =>
         {
-            var activeBillers = await _billerRepository.GetActiveBillersAsync();
-            var healthCheckTasks = activeBillers.Select(async biller =>
+            try
             {
-                try
+                return await _billerIntegrationService.CheckBillerHealthAsync(biller.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking health for biller {BillerId}", biller.Id);
+                return new BillerHealthCheckResponse
                 {
-                    return await _billerIntegrationService.CheckBillerHealthAsync(biller.Id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error checking health for biller {BillerId}", biller.Id);
-                    return new BillerHealthCheckResponse
-                    {
-                        BillerId = biller.Id,
-                        IsHealthy = false,
-                        Status = "Error",
-                        LastChecked = DateTime.UtcNow,
-                        ErrorMessage = ex.Message
-                    };
-                }
-            });
+                    BillerId = biller.Id,
+                    IsHealthy = false,
+                    Status = "Error",
+                    LastChecked = DateTime.UtcNow,
+                    ErrorMessage = ex.Message
+                };
+            }
+        });
 
-            var healthCheckResults = await Task.WhenAll(healthCheckTasks);
-            return Ok(healthCheckResults);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error performing health check for all billers");
-            return StatusCode(500, "An error occurred while performing health checks");
-        }
+        var healthCheckResults = await Task.WhenAll(healthCheckTasks);
+        return Ok(healthCheckResults);
     }
 
     #region Private Helper Methods

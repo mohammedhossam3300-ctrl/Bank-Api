@@ -15,14 +15,11 @@ namespace Bank.Api.Controllers.Account;
 public class NotificationController : ControllerBase
 {
     private readonly INotificationService _notificationService;
-    private readonly ILogger<NotificationController> _logger;
 
     public NotificationController(
-        INotificationService notificationService,
-        ILogger<NotificationController> logger)
+        INotificationService notificationService)
     {
         _notificationService = notificationService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -33,22 +30,14 @@ public class NotificationController : ControllerBase
         [FromQuery] int page = 1, 
         [FromQuery] int pageSize = 20)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
+            return Unauthorized("User not authenticated");
+        }
 
-            var notifications = await _notificationService.GetNotificationHistoryAsync(userId, page, pageSize);
-            return Ok(notifications);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting notification history");
-            return StatusCode(500, "An error occurred while retrieving notification history");
-        }
+        var notifications = await _notificationService.GetNotificationHistoryAsync(userId, page, pageSize);
+        return Ok(notifications);
     }
 
     /// <summary>
@@ -57,22 +46,14 @@ public class NotificationController : ControllerBase
     [HttpGet("unread-count")]
     public async Task<ActionResult<object>> GetUnreadCount()
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
+            return Unauthorized("User not authenticated");
+        }
 
-            var count = await _notificationService.GetUnreadCountAsync(userId);
-            return Ok(new { unreadCount = count });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting unread notification count");
-            return StatusCode(500, "An error occurred while retrieving unread count");
-        }
+        var count = await _notificationService.GetUnreadCountAsync(userId);
+        return Ok(new { unreadCount = count });
     }
 
     /// <summary>
@@ -81,28 +62,20 @@ public class NotificationController : ControllerBase
     [HttpPost("mark-read/{notificationId}")]
     public async Task<ActionResult<object>> MarkAsRead(string notificationId)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
-
-            var success = await _notificationService.MarkAsReadAsync(notificationId, userId);
-            
-            if (!success)
-            {
-                return NotFound("Notification not found");
-            }
-
-            return Ok(new { success = true, message = "Notification marked as read" });
+            return Unauthorized("User not authenticated");
         }
-        catch (Exception ex)
+
+        var success = await _notificationService.MarkAsReadAsync(notificationId, userId);
+        
+        if (!success)
         {
-            _logger.LogError(ex, "Error marking notification as read");
-            return StatusCode(500, "An error occurred while marking notification as read");
+            return NotFound("Notification not found");
         }
+
+        return Ok(new { success = true, message = "Notification marked as read" });
     }
 
     /// <summary>
@@ -111,46 +84,38 @@ public class NotificationController : ControllerBase
     [HttpGet("preferences")]
     public async Task<ActionResult<NotificationPreferencesRequest>> GetPreferences()
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
-
-            var preferences = await _notificationService.GetPreferencesAsync(userId);
-            
-            if (preferences == null)
-            {
-                // Return default preferences
-                return Ok(new NotificationPreferencesRequest
-                {
-                    UserId = userId,
-                    TransactionAlerts = true,
-                    SecurityAlerts = true,
-                    LowBalanceAlerts = true,
-                    PaymentReminders = true,
-                    MarketingNotifications = false,
-                    TransactionAlertThreshold = 0m,
-                    LowBalanceThreshold = 100m,
-                    PreferredChannels = new List<Domain.Enums.NotificationChannel> 
-                    { 
-                        Domain.Enums.NotificationChannel.InApp, 
-                        Domain.Enums.NotificationChannel.Email 
-                    },
-                    Language = "en",
-                    TimeZone = "UTC"
-                });
-            }
-
-            return Ok(preferences);
+            return Unauthorized("User not authenticated");
         }
-        catch (Exception ex)
+
+        var preferences = await _notificationService.GetPreferencesAsync(userId);
+        
+        if (preferences == null)
         {
-            _logger.LogError(ex, "Error getting notification preferences");
-            return StatusCode(500, "An error occurred while retrieving notification preferences");
+            // Return default preferences
+            return Ok(new NotificationPreferencesRequest
+            {
+                UserId = userId,
+                TransactionAlerts = true,
+                SecurityAlerts = true,
+                LowBalanceAlerts = true,
+                PaymentReminders = true,
+                MarketingNotifications = false,
+                TransactionAlertThreshold = 0m,
+                LowBalanceThreshold = 100m,
+                PreferredChannels = new List<Domain.Enums.NotificationChannel> 
+                { 
+                    Domain.Enums.NotificationChannel.InApp, 
+                    Domain.Enums.NotificationChannel.Email 
+                },
+                Language = "en",
+                TimeZone = "UTC"
+            });
         }
+
+        return Ok(preferences);
     }
 
     /// <summary>
@@ -159,31 +124,23 @@ public class NotificationController : ControllerBase
     [HttpPost("preferences")]
     public async Task<ActionResult<object>> UpdatePreferences([FromBody] NotificationPreferencesRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
-
-            // Ensure the request is for the current user
-            request.UserId = userId;
-
-            var success = await _notificationService.UpdatePreferencesAsync(request);
-            
-            if (!success)
-            {
-                return BadRequest("Failed to update notification preferences");
-            }
-
-            return Ok(new { success = true, message = "Notification preferences updated successfully" });
+            return Unauthorized("User not authenticated");
         }
-        catch (Exception ex)
+
+        // Ensure the request is for the current user
+        request.UserId = userId;
+
+        var success = await _notificationService.UpdatePreferencesAsync(request);
+        
+        if (!success)
         {
-            _logger.LogError(ex, "Error updating notification preferences");
-            return StatusCode(500, "An error occurred while updating notification preferences");
+            return BadRequest("Failed to update notification preferences");
         }
+
+        return Ok(new { success = true, message = "Notification preferences updated successfully" });
     }
 
     /// <summary>
@@ -192,32 +149,24 @@ public class NotificationController : ControllerBase
     [HttpPost("test")]
     public async Task<ActionResult<NotificationResponse>> SendTestNotification([FromBody] TestNotificationRequest request)
     {
-        try
+        var userId = this.GetUserId();
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = this.GetUserId();
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
-
-            var notificationRequest = new SendNotificationRequest
-            {
-                UserId = userId,
-                Type = Domain.Enums.NotificationType.Other,
-                Subject = request.Subject ?? "Test Notification",
-                Message = request.Message ?? "This is a test notification",
-                Channel = request.Channel,
-                Priority = Domain.Enums.NotificationPriority.Normal
-            };
-
-            var result = await _notificationService.SendNotificationAsync(notificationRequest);
-            return Ok(result);
+            return Unauthorized("User not authenticated");
         }
-        catch (Exception ex)
+
+        var notificationRequest = new SendNotificationRequest
         {
-            _logger.LogError(ex, "Error sending test notification");
-            return StatusCode(500, "An error occurred while sending test notification");
-        }
+            UserId = userId,
+            Type = Domain.Enums.NotificationType.Other,
+            Subject = request.Subject ?? "Test Notification",
+            Message = request.Message ?? "This is a test notification",
+            Channel = request.Channel,
+            Priority = Domain.Enums.NotificationPriority.Normal
+        };
+
+        var result = await _notificationService.SendNotificationAsync(notificationRequest);
+        return Ok(result);
     }
 }
 

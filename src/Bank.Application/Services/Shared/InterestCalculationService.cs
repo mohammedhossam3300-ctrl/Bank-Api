@@ -264,7 +264,7 @@ public class InterestCalculationService : IInterestCalculationService
         try
         {
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
-            var maskedAccountId = MaskGuid(accountId);
+            var maskedAccountId = SecureLoggingService.MaskGuid(accountId);
             if (account == null)
             {
                 _logger.LogWarning("Account {AccountId} not found for interest rate update", maskedAccountId);
@@ -292,17 +292,10 @@ public class InterestCalculationService : IInterestCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating interest rate for account {AccountId}", MaskGuid(accountId));
+            _logger.LogError(ex, "Error updating interest rate for account {AccountId}", SecureLoggingService.MaskGuid(accountId));
             return false;
         }
     }
 
-    private static string MaskGuid(Guid id)
-    {
-        var value = id.ToString("N");
-        return value.Length <= 8
-            ? "********"
-            : $"{value[..8]}********";
-    }
 }
 

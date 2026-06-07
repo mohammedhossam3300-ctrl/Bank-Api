@@ -4,7 +4,7 @@ using Bank.Application.Helpers.Auth;
 using Bank.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace Bank.Application.Services.Payment;
+namespace Bank.Application.Services;
 
 /// <summary>
 /// Service for generating payment receipt content and confirmation numbers

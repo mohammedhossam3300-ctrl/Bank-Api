@@ -28,7 +28,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IBatchService, Bank.Application.Services.BatchService>();
         services.AddScoped<IRecurringPaymentService, Bank.Application.Services.RecurringPaymentService>();
         services.AddScoped<IPaymentTemplateService, Bank.Application.Services.PaymentTemplateService>();
-        services.AddScoped<IBeneficiaryService, Bank.Application.Services.Payment.BeneficiaryService>();
+        services.AddScoped<IBeneficiaryService, Bank.Application.Services.BeneficiaryService>();
         services.AddScoped<IAccountValidationService, Bank.Application.Services.AccountValidationService>();
         services.AddScoped<ITransferEligibilityService, Bank.Application.Services.TransferEligibilityService>();
 
@@ -54,9 +54,9 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IPaymentReceiptService, Bank.Application.Services.PaymentReceiptService>();
         services.AddScoped<IBillPresentmentService, Bank.Application.Services.BillPresentmentService>();
         services.AddScoped<IBatchPaymentService, Bank.Application.Services.BatchPaymentService>();
-        services.AddScoped<Bank.Application.Interfaces.Payment.IBeneficiaryValidationService, Bank.Application.Services.Payment.BeneficiaryValidationService>();
-        services.AddScoped<Bank.Application.Interfaces.Payment.IPaymentRetryNotificationService, Bank.Application.Services.Payment.PaymentRetryNotificationService>();
-        services.AddScoped<Bank.Application.Interfaces.Payment.IPaymentReceiptGenerationService, Bank.Application.Services.Payment.PaymentReceiptGenerationService>();
+        services.AddScoped<Bank.Application.Interfaces.Payment.IBeneficiaryValidationService, Bank.Application.Services.BeneficiaryValidationService>();
+        services.AddScoped<Bank.Application.Interfaces.Payment.IPaymentRetryNotificationService, Bank.Application.Services.PaymentRetryNotificationService>();
+        services.AddScoped<Bank.Application.Interfaces.Payment.IPaymentReceiptGenerationService, Bank.Application.Services.PaymentReceiptGenerationService>();
 
         // Deposit Services
         services.AddScoped<IDepositService, Bank.Application.Services.DepositService>();

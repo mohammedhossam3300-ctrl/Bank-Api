@@ -48,4 +48,4 @@ global using Bank.Application.DTOs.Transaction.Search;
 global using Bank.Application.Commands.Transaction;
 global using Bank.Domain.Common;
 global using Bank.Application.Interfaces.Payment;
-global using Bank.Application.Services.Payment;
+global using Bank.Application.Services;
