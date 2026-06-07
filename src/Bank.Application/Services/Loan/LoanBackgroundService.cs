@@ -22,16 +22,16 @@ public class LoanBackgroundService : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Loan Background Service started");
 
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
                 await ProcessDelinquentLoansAsync();
-                await Task.Delay(_processingInterval, stoppingToken);
+                await Task.Delay(_processingInterval, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -42,7 +42,7 @@ public class LoanBackgroundService : BackgroundService
             {
                 _logger.LogError(ex, "Error occurred in Loan Background Service");
                 // Wait a shorter time before retrying on error
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
             }
         }
 

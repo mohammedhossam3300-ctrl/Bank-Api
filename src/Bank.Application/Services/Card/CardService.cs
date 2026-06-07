@@ -823,66 +823,16 @@ public class CardService : ICardService
             var card = await _cardRepository.GetByIdAsync(request.CardId);
             if (card == null)
             {
-                return new CardValidationResult
-                {
-                    IsValid = false,
-                    Message = "Card not found",
-                    ValidationErrors = new List<string> { "Invalid card ID" }
-                };
+                return CreateCardNotFoundResult();
             }
 
             var validationErrors = new List<string>();
-
-            // Check if card is active
-            if (!card.IsActive())
-            {
-                validationErrors.Add("Card is not active");
-            }
-
-            // Check if card is expired
-            if (card.IsExpired())
-            {
-                validationErrors.Add("Card has expired");
-            }
-
-            // Check if card is blocked
-            if (card.IsBlocked())
-            {
-                validationErrors.Add("Card is blocked");
-            }
-
-            // Check transaction limits
-            if (!card.IsWithinLimits(request.Amount, DateTime.UtcNow))
-            {
-                validationErrors.Add("Transaction amount exceeds card limits");
-            }
-
-            // Check merchant category restrictions
-            if (request.MerchantCategory.HasValue && !card.IsMerchantCategoryAllowed(request.MerchantCategory.Value))
-            {
-                validationErrors.Add("Merchant category is blocked");
-            }
-
-            // Check online transaction settings
-            if (request.IsOnline && !card.OnlineTransactionsEnabled)
-            {
-                validationErrors.Add("Online transactions are disabled");
-            }
-
-            // Check international transaction settings
-            if (request.IsInternational && !card.InternationalTransactionsEnabled)
-            {
-                validationErrors.Add("International transactions are disabled");
-            }
-
-            // Verify PIN if provided
-            if (!string.IsNullOrEmpty(request.Pin) && !string.IsNullOrEmpty(card.PinHash))
-            {
-                if (!VerifyPin(request.Pin, card.PinHash))
-                {
-                    validationErrors.Add("Invalid PIN");
-                }
-            }
+            
+            // Collect all validation errors
+            ValidateCardStatus(card, validationErrors);
+            ValidateCardLimits(card, request, validationErrors);
+            ValidateTransactionSettings(card, request, validationErrors);
+            ValidatePin(card, request, validationErrors);
 
             return new CardValidationResult
             {
@@ -900,6 +850,73 @@ public class CardService : ICardService
                 Message = "An error occurred during card validation",
                 ValidationErrors = new List<string> { ex.Message }
             };
+        }
+    }
+
+    private CardValidationResult CreateCardNotFoundResult()
+    {
+        return new CardValidationResult
+        {
+            IsValid = false,
+            Message = "Card not found",
+            ValidationErrors = new List<string> { "Invalid card ID" }
+        };
+    }
+
+    private void ValidateCardStatus(Card card, List<string> validationErrors)
+    {
+        if (!card.IsActive())
+        {
+            validationErrors.Add("Card is not active");
+        }
+
+        if (card.IsExpired())
+        {
+            validationErrors.Add("Card has expired");
+        }
+
+        if (card.IsBlocked())
+        {
+            validationErrors.Add("Card is blocked");
+        }
+    }
+
+    private void ValidateCardLimits(Card card, CardValidationRequest request, List<string> validationErrors)
+    {
+        if (!card.IsWithinLimits(request.Amount, DateTime.UtcNow))
+        {
+            validationErrors.Add("Transaction amount exceeds card limits");
+        }
+
+        if (request.MerchantCategory.HasValue && !card.IsMerchantCategoryAllowed(request.MerchantCategory.Value))
+        {
+            validationErrors.Add("Merchant category is blocked");
+        }
+    }
+
+    private void ValidateTransactionSettings(Card card, CardValidationRequest request, List<string> validationErrors)
+    {
+        if (request.IsOnline && !card.OnlineTransactionsEnabled)
+        {
+            validationErrors.Add("Online transactions are disabled");
+        }
+
+        if (request.IsInternational && !card.InternationalTransactionsEnabled)
+        {
+            validationErrors.Add("International transactions are disabled");
+        }
+    }
+
+    private void ValidatePin(Card card, CardValidationRequest request, List<string> validationErrors)
+    {
+        if (string.IsNullOrEmpty(request.Pin) || string.IsNullOrEmpty(card.PinHash))
+        {
+            return;
+        }
+
+        if (!VerifyPin(request.Pin, card.PinHash))
+        {
+            validationErrors.Add("Invalid PIN");
         }
     }
     public async Task<string> GenerateCardNumberAsync(CardType cardType)

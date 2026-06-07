@@ -22,16 +22,16 @@ public class BillPaymentBackgroundService : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Bill Payment Background Service started");
 
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
                 await ProcessScheduledPayments();
-                await Task.Delay(_processingInterval, stoppingToken);
+                await Task.Delay(_processingInterval, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -42,7 +42,7 @@ public class BillPaymentBackgroundService : BackgroundService
             {
                 _logger.LogError(ex, "Error in Bill Payment Background Service");
                 // Continue running even if there's an error
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Wait 5 minutes before retrying
+                await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken); // Wait 5 minutes before retrying
             }
         }
 

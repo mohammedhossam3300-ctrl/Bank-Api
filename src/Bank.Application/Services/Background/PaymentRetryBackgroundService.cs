@@ -24,20 +24,20 @@ public class PaymentRetryBackgroundService : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Payment Retry Background Service started");
 
-        var retryProcessingTask = ProcessRetryPaymentsAsync(stoppingToken);
-        var healthCheckTask = ProcessHealthChecksAsync(stoppingToken);
-        var maxRetriesTask = ProcessMaxRetriesReachedAsync(stoppingToken);
+        var retryProcessingTask = ProcessRetryPaymentsAsync(cancellationToken);
+        var healthCheckTask = ProcessHealthChecksAsync(cancellationToken);
+        var maxRetriesTask = ProcessMaxRetriesReachedAsync(cancellationToken);
 
         await Task.WhenAll(retryProcessingTask, healthCheckTask, maxRetriesTask);
     }
 
-    private async Task ProcessRetryPaymentsAsync(CancellationToken stoppingToken)
+    private async Task ProcessRetryPaymentsAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
@@ -55,7 +55,7 @@ public class PaymentRetryBackgroundService : BackgroundService
                         results.Count, successCount, failureCount);
                 }
 
-                await Task.Delay(_retryProcessingInterval, stoppingToken);
+                await Task.Delay(_retryProcessingInterval, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -65,14 +65,14 @@ public class PaymentRetryBackgroundService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing retry payments");
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken); // Wait before retrying
+                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken); // Wait before retrying
             }
         }
     }
 
-    private async Task ProcessHealthChecksAsync(CancellationToken stoppingToken)
+    private async Task ProcessHealthChecksAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
@@ -111,7 +111,7 @@ public class PaymentRetryBackgroundService : BackgroundService
                     _logger.LogWarning("Unhealthy billers: {UnhealthyBillers}", string.Join(", ", unhealthyBillers));
                 }
 
-                await Task.Delay(_healthCheckInterval, stoppingToken);
+                await Task.Delay(_healthCheckInterval, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -121,14 +121,14 @@ public class PaymentRetryBackgroundService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing health checks");
-                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken); // Wait before retrying
+                await Task.Delay(TimeSpan.FromMinutes(2), cancellationToken); // Wait before retrying
             }
         }
     }
 
-    private async Task ProcessMaxRetriesReachedAsync(CancellationToken stoppingToken)
+    private async Task ProcessMaxRetriesReachedAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
@@ -143,7 +143,7 @@ public class PaymentRetryBackgroundService : BackgroundService
                         processedPaymentIds.Count);
                 }
 
-                await Task.Delay(_maxRetriesProcessingInterval, stoppingToken);
+                await Task.Delay(_maxRetriesProcessingInterval, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -153,14 +153,14 @@ public class PaymentRetryBackgroundService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing max retries reached payments");
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Wait before retrying
+                await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken); // Wait before retrying
             }
         }
     }
 
-    public override async Task StopAsync(CancellationToken stoppingToken)
+    public override async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Payment Retry Background Service is stopping");
-        await base.StopAsync(stoppingToken);
+        await base.StopAsync(cancellationToken);
     }
 }

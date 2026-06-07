@@ -22,16 +22,16 @@ public class BillerHealthCheckBackgroundService : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Biller Health Check Background Service started");
 
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
                 await PerformHealthChecks();
-                await Task.Delay(_healthCheckInterval, stoppingToken);
+                await Task.Delay(_healthCheckInterval, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -42,7 +42,7 @@ public class BillerHealthCheckBackgroundService : BackgroundService
             {
                 _logger.LogError(ex, "Error in Biller Health Check Background Service");
                 // Continue running even if there's an error
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Wait 5 minutes before retrying
+                await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken); // Wait 5 minutes before retrying
             }
         }
 
