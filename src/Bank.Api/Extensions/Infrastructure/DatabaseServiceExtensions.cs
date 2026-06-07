@@ -13,13 +13,15 @@ public static class DatabaseServiceExtensions
     /// </summary>
     public static IServiceCollection AddDatabaseServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var dbPath = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=banking.db";
+        var connectionString = configuration.GetConnectionString("DefaultConnection") 
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
 
         services.AddDbContext<BankDbContext>(options =>
         {
-            options.UseSqlite(dbPath, sqliteOptions =>
+            options.UseSqlServer(connectionString, sqlServerOptions =>
             {
-                sqliteOptions.MigrationsAssembly("Bank.Infrastructure");
+                sqlServerOptions.MigrationsAssembly("Bank.Infrastructure");
+                sqlServerOptions.CommandTimeout(300); // 5 minutes timeout for migrations
             });
         });
 

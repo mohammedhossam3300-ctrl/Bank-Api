@@ -1,17 +1,31 @@
 # Deployment Guide
 
-## Deployment Options
+## Database Migration Strategy
 
-### Local Development
-- IIS Express (Visual Studio)
-- Kestrel (dotnet run)
-- Docker containers
+### Pre-Deployment Checklist
+- [ ] Database migrations tested in staging environment
+- [ ] Backups created before deployment
+- [ ] Connection strings updated for target environment
+- [ ] Firewall rules configured (for Azure SQL)
+- [ ] Database user permissions verified
+- [ ] Rollback plan documented
 
-### Production Environments
-- Azure App Service
-- AWS Elastic Beanstalk
-- Docker containers
-- On-premises IIS
+### Applying Migrations in Production
+
+```bash
+# Manual migration application
+dotnet ef database update --project Bank.Infrastructure --startup-project Bank.Api --configuration Release
+
+# Or via application startup (recommended)
+# Migrations apply automatically when the app starts
+dotnet run --project Bank.Api --configuration Release
+```
+
+### Rolling Back Migrations
+```bash
+# Rollback to previous migration
+dotnet ef database update <PreviousMigrationName> --project Bank.Infrastructure --startup-project Bank.Api
+```
 
 ## Docker Deployment
 
@@ -24,10 +38,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["Bank.Api/Bank.Api.csproj", "Bank.Api/"]
-COPY ["Bank.Application/Bank.Application.csproj", "Bank.Application/"]
-COPY ["Bank.Domain/Bank.Domain.csproj", "Bank.Domain/"]
-COPY ["Bank.Infrastructure/Bank.Infrastructure.csproj", "Bank.Infrastructure/"]
+COPY ["src/Bank.Api/Bank.Api.csproj", "Bank.Api/"]
+COPY ["src/Bank.Application/Bank.Application.csproj", "Bank.Application/"]
+COPY ["src/Bank.Domain/Bank.Domain.csproj", "Bank.Domain/"]
+COPY ["src/Bank.Infrastructure/Bank.Infrastructure.csproj", "Bank.Infrastructure/"]
 
 RUN dotnet restore "Bank.Api/Bank.Api.csproj"
 COPY . .
@@ -43,7 +57,9 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Bank.Api.dll"]
 ```
 
-### Docker Compose
+### Docker Compose with SQL Server
+
+#### For Local Development
 ```yaml
 version: '3.8'
 
@@ -52,63 +68,223 @@ services:
     build: .
     ports:
       - "8080:80"
+      - "8443:443"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=db;Database=BankDB;User=sa;Password=YourPassword123;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=bank-db;Database=BankDB;User=sa;Password=YourPassword123;MultipleActiveResultSets=True;Encrypt=False;
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=
+    volumes:
+      - ~/.aspnet/https:/https:ro
     depends_on:
-      - db
+      - bank-db
+    networks:
+      - bank-network
 
-  db:
+  bank-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=YourPassword123
+      - MSSQL_SA_PASSWORD=YourPassword123
     ports:
       - "1433:1433"
     volumes:
       - sqldata:/var/opt/mssql
+    networks:
+      - bank-network
 
 volumes:
   sqldata:
+
+networks:
+  bank-network:
+    driver: bridge
+```
+
+#### For Production
+```yaml
+version: '3.8'
+
+services:
+  bank-api:
+    build:
+      context: .
+      dockerfile: devops/docker/Dockerfile.backend
+    restart: always
+    ports:
+      - "443:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=your-sql-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERTIFICATE_PASSWORD}
+    volumes:
+      - /etc/letsencrypt/live/yourdomain.com:/https:ro
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 ```
 
 ## Azure Deployment
 
-### Azure App Service
+### Prerequisites
+- Azure subscription
+- Azure CLI installed and authenticated
+- .NET 9.0 SDK
+- Azure App Service Plan
 
-1. **Create App Service**
+### Step 1: Create Azure SQL Server and Database
+
 ```bash
-az webapp create --resource-group myResourceGroup --plan myAppServicePlan --name myBankApp --runtime "DOTNET|9.0"
+# Set variables
+$resourceGroup="myResourceGroup"
+$sqlServer="mybanksqlserver"
+$sqlAdmin="sqladmin"
+$sqlPassword="YourPassword123!@"
+$location="eastus"
+
+# Create resource group
+az group create --name $resourceGroup --location $location
+
+# Create SQL Server
+az sql server create `
+  --resource-group $resourceGroup `
+  --name $sqlServer `
+  --location $location `
+  --admin-user $sqlAdmin `
+  --admin-password $sqlPassword
+
+# Configure firewall to allow Azure services
+az sql server firewall-rule create `
+  --resource-group $resourceGroup `
+  --server $sqlServer `
+  --name "AllowAzureServices" `
+  --start-ip-address 0.0.0.0 `
+  --end-ip-address 0.0.0.0
+
+# Allow your client IP
+az sql server firewall-rule create `
+  --resource-group $resourceGroup `
+  --server $sqlServer `
+  --name "ClientIP" `
+  --start-ip-address <YOUR_IP> `
+  --end-ip-address <YOUR_IP>
+
+# Create database
+az sql db create `
+  --resource-group $resourceGroup `
+  --server $sqlServer `
+  --name BankDB `
+  --service-objective Basic
 ```
 
-2. **Configure Connection String**
+### Step 2: Create App Service Plan and Web App
+
 ```bash
-az webapp config connection-string set --resource-group myResourceGroup --name myBankApp --settings DefaultConnection="Server=myserver.database.windows.net;Database=BankDB;User ID=myuser;Password=mypassword;" --connection-string-type SQLAzure
+# Create App Service Plan
+az appservice plan create `
+  --name myBankAppPlan `
+  --resource-group $resourceGroup `
+  --sku B2 `
+  --is-linux
+
+# Create Web App
+az webapp create `
+  --resource-group $resourceGroup `
+  --plan myBankAppPlan `
+  --name myBankApp `
+  --runtime "DOTNET|9.0"
 ```
 
-3. **Deploy Application**
+### Step 3: Configure Connection String
+
 ```bash
-dotnet publish -c Release
-az webapp deployment source config-zip --resource-group myResourceGroup --name myBankApp --src publish.zip
+# Set connection string
+az webapp config connection-string set `
+  --resource-group $resourceGroup `
+  --name myBankApp `
+  --settings DefaultConnection="Server=tcp:$sqlServer.database.windows.net,1433;Initial Catalog=BankDB;Persist Security Info=False;User ID=$sqlAdmin;Password=$sqlPassword;MultipleActiveResultSets=False;Encrypt=True;Connection Timeout=30;TrustServerCertificate=False;" `
+  --connection-string-type SQLAzure
 ```
 
-### Azure SQL Database
+### Step 4: Deploy Application
 
-1. **Create SQL Server**
 ```bash
-az sql server create --name myserver --resource-group myResourceGroup --location "East US" --admin-user myadmin --admin-password mypassword
+# Publish application
+dotnet publish -c Release -o ./publish
+
+# Create deployment package
+cd publish
+Compress-Archive -Path * -DestinationPath ../deploy.zip
+
+# Deploy to App Service
+az webapp deployment source config-zip `
+  --resource-group $resourceGroup `
+  --name myBankApp `
+  --src ../deploy.zip
 ```
 
-2. **Create Database**
+### Step 5: Configure Application Settings
+
 ```bash
-az sql db create --resource-group myResourceGroup --server myserver --name BankDB --service-objective Basic
+# Set environment to Production
+az webapp config appsettings set `
+  --resource-group $resourceGroup `
+  --name myBankApp `
+  --settings ASPNETCORE_ENVIRONMENT=Production
+
+# Set JWT secret (use Key Vault for production)
+az webapp config appsettings set `
+  --resource-group $resourceGroup `
+  --name myBankApp `
+  --settings "JwtSettings__SecretKey=your-super-secret-jwt-key"
+```
+
+### Step 6: Verify Deployment
+
+```bash
+# Check app status
+az webapp show --resource-group $resourceGroup --name myBankApp --query state
+
+# View application logs
+az webapp log tail --resource-group $resourceGroup --name myBankApp
 ```
 
 ## Environment Configuration
 
-### Production Settings
+### Development Settings (appsettings.Development.json)
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=BankDB;Trusted_Connection=true;MultipleActiveResultSets=True;Encrypt=False;"
+  },
+  "JwtSettings": {
+    "SecretKey": "dev-secret-key-change-in-production",
+    "Issuer": "BankAPI",
+    "Audience": "BankClients",
+    "ExpirationMinutes": 60
+  },
+  "AllowedHosts": "*"
+}
+```
 
-#### appsettings.Production.json
+### Production Settings (appsettings.Production.json)
 ```json
 {
   "Logging": {
@@ -118,27 +294,48 @@ az sql db create --resource-group myResourceGroup --server myserver --name BankD
     }
   },
   "ConnectionStrings": {
-    "DefaultConnection": "#{ConnectionString}#"
+    "DefaultConnection": "Server=your-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;Connection Timeout=30;"
   },
   "JwtSettings": {
     "SecretKey": "#{JwtSecretKey}#",
     "Issuer": "BankAPI",
     "Audience": "BankClients",
     "ExpirationMinutes": 60
-  }
+  },
+  "AllowedHosts": "yourdomain.com"
 }
 ```
 
-### Environment Variables
+### Environment Variables (PowerShell)
+
+```powershell
+# Database
+$env:ConnectionStrings__DefaultConnection="Server=your-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;"
+
+# JWT
+$env:JwtSettings__SecretKey="your-super-secret-key"
+
+# Logging
+$env:ASPNETCORE_ENVIRONMENT="Production"
+
+# Application URL
+$env:ASPNETCORE_URLS="https://0.0.0.0:443"
+```
+
+### Environment Variables (Bash/Linux)
+
 ```bash
 # Database
-export ConnectionStrings__DefaultConnection="Server=prod-server;Database=BankDB;..."
+export ConnectionStrings__DefaultConnection="Server=your-server.database.windows.net;Database=BankDB;User Id=admin;Password=YourPassword123;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;"
 
 # JWT
 export JwtSettings__SecretKey="your-super-secret-key"
 
 # Logging
 export ASPNETCORE_ENVIRONMENT="Production"
+
+# Application URL
+export ASPNETCORE_URLS="https://0.0.0.0:443"
 ```
 
 ## CI/CD Pipeline

@@ -43,3 +43,8 @@ Logs/
 .idea/
 *.swp
 *.swo
+
+# SQLite Database Files (Legacy - using SQL Server now)
+*.db
+*.db-shm
+*.db-wal

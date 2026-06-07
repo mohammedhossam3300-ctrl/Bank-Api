@@ -11,7 +11,7 @@ namespace Bank.Api.Extensions.Data;
 public static class DataSeedingExtensions
 {
     /// <summary>
-    /// Apply pending database migrations (or ensure schema is created for SQLite)
+    /// Apply pending database migrations using SQL Server
     /// </summary>
     public static async Task ApplyDatabaseMigrationsAsync(this WebApplication app)
     {
@@ -22,23 +22,46 @@ public static class DataSeedingExtensions
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<BankDbContext>();
 
-            logger.LogInformation("🔍 Initializing database schema...");
+            logger.LogInformation("🔍 Applying database migrations...");
 
-            // For SQLite, EnsureCreated is the most reliable approach without pre-generated migrations
-            var created = await dbContext.Database.EnsureCreatedAsync();
-            if (created)
+            // Test connection first
+            var canConnect = await dbContext.Database.CanConnectAsync();
+            if (!canConnect)
             {
-                logger.LogInformation("✅ Database schema created successfully!");
+                logger.LogError("❌ Cannot connect to database. Connection string may be invalid.");
+                throw new InvalidOperationException("Database connection failed");
+            }
+
+            // Get pending migrations
+            var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+            
+            if (pendingMigrations.Any())
+            {
+                logger.LogInformation($"📋 Found {pendingMigrations.Count()} pending migrations");
+                await dbContext.Database.MigrateAsync();
+                logger.LogInformation("✅ Database migrations applied successfully!");
             }
             else
             {
-                logger.LogInformation("✅ Database schema already exists - no changes needed.");
+                // Check if database/tables exist
+                var canConnectToDb = await dbContext.Database.CanConnectAsync();
+                if (canConnectToDb)
+                {
+                    logger.LogInformation("✅ Database is up to date - no pending migrations");
+                }
+                else
+                {
+                    // Database doesn't exist, create schema from model
+                    logger.LogInformation("📋 Creating database schema from model...");
+                    await dbContext.Database.EnsureCreatedAsync();
+                    logger.LogInformation("✅ Database schema created from model!");
+                }
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "❌ Unexpected error initializing database: {Message}", ex.Message);
-            logger.LogWarning("⚠️ Application will continue - some features may be unavailable.");
+            logger.LogError(ex, "❌ Error applying migrations: {Message}", ex.Message);
+            throw;
         }
     }
 

@@ -8,9 +8,12 @@
 - **C#**: Primary programming language
 
 ### Database
-- **Entity Framework Core**: Object-relational mapping (ORM) framework
+- **Entity Framework Core 9.0**: Object-relational mapping (ORM) framework
 - **SQL Server**: Primary database management system
+  - **SQL Server Provider**: `Microsoft.EntityFrameworkCore.SqlServer`
+  - **Features**: Soft delete support, comprehensive indexing, audit trails
 - **LINQ**: Language-integrated query for data access
+- **Migrations**: EF Core Code-First migrations for database versioning
 
 ### Authentication & Security
 - **JWT (JSON Web Tokens)**: Stateless authentication mechanism
@@ -73,18 +76,28 @@
 ### Containerization
 - **Docker**: Container platform for application deployment
 - **Docker Compose**: Multi-container application orchestration
+- **Docker Hub**: Container image registry
 
 ### Cloud Platforms
 - **Microsoft Azure**: Cloud computing platform
-  - Azure App Service
-  - Azure SQL Database
-  - Azure Key Vault
-  - Azure Application Insights
+  - **Azure App Service**: Web application hosting
+  - **Azure SQL Database**: Managed SQL Server database
+  - **Azure Key Vault**: Secure secrets and certificate management
+  - **Azure Application Insights**: Performance monitoring and analytics
+  - **Azure Storage**: File and blob storage
+  - **Azure Container Registry**: Private Docker image registry
 
-### CI/CD
+### Infrastructure as Code
+- **Terraform**: Infrastructure provisioning and management
+- **Kubernetes**: Container orchestration (optional)
+- **Helm**: Kubernetes package manager (optional)
+- **Ansible**: Configuration management automation
+
+### CI/CD Pipeline
 - **GitHub Actions**: Continuous integration and deployment
-- **Azure DevOps**: Microsoft's DevOps platform
-- **Docker Hub**: Container registry
+- **Azure DevOps**: Microsoft's DevOps platform (optional)
+- **SonarCloud**: Code quality and security scanning
+- **CodeRabbit**: AI-powered code review automation
 
 ## Data Serialization
 

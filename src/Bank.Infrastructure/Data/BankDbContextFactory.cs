@@ -12,9 +12,12 @@ public class BankDbContextFactory : IDesignTimeDbContextFactory<BankDbContext>
     {
         var optionsBuilder = new DbContextOptionsBuilder<BankDbContext>();
 
-        optionsBuilder.UseSqlite("Data Source=banking.db", sqliteOptions =>
+        // Use the remote SQL Server connection string for migrations
+        var connectionString = "Server=db48070.public.databaseasp.net; Database=db48070; User Id=db48070; Password=8s@A=4FaZ-k6; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;";
+
+        optionsBuilder.UseSqlServer(connectionString, sqlServerOptions =>
         {
-            sqliteOptions.MigrationsAssembly("Bank.Infrastructure");
+            sqlServerOptions.MigrationsAssembly("Bank.Infrastructure");
         });
 
         return new BankDbContext(optionsBuilder.Options);
