@@ -31,9 +31,9 @@ public class BankDbContextFactory : IDesignTimeDbContextFactory<BankDbContext>
                 "Please set it in appsettings.json or via environment variables (DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD).");
         }
 
-        optionsBuilder.UseSqlServer(connectionString, sqlServerOptions =>
+        optionsBuilder.UseNpgsql(connectionString, npgsqlOptions =>
         {
-            sqlServerOptions.MigrationsAssembly("Bank.Infrastructure");
+            npgsqlOptions.MigrationsAssembly("Bank.Infrastructure");
         });
 
         return new BankDbContext(optionsBuilder.Options);

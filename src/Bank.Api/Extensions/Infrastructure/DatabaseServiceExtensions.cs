@@ -18,10 +18,10 @@ public static class DatabaseServiceExtensions
 
         services.AddDbContext<BankDbContext>(options =>
         {
-            options.UseSqlServer(connectionString, sqlServerOptions =>
+            options.UseNpgsql(connectionString, npgsqlOptions =>
             {
-                sqlServerOptions.MigrationsAssembly("Bank.Infrastructure");
-                sqlServerOptions.CommandTimeout(300); // 5 minutes timeout for migrations
+                npgsqlOptions.MigrationsAssembly("Bank.Infrastructure");
+                npgsqlOptions.CommandTimeout(300);
             });
         });
 
