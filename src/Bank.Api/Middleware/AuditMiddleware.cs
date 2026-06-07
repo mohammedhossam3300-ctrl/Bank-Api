@@ -79,14 +79,25 @@ public class AuditMiddleware
             await responseBodyStream.CopyToAsync(originalBodyStream);
 
             // Log the audit entry asynchronously using only captured (value-type/string) data
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 try
                 {
-                    await _auditLogger.LogAuditEntryDirectAsync(
-                        capturedUserId, capturedIpAddress, capturedUserAgent, capturedSessionId,
-                        capturedMethod, capturedPath, requestDetails, responseDetails,
-                        capturedDuration, capturedStatusCode, requestId);
+                    var auditData = new AuditEntryData
+                    {
+                        UserId = capturedUserId,
+                        IpAddress = capturedIpAddress,
+                        UserAgent = capturedUserAgent,
+                        SessionId = capturedSessionId,
+                        Method = capturedMethod,
+                        Path = capturedPath,
+                        RequestDetails = requestDetails,
+                        ResponseDetails = responseDetails,
+                        DurationMs = capturedDuration,
+                        StatusCode = capturedStatusCode,
+                        RequestId = requestId
+                    };
+                    _auditLogger.LogAuditEntryDirect(auditData);
                 }
                 catch (Exception ex)
                 {
@@ -109,13 +120,23 @@ public class AuditMiddleware
             var errorMessage = ex.Message;
 
             // Log the error as a security event using only captured data
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 try
                 {
-                    await _auditLogger.LogSecurityEventDirectAsync(
-                        capturedUserId, capturedIpAddress, capturedUserAgent, capturedSessionId,
-                        capturedMethod, capturedPath, "MIDDLEWARE_ERROR", errorMessage, requestId);
+                    var securityData = new SecurityEventData
+                    {
+                        UserId = capturedUserId,
+                        IpAddress = capturedIpAddress,
+                        UserAgent = capturedUserAgent,
+                        SessionId = capturedSessionId,
+                        Method = capturedMethod,
+                        Path = capturedPath,
+                        Action = "MIDDLEWARE_ERROR",
+                        AdditionalData = errorMessage,
+                        RequestId = requestId
+                    };
+                    _auditLogger.LogSecurityEventDirect(securityData);
                 }
                 catch (Exception logEx)
                 {

@@ -5,6 +5,40 @@ using System.Text.Json;
 namespace Bank.Api.Middleware.Audit;
 
 /// <summary>
+/// Represents captured audit entry data for logging
+/// </summary>
+public class AuditEntryData
+{
+    public Guid? UserId { get; set; }
+    public string? IpAddress { get; set; }
+    public string? UserAgent { get; set; }
+    public string? SessionId { get; set; }
+    public string Method { get; set; } = string.Empty;
+    public string Path { get; set; } = string.Empty;
+    public string RequestDetails { get; set; } = string.Empty;
+    public string ResponseDetails { get; set; } = string.Empty;
+    public long DurationMs { get; set; }
+    public int StatusCode { get; set; }
+    public string RequestId { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Represents captured security event data for logging
+/// </summary>
+public class SecurityEventData
+{
+    public Guid? UserId { get; set; }
+    public string? IpAddress { get; set; }
+    public string? UserAgent { get; set; }
+    public string? SessionId { get; set; }
+    public string Method { get; set; } = string.Empty;
+    public string Path { get; set; } = string.Empty;
+    public string Action { get; set; } = string.Empty;
+    public string AdditionalData { get; set; } = string.Empty;
+    public string RequestId { get; set; } = string.Empty;
+}
+
+/// <summary>
 /// Handles logging of audit entries and security events
 /// </summary>
 public class AuditLogger
@@ -19,43 +53,29 @@ public class AuditLogger
     /// <summary>
     /// Logs an audit entry using pre-captured data (safe to call after HttpContext disposal).
     /// </summary>
-    public async Task LogAuditEntryDirectAsync(
-        Guid? userId,
-        string? ipAddress,
-        string? userAgent,
-        string? sessionId,
-        string method,
-        string path,
-        string requestDetails,
-        string responseDetails,
-        long durationMs,
-        int statusCode,
-        string requestId)
+    public void LogAuditEntryDirect(AuditEntryData data)
     {
-        var action = $"{method} {path}";
+        if (data == null)
+            throw new ArgumentNullException(nameof(data));
+
+        var action = $"{data.Method} {data.Path}";
 
         _logger.LogInformation(
             "Audit: {Action} | User: {UserId} | IP: {IpAddress} | Status: {StatusCode} | Duration: {DurationMs}ms | RequestId: {RequestId}",
-            action, userId?.ToString() ?? "anonymous", ipAddress, statusCode, durationMs, requestId);
+            action, data.UserId?.ToString() ?? "anonymous", data.IpAddress, data.StatusCode, data.DurationMs, data.RequestId);
     }
 
     /// <summary>
     /// Logs a security event using pre-captured data (safe to call after HttpContext disposal).
     /// </summary>
-    public async Task LogSecurityEventDirectAsync(
-        Guid? userId,
-        string? ipAddress,
-        string? userAgent,
-        string? sessionId,
-        string method,
-        string path,
-        string action,
-        string additionalData,
-        string requestId)
+    public void LogSecurityEventDirect(SecurityEventData data)
     {
+        if (data == null)
+            throw new ArgumentNullException(nameof(data));
+
         _logger.LogWarning(
             "SecurityEvent: {Action} | User: {UserId} | IP: {IpAddress} | Path: {Path} | RequestId: {RequestId} | Details: {Details}",
-            action, userId?.ToString() ?? "anonymous", ipAddress, path, requestId, additionalData);
+            data.Action, data.UserId?.ToString() ?? "anonymous", data.IpAddress, data.Path, data.RequestId, data.AdditionalData);
     }
 
     private static Guid? GetUserId(HttpContext context)
