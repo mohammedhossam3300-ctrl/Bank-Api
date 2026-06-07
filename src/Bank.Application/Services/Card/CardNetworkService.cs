@@ -17,7 +17,6 @@ public class CardNetworkService : ICardNetworkService
     private readonly ICardRepository _cardRepository;
     private readonly ICardTransactionRepository _cardTransactionRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ITransactionService _transactionService;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<CardNetworkService> _logger;
 
@@ -25,14 +24,12 @@ public class CardNetworkService : ICardNetworkService
         ICardRepository cardRepository,
         ICardTransactionRepository cardTransactionRepository,
         IUnitOfWork unitOfWork,
-        ITransactionService transactionService,
         IAuditLogService auditLogService,
         ILogger<CardNetworkService> logger)
     {
         _cardRepository = cardRepository;
         _cardTransactionRepository = cardTransactionRepository;
         _unitOfWork = unitOfWork;
-        _transactionService = transactionService;
         _auditLogService = auditLogService;
         _logger = logger;
     }
