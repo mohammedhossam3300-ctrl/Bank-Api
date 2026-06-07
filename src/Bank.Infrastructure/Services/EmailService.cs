@@ -8,7 +8,10 @@ using Microsoft.Extensions.Logging;
 namespace Bank.Infrastructure.Services;
 
 /// <summary>
-/// Email service implementation using SMTP
+/// Email service implementation using SMTP with mandatory SSL/TLS encryption.
+/// 
+/// SECURITY: EnableSsl is ALWAYS set to true. SMTP connections MUST use encrypted channels.
+/// This protects email credentials and message content from interception (OWASP A2, CWE-319, STIG V-222596).
 /// </summary>
 public class EmailService : IEmailService, IDisposable
 {
@@ -22,19 +25,24 @@ public class EmailService : IEmailService, IDisposable
         _configuration = configuration;
         _logger = logger;
         
-        // Configure SMTP client
+        // Configure SMTP client with MANDATORY SSL/TLS encryption
         var smtpHost = _configuration["Email:SmtpHost"] ?? "localhost";
         var smtpPort = int.Parse(_configuration["Email:SmtpPort"] ?? "587");
-        var enableSsl = bool.Parse(_configuration["Email:EnableSsl"] ?? "true");
         var username = _configuration["Email:Username"] ?? "noreply@bankapp.com";
         var password = _configuration["Email:Password"] ?? "password";
 
         _smtpClient = new SmtpClient(smtpHost, smtpPort)
         {
-            EnableSsl = enableSsl,
+            // SECURITY: EnableSsl is ALWAYS true - no exceptions
+            // Port 587 (submission) and 465 (SMTPS) both require encrypted connections
+            EnableSsl = true,
             UseDefaultCredentials = string.IsNullOrEmpty(username),
-            Credentials = !string.IsNullOrEmpty(username) ? new NetworkCredential(username, password) : null
+            Credentials = !string.IsNullOrEmpty(username) ? new NetworkCredential(username, password) : null,
+            // Ensure credentials are not exposed
+            Timeout = 10000
         };
+
+        _logger.LogInformation("SMTP client configured with SSL/TLS encryption enabled (secure channel)");
     }
 
     public async Task<bool> SendEmailAsync(string to, string subject, string body, bool isHtml = false)

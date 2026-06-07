@@ -108,6 +108,9 @@ resource "azurerm_mssql_database" "bank_database" {
 }
 
 # Azure Key Vault
+# SECURITY: rbac_authorization_enabled is set to true for role-based access control
+# This ensures only authorized identities (users/services) can access secrets
+# Protects against unauthorized resource access (CWE-668)
 resource "azurerm_key_vault" "bank_kv" {
   name                            = "${var.cluster_name}-kv"
   location                        = azurerm_resource_group.bank_rg.location
@@ -117,7 +120,10 @@ resource "azurerm_key_vault" "bank_kv" {
   purge_protection_enabled        = true
   soft_delete_retention_days      = 90
   public_network_access_enabled   = false
+  rbac_authorization_enabled      = true
 
+  # Legacy access policies are disabled when RBAC is enabled
+  # All access control is now managed through Azure RBAC role assignments
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = data.azurerm_client_config.current.object_id
