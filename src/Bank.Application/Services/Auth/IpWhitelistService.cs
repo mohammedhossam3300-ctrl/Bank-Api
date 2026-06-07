@@ -16,20 +16,17 @@ namespace Bank.Application.Services;
 public class IpWhitelistService : IIpWhitelistService
 {
     private readonly IIpWhitelistRepository _ipWhitelistRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IAuditEventPublisher _auditEventPublisher;
     private readonly ILogger<IpWhitelistService> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
     public IpWhitelistService(
         IIpWhitelistRepository ipWhitelistRepository,
-        IUserRepository userRepository,
         IAuditEventPublisher auditEventPublisher,
         ILogger<IpWhitelistService> logger,
         IUnitOfWork unitOfWork)
     {
         _ipWhitelistRepository = ipWhitelistRepository;
-        _userRepository = userRepository;
         _auditEventPublisher = auditEventPublisher;
         _logger = logger;
         _unitOfWork = unitOfWork;
