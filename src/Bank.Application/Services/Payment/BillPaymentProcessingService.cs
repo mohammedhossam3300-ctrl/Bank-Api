@@ -16,7 +16,6 @@ public class BillPaymentProcessingService : IBillPaymentProcessingService
     private readonly IBillPaymentRepository _billPaymentRepository;
     private readonly IBillerRepository _billerRepository;
     private readonly IAccountService _accountService;
-    private readonly ITransactionService _transactionService;
     private readonly IBillerIntegrationService _billerIntegrationService;
     private readonly IPaymentRetryService _paymentRetryService;
     private readonly IPaymentReceiptService _paymentReceiptService;
@@ -27,7 +26,6 @@ public class BillPaymentProcessingService : IBillPaymentProcessingService
         IBillPaymentRepository billPaymentRepository,
         IBillerRepository billerRepository,
         IAccountService accountService,
-        ITransactionService transactionService,
         IBillerIntegrationService billerIntegrationService,
         IPaymentRetryService paymentRetryService,
         IPaymentReceiptService paymentReceiptService,
@@ -37,7 +35,6 @@ public class BillPaymentProcessingService : IBillPaymentProcessingService
         _billPaymentRepository = billPaymentRepository;
         _billerRepository = billerRepository;
         _accountService = accountService;
-        _transactionService = transactionService;
         _billerIntegrationService = billerIntegrationService;
         _paymentRetryService = paymentRetryService;
         _paymentReceiptService = paymentReceiptService;

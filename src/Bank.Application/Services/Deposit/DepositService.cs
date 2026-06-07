@@ -18,8 +18,6 @@ public class DepositService : IDepositService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
-    private readonly IInterestCalculationService _interestCalculationService;
-    private readonly INotificationService _notificationService;
     private readonly IAuditLogService _auditLogService;
     private readonly IDepositWithdrawalService _depositWithdrawalService;
     private readonly ILogger<DepositService> _logger;
@@ -28,8 +26,6 @@ public class DepositService : IDepositService
     public DepositService(
         IUnitOfWork unitOfWork,
         IUserRepository userRepository,
-        IInterestCalculationService interestCalculationService,
-        INotificationService notificationService,
         IAuditLogService auditLogService,
         IDepositWithdrawalService depositWithdrawalService,
         ILogger<DepositService> logger,
@@ -37,8 +33,6 @@ public class DepositService : IDepositService
     {
         _unitOfWork = unitOfWork;
         _userRepository = userRepository;
-        _interestCalculationService = interestCalculationService;
-        _notificationService = notificationService;
         _auditLogService = auditLogService;
         _depositWithdrawalService = depositWithdrawalService;
         _logger = logger;

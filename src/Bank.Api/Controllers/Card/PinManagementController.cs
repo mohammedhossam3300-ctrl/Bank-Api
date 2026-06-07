@@ -1,4 +1,5 @@
 using Bank.Api.Helpers;
+using Bank.Api.Constants;
 using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             var result = await _pinManagementService.SetPinAsync(request, userId);
@@ -54,7 +55,7 @@ public class PinManagementController : ControllerBase
             return StatusCode(500, new PinOperationResponse
             {
                 Success = false,
-                Message = "An error occurred while setting PIN"
+                Message = ApiConstants.PinSetErrorMessage
             });
         }
     }
@@ -70,7 +71,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             var result = await _pinManagementService.ChangePinAsync(request, userId);
@@ -88,7 +89,7 @@ public class PinManagementController : ControllerBase
             return StatusCode(500, new PinOperationResponse
             {
                 Success = false,
-                Message = "An error occurred while changing PIN"
+                Message = ApiConstants.PinChangeErrorMessage
             });
         }
     }
@@ -104,7 +105,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             var result = await _pinManagementService.ResetPinAsync(request, userId);
@@ -122,7 +123,7 @@ public class PinManagementController : ControllerBase
             return StatusCode(500, new PinOperationResponse
             {
                 Success = false,
-                Message = "An error occurred while resetting PIN"
+                Message = ApiConstants.PinResetErrorMessage
             });
         }
     }
@@ -138,7 +139,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             var result = await _pinManagementService.VerifyPinAsync(request, userId);
@@ -150,7 +151,7 @@ public class PinManagementController : ControllerBase
             return StatusCode(500, new PinVerificationResult
             {
                 IsValid = false,
-                Message = "An error occurred while verifying PIN"
+                Message = ApiConstants.PinVerifyErrorMessage
             });
         }
     }
@@ -166,7 +167,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             await _pinManagementService.GenerateVerificationCodeAsync(
@@ -179,7 +180,7 @@ public class PinManagementController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating verification code for card {CardId}", request.CardId);
-            return StatusCode(500, new { success = false, message = "An error occurred while generating verification code" });
+            return StatusCode(500, new { success = false, message = ApiConstants.PinGenerationErrorMessage });
         }
     }
 
@@ -194,7 +195,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             var result = await _pinManagementService.UnblockCardAsync(request.CardId, userId);
@@ -212,7 +213,7 @@ public class PinManagementController : ControllerBase
             return StatusCode(500, new PinOperationResponse
             {
                 Success = false,
-                Message = "An error occurred while unblocking card"
+                Message = ApiConstants.CardUnblockErrorMessage
             });
         }
     }
@@ -228,7 +229,7 @@ public class PinManagementController : ControllerBase
             var userId = this.GetUserId();
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User not authenticated");
+                return Unauthorized(ApiConstants.UserNotAuthenticatedMessage);
             }
 
             var hasPinSet = await _pinManagementService.HasPinSetAsync(cardId, userId);

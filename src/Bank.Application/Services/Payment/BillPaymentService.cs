@@ -18,11 +18,6 @@ public class BillPaymentService : IBillPaymentService
 {
     private readonly IBillerRepository _billerRepository;
     private readonly IBillPaymentRepository _billPaymentRepository;
-    private readonly IAccountService _accountService;
-    private readonly ITransactionService _transactionService;
-    private readonly IBillerIntegrationService _billerIntegrationService;
-    private readonly IPaymentRetryService _paymentRetryService;
-    private readonly IPaymentReceiptService _paymentReceiptService;
     private readonly IBillPaymentProcessingService _billPaymentProcessingService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<BillPaymentService> _logger;
@@ -31,11 +26,6 @@ public class BillPaymentService : IBillPaymentService
     public BillPaymentService(
         IBillerRepository billerRepository,
         IBillPaymentRepository billPaymentRepository,
-        IAccountService accountService,
-        ITransactionService transactionService,
-        IBillerIntegrationService billerIntegrationService,
-        IPaymentRetryService paymentRetryService,
-        IPaymentReceiptService paymentReceiptService,
         IBillPaymentProcessingService billPaymentProcessingService,
         IUnitOfWork unitOfWork,
         ILogger<BillPaymentService> logger,
@@ -43,11 +33,6 @@ public class BillPaymentService : IBillPaymentService
     {
         _billerRepository = billerRepository;
         _billPaymentRepository = billPaymentRepository;
-        _accountService = accountService;
-        _transactionService = transactionService;
-        _billerIntegrationService = billerIntegrationService;
-        _paymentRetryService = paymentRetryService;
-        _paymentReceiptService = paymentReceiptService;
         _billPaymentProcessingService = billPaymentProcessingService;
         _unitOfWork = unitOfWork;
         _logger = logger;
