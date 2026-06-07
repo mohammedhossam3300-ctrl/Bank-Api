@@ -56,13 +56,17 @@ public class ContentSanitizer
         if (string.IsNullOrEmpty(content))
             return content;
 
+        // Set a timeout of 1 second to prevent ReDoS attacks on malicious regex patterns
+        var regexTimeout = TimeSpan.FromSeconds(1);
+
         foreach (var pattern in SensitivePatterns)
         {
             content = Regex.Replace(
                 content, 
                 pattern, 
                 match => match.Value.Substring(0, match.Value.IndexOf(':') + 1) + " \"[REDACTED]\"",
-                RegexOptions.IgnoreCase);
+                RegexOptions.IgnoreCase,
+                regexTimeout);
         }
 
         return content;
