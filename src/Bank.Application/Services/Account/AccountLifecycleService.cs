@@ -10,20 +10,17 @@ public class AccountLifecycleService : IAccountLifecycleService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFeeCalculationService _feeCalculationService;
-    private readonly IInterestCalculationService _interestCalculationService;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<AccountLifecycleService> _logger;
 
     public AccountLifecycleService(
         IUnitOfWork unitOfWork,
         IFeeCalculationService feeCalculationService,
-        IInterestCalculationService interestCalculationService,
         IAuditLogService auditLogService,
         ILogger<AccountLifecycleService> logger)
     {
         _unitOfWork = unitOfWork;
         _feeCalculationService = feeCalculationService;
-        _interestCalculationService = interestCalculationService;
         _auditLogService = auditLogService;
         _logger = logger;
     }
