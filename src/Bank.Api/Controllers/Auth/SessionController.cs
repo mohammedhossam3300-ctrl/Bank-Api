@@ -186,7 +186,20 @@ public class SessionController : ControllerBase
 
     private string? GetCurrentSessionToken()
     {
-        return User.FindFirst("session_token")?.Value ?? Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var sessionTokenClaim = User.FindFirst("session_token")?.Value;
+        if (!string.IsNullOrEmpty(sessionTokenClaim))
+        {
+            return sessionTokenClaim;
+        }
+
+        // Extract Bearer token from Authorization header if present
+        var authHeader = Request.Headers.Authorization.ToString();
+        if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            return authHeader.Substring("Bearer ".Length);
+        }
+
+        return null;
     }
 }
 

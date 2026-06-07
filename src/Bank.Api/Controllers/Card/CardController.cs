@@ -228,51 +228,40 @@ public class CardController : ControllerBase
     [HttpGet("{cardId}/transactions")]
     public async Task<ActionResult<PagedResult<CardTransactionDto>>> GetCardTransactions(
         Guid cardId,
-        [FromQuery] DateTime? fromDate = null,
-        [FromQuery] DateTime? toDate = null,
-        [FromQuery] string? transactionType = null,
-        [FromQuery] string? status = null,
-        [FromQuery] decimal? minAmount = null,
-        [FromQuery] decimal? maxAmount = null,
-        [FromQuery] string? merchantName = null,
-        [FromQuery] string? merchantCategory = null,
-        [FromQuery] bool? isInternational = null,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] bool sortDescending = true)
+        [FromQuery] CardTransactionFilterRequest request)
     {
         try
         {
             var userId = GetCurrentUserId();
             
-            var request = new CardTransactionSearchRequest
+            // Merge path and query parameters
+            var searchRequest = new CardTransactionSearchRequest
             {
                 CardId = cardId,
                 CustomerId = userId,
-                FromDate = fromDate,
-                ToDate = toDate,
-                MinAmount = minAmount,
-                MaxAmount = maxAmount,
-                MerchantName = merchantName,
-                IsInternational = isInternational,
-                Page = page,
-                PageSize = Math.Min(pageSize, 100), // Limit page size
-                SortBy = sortBy,
-                SortDescending = sortDescending
+                FromDate = request.FromDate,
+                ToDate = request.ToDate,
+                MinAmount = request.MinAmount,
+                MaxAmount = request.MaxAmount,
+                MerchantName = request.MerchantName,
+                IsInternational = request.IsInternational,
+                Page = request.Page,
+                PageSize = Math.Min(request.PageSize, 100), // Limit page size
+                SortBy = request.SortBy,
+                SortDescending = request.SortDescending
             };
 
             // Parse enums if provided
-            if (Enum.TryParse<Domain.Enums.CardTransactionType>(transactionType, true, out var txType))
-                request.TransactionType = txType;
+            if (Enum.TryParse<Domain.Enums.CardTransactionType>(request.TransactionType, true, out var txType))
+                searchRequest.TransactionType = txType;
             
-            if (Enum.TryParse<Domain.Enums.CardTransactionStatus>(status, true, out var txStatus))
-                request.Status = txStatus;
+            if (Enum.TryParse<Domain.Enums.CardTransactionStatus>(request.Status, true, out var txStatus))
+                searchRequest.Status = txStatus;
             
-            if (Enum.TryParse<Domain.Enums.MerchantCategory>(merchantCategory, true, out var category))
-                request.MerchantCategory = category;
+            if (Enum.TryParse<Domain.Enums.MerchantCategory>(request.MerchantCategory, true, out var category))
+                searchRequest.MerchantCategory = category;
 
-            var result = await _cardService.GetCardTransactionsAsync(request);
+            var result = await _cardService.GetCardTransactionsAsync(searchRequest);
             
             return Ok(result);
         }

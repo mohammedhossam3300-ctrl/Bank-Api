@@ -25,10 +25,10 @@ public class ResponseCapture
             var buffer = new byte[responseBodyStream.Length];
             await responseBodyStream.ReadAsync(buffer, 0, buffer.Length);
             
-            if (_sanitizer.IsLoggableContentType(response.ContentType))
+            if (ContentSanitizer.IsLoggableContentType(response.ContentType))
             {
                 responseBody = Encoding.UTF8.GetString(buffer);
-                responseBody = _sanitizer.SanitizeSensitiveData(responseBody);
+                responseBody = ContentSanitizer.SanitizeSensitiveData(responseBody);
             }
             else
             {
@@ -39,7 +39,7 @@ public class ResponseCapture
         var responseDetails = new
         {
             StatusCode = response.StatusCode,
-            Headers = response.Headers.Where(h => !_sanitizer.IsSecuritySensitiveHeader(h.Key))
+            Headers = response.Headers.Where(h => !ContentSanitizer.IsSecuritySensitiveHeader(h.Key))
                 .ToDictionary(h => h.Key, h => h.Value.ToString()),
             ContentType = response.ContentType,
             ContentLength = responseBodyStream.Length,

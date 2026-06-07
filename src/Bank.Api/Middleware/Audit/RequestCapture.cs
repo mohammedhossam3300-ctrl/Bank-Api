@@ -22,7 +22,7 @@ public class RequestCapture
             Method = request.Method,
             Path = request.Path.Value,
             QueryString = request.QueryString.Value,
-            Headers = request.Headers.Where(h => !_sanitizer.IsSecuritySensitiveHeader(h.Key))
+            Headers = request.Headers.Where(h => !ContentSanitizer.IsSecuritySensitiveHeader(h.Key))
                 .ToDictionary(h => h.Key, h => h.Value.ToString()),
             ContentType = request.ContentType,
             ContentLength = request.ContentLength,
@@ -41,7 +41,7 @@ public class RequestCapture
         if (request.ContentLength == 0 || request.ContentLength > 10240) // Skip large bodies > 10KB
             return string.Empty;
 
-        if (!_sanitizer.IsLoggableContentType(request.ContentType))
+        if (!ContentSanitizer.IsLoggableContentType(request.ContentType))
             return "[Binary Content]";
 
         request.EnableBuffering();
@@ -52,6 +52,6 @@ public class RequestCapture
         var body = Encoding.UTF8.GetString(buffer);
         
         // Sanitize sensitive data
-        return _sanitizer.SanitizeSensitiveData(body);
+        return ContentSanitizer.SanitizeSensitiveData(body);
     }
 }

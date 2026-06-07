@@ -12,7 +12,7 @@ using System.Text.Json;
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
 if (File.Exists(envPath))
 {
-    foreach (var line in await File.ReadAllLinesAsync(envPath))
+    foreach (var line in File.ReadAllLines(envPath))
     {
         if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
             continue;
@@ -114,7 +114,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-await app.RunAsync();
+app.Run();
 
 // Make Program class accessible for testing
 public partial class Program
