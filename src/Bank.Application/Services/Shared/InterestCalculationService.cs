@@ -265,15 +265,16 @@ public class InterestCalculationService : IInterestCalculationService
         try
         {
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
+            var maskedAccountId = MaskGuid(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for interest rate update", accountId);
+                _logger.LogWarning("Account {AccountId} not found for interest rate update", maskedAccountId);
                 return false;
             }
 
             if (newRate < 0 || newRate > 10) // Reasonable bounds
             {
-                _logger.LogWarning("Invalid interest rate {Rate} for account {AccountId}", newRate, accountId);
+                _logger.LogWarning("Invalid interest rate {Rate} for account {AccountId}", newRate, maskedAccountId);
                 return false;
             }
 
@@ -284,17 +285,25 @@ public class InterestCalculationService : IInterestCalculationService
             await _unitOfWork.SaveChangesAsync();
 
             await _auditLogService.LogAsync("Interest Rate Updated", 
-                $"Interest rate for account {accountId} updated from {oldRate}% to {newRate}%", userId);
+                $"Interest rate for account {maskedAccountId} updated from {oldRate}% to {newRate}%", userId);
             _logger.LogInformation("Interest rate for account {AccountId} updated from {OldRate}% to {NewRate}%", 
-                accountId, oldRate, newRate);
+                maskedAccountId, oldRate, newRate);
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating interest rate for account {AccountId}", accountId);
+            _logger.LogError(ex, "Error updating interest rate for account {AccountId}", MaskGuid(accountId));
             return false;
         }
+    }
+
+    private static string MaskGuid(Guid id)
+    {
+        var value = id.ToString("N");
+        return value.Length <= 8
+            ? "********"
+            : $"{value[..8]}********";
     }
 }
 
