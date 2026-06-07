@@ -33,7 +33,13 @@ public class RequestCapture
         });
     }
 
-    private async Task<string> GetRequestBodyAsync(HttpRequest request)
+    /// <summary>
+    /// Asynchronously retrieves and sanitizes the HTTP request body.
+    /// Skips large bodies (>10KB) and binary content for security.
+    /// </summary>
+    /// <param name="request">The HTTP request to capture body from</param>
+    /// <returns>Sanitized request body or empty string if skipped</returns>
+    private static async Task<string> GetRequestBodyAsync(HttpRequest request)
     {
         if (request.ContentLength == 0 || request.ContentLength > 10240) // Skip large bodies > 10KB
             return string.Empty;
@@ -43,7 +49,16 @@ public class RequestCapture
 
         request.EnableBuffering();
         var buffer = new byte[Convert.ToInt32(request.ContentLength ?? 0)];
-        await request.Body.ReadAsync(buffer, 0, buffer.Length);
+        
+        // Verify that bytes were actually read - important for buffer validation
+        int bytesRead = await request.Body.ReadAsync(buffer, 0, buffer.Length);
+        
+        // If fewer bytes were read than expected, truncate buffer to actual read size
+        if (bytesRead < buffer.Length)
+        {
+            Array.Resize(ref buffer, bytesRead);
+        }
+        
         request.Body.Position = 0;
 
         var body = Encoding.UTF8.GetString(buffer);

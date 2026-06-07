@@ -20,7 +20,15 @@ public class ResponseCapture
         {
             responseBodyStream.Seek(0, SeekOrigin.Begin);
             var buffer = new byte[responseBodyStream.Length];
-            await responseBodyStream.ReadAsync(buffer, 0, buffer.Length);
+            
+            // Verify that bytes were actually read - important for buffer validation
+            int bytesRead = await responseBodyStream.ReadAsync(buffer, 0, buffer.Length);
+            
+            // If fewer bytes were read than expected, truncate buffer to actual read size
+            if (bytesRead < buffer.Length)
+            {
+                Array.Resize(ref buffer, bytesRead);
+            }
             
             if (ContentSanitizer.IsLoggableContentType(response.ContentType))
             {
