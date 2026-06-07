@@ -108,71 +108,14 @@ public class PasswordPolicyService : IPasswordPolicyService
 
             var errors = new List<string>();
 
-            // Length validation
-            if (password.Length < policy.MinimumLength)
-            {
-                errors.Add($"Password must be at least {policy.MinimumLength} characters long");
-            }
-
-            if (password.Length > policy.MaximumLength)
-            {
-                errors.Add($"Password must not exceed {policy.MaximumLength} characters");
-            }
-
-            // Character requirements
-            if (policy.RequireUppercase && !password.Any(char.IsUpper))
-            {
-                errors.Add("Password must contain at least one uppercase letter");
-            }
-
-            if (policy.RequireLowercase && !password.Any(char.IsLower))
-            {
-                errors.Add("Password must contain at least one lowercase letter");
-            }
-
-            if (policy.RequireDigits && !password.Any(char.IsDigit))
-            {
-                errors.Add("Password must contain at least one digit");
-            }
-
-            if (policy.RequireSpecialCharacters && !password.Any(c => policy.AllowedSpecialCharacters.Contains(c)))
-            {
-                errors.Add($"Password must contain at least one special character from: {policy.AllowedSpecialCharacters}");
-            }
-
-            // Unique characters validation
-            var uniqueChars = password.Distinct().Count();
-            if (uniqueChars < policy.MinimumUniqueCharacters)
-            {
-                errors.Add($"Password must contain at least {policy.MinimumUniqueCharacters} unique characters");
-            }
-
-            // Common password check
-            if (policy.PreventCommonPasswords && IsCommonPassword(password))
-            {
-                errors.Add("Password is too common and easily guessable");
-                result.IsCommonPassword = true;
-            }
-
-            // User info check
-            if (policy.PreventUserInfoInPassword && ContainsUserInfo(password, user))
-            {
-                errors.Add("Password must not contain personal information");
-                result.ContainsUserInfo = true;
-            }
-
-            // Password history check
-            var passwordHash = HashPassword(password);
-            var isRecentlyUsed = await IsPasswordRecentlyUsedAsync(userId, passwordHash);
-            if (isRecentlyUsed)
-            {
-                errors.Add($"Password has been used recently. Please choose a different password");
-                result.IsPasswordRecentlyUsed = true;
-            }
+            // Perform all validation checks
+            ValidateLengthRequirements(password, policy, errors);
+            ValidateCharacterRequirements(password, policy, errors);
+            ValidateUniqueCharacters(password, policy, errors);
+            await ValidatePasswordHistoryAndPersonalInfo(password, userId, user, policy, result, errors);
 
             // Calculate password strength score
             result.PasswordStrengthScore = CalculatePasswordStrength(password);
-
             result.Errors = errors;
             result.IsValid = errors.Count == 0;
 
@@ -186,6 +129,77 @@ public class PasswordPolicyService : IPasswordPolicyService
                 IsValid = false,
                 Errors = { "Password validation failed" }
             };
+        }
+    }
+
+    private static void ValidateLengthRequirements(string password, PasswordPolicy policy, List<string> errors)
+    {
+        if (password.Length < policy.MinimumLength)
+        {
+            errors.Add($"Password must be at least {policy.MinimumLength} characters long");
+        }
+
+        if (password.Length > policy.MaximumLength)
+        {
+            errors.Add($"Password must not exceed {policy.MaximumLength} characters");
+        }
+    }
+
+    private static void ValidateCharacterRequirements(string password, PasswordPolicy policy, List<string> errors)
+    {
+        if (policy.RequireUppercase && !password.Any(char.IsUpper))
+        {
+            errors.Add("Password must contain at least one uppercase letter");
+        }
+
+        if (policy.RequireLowercase && !password.Any(char.IsLower))
+        {
+            errors.Add("Password must contain at least one lowercase letter");
+        }
+
+        if (policy.RequireDigits && !password.Any(char.IsDigit))
+        {
+            errors.Add("Password must contain at least one digit");
+        }
+
+        if (policy.RequireSpecialCharacters && !password.Any(c => policy.AllowedSpecialCharacters.Contains(c)))
+        {
+            errors.Add($"Password must contain at least one special character from: {policy.AllowedSpecialCharacters}");
+        }
+    }
+
+    private static void ValidateUniqueCharacters(string password, PasswordPolicy policy, List<string> errors)
+    {
+        var uniqueChars = password.Distinct().Count();
+        if (uniqueChars < policy.MinimumUniqueCharacters)
+        {
+            errors.Add($"Password must contain at least {policy.MinimumUniqueCharacters} unique characters");
+        }
+    }
+
+    private async Task ValidatePasswordHistoryAndPersonalInfo(string password, Guid userId, User user, PasswordPolicy policy, PasswordValidationResult result, List<string> errors)
+    {
+        // Common password check
+        if (policy.PreventCommonPasswords && IsCommonPassword(password))
+        {
+            errors.Add("Password is too common and easily guessable");
+            result.IsCommonPassword = true;
+        }
+
+        // User info check
+        if (policy.PreventUserInfoInPassword && ContainsUserInfo(password, user))
+        {
+            errors.Add("Password must not contain personal information");
+            result.ContainsUserInfo = true;
+        }
+
+        // Password history check
+        var passwordHash = HashPassword(password);
+        var isRecentlyUsed = await IsPasswordRecentlyUsedAsync(userId, passwordHash);
+        if (isRecentlyUsed)
+        {
+            errors.Add($"Password has been used recently. Please choose a different password");
+            result.IsPasswordRecentlyUsed = true;
         }
     }
 
