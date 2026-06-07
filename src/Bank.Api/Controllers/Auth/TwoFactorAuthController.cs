@@ -12,12 +12,10 @@ namespace Bank.Api.Controllers.Auth;
 public class TwoFactorAuthController : ControllerBase
 {
     private readonly ITwoFactorAuthService _twoFactorService;
-    private readonly ILogger<TwoFactorAuthController> _logger;
 
-    public TwoFactorAuthController(ITwoFactorAuthService twoFactorService, ILogger<TwoFactorAuthController> logger)
+    public TwoFactorAuthController(ITwoFactorAuthService twoFactorService)
     {
         _twoFactorService = twoFactorService;
-        _logger = logger;
     }
 
     /// <summary>
