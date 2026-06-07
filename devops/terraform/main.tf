@@ -61,13 +61,20 @@ resource "azurerm_container_registry" "bank_acr" {
   resource_group_name           = azurerm_resource_group.bank_rg.name
   location                      = azurerm_resource_group.bank_rg.location
   sku                           = "Standard"
-  admin_enabled                 = true
+  admin_enabled                 = false
   public_network_access_enabled = false
 
   tags = {
     Environment = var.environment
     Project     = "BankManagementSystem"
   }
+}
+
+# Assign AKS managed identity permission to pull from ACR
+resource "azurerm_role_assignment" "aks_acr_pull" {
+  scope              = azurerm_container_registry.bank_acr.id
+  role_definition_name = "AcrPull"
+  principal_id       = azurerm_kubernetes_cluster.bank_aks.identity[0].principal_id
 }
 
 # Azure SQL Database
