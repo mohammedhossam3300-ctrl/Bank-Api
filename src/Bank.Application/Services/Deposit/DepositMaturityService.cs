@@ -14,20 +14,17 @@ public class DepositMaturityService : IDepositMaturityService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDepositService _depositService;
-    private readonly INotificationService _notificationService;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<DepositMaturityService> _logger;
 
     public DepositMaturityService(
         IUnitOfWork unitOfWork,
         IDepositService depositService,
-        INotificationService notificationService,
         IAuditLogService auditLogService,
         ILogger<DepositMaturityService> logger)
     {
         _unitOfWork = unitOfWork;
         _depositService = depositService;
-        _notificationService = notificationService;
         _auditLogService = auditLogService;
         _logger = logger;
     }
