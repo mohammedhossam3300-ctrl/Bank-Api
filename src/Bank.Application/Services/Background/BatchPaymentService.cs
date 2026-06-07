@@ -13,21 +13,8 @@ namespace Bank.Application.Services;
 /// </summary>
 public class BatchPaymentService : IBatchPaymentService
 {
-    private readonly IBillPaymentRepository _billPaymentRepository;
-    private readonly IBillerIntegrationService _billerIntegrationService;
-    private readonly IPaymentReceiptService _paymentReceiptService;
-    private readonly ILogger<BatchPaymentService> _logger;
-
-    public BatchPaymentService(
-        IBillPaymentRepository billPaymentRepository,
-        IBillerIntegrationService billerIntegrationService,
-        IPaymentReceiptService paymentReceiptService,
-        ILogger<BatchPaymentService> logger)
+    public BatchPaymentService()
     {
-        _billPaymentRepository = billPaymentRepository;
-        _billerIntegrationService = billerIntegrationService;
-        _paymentReceiptService = paymentReceiptService;
-        _logger = logger;
     }
 
     public async Task<BatchPaymentResponse> ProcessPaymentBatchAsync(List<Guid> paymentIds)
