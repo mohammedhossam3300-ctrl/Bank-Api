@@ -11,13 +11,11 @@ namespace Bank.Infrastructure.Services;
 /// </summary>
 public class SmsService : ISmsService
 {
-    private readonly IConfiguration _configuration;
     private readonly ILogger<SmsService> _logger;
     private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
 
-    public SmsService(IConfiguration configuration, ILogger<SmsService> logger)
+    public SmsService(ILogger<SmsService> logger)
     {
-        _configuration = configuration;
         _logger = logger;
     }
 
