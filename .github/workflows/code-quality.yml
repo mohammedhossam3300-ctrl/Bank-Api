@@ -40,9 +40,9 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         dotnet sonarscanner begin /k:"bank-management-system" /o:"your-org" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-        dotnet restore bank-backend/
-        dotnet build bank-backend/ --no-restore
-        dotnet test bank-backend/ --no-build --verbosity normal --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        dotnet restore src/Bank.sln
+        dotnet build src/Bank.sln --no-restore
+        dotnet test src/Bank.sln --no-build --verbosity normal --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
   codeql:
@@ -76,8 +76,8 @@ jobs:
     - name: Build .NET project
       if: matrix.language == 'csharp'
       run: |
-        dotnet restore bank-backend/
-        dotnet build bank-backend/ --no-restore
+        dotnet restore src/Bank.sln
+        dotnet build src/Bank.sln --no-restore
         
     - name: Setup Node.js
       if: matrix.language == 'javascript'
@@ -85,12 +85,12 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: Bank.Frontend/package-lock.json
+        cache-dependency-path: src/Bank.Frontend/package-lock.json
         
     - name: Build Angular project
       if: matrix.language == 'javascript'
       run: |
-        cd Bank.Frontend
+        cd src/Bank.Frontend
         npm ci
         npm run build --prod
         
@@ -111,21 +111,21 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: Bank.Frontend/package-lock.json
+        cache-dependency-path: src/Bank.Frontend/package-lock.json
         
     - name: Install dependencies
       run: |
-        cd Bank.Frontend
+        cd src/Bank.Frontend
         npm ci
         
     - name: Run ESLint
       run: |
-        cd Bank.Frontend
+        cd src/Bank.Frontend
         npm run lint -- --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
       continue-on-error: true
       
     - name: Upload ESLint results
       uses: github/codeql-action/upload-sarif@v2
       with:
-        sarif_file: Bank.Frontend/eslint-results.sarif
+        sarif_file: src/Bank.Frontend/eslint-results.sarif
         wait-for-processing: true

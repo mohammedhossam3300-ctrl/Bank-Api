@@ -25,13 +25,13 @@ jobs:
         dotnet-version: '9.0.x'
         
     - name: Restore dependencies
-      run: dotnet restore bank-backend/
+      run: dotnet restore src/Bank.sln
       
     - name: Build
-      run: dotnet build bank-backend/ --no-restore --configuration Release
+      run: dotnet build src/Bank.sln --no-restore --configuration Release
       
     - name: Test
-      run: dotnet test bank-backend/ --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test src/Bank.sln --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
       
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
@@ -51,23 +51,23 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: Bank.Frontend/package-lock.json
+        cache-dependency-path: src/Bank.Frontend/package-lock.json
         
     - name: Install dependencies
       run: npm ci
-      working-directory: Bank.Frontend
+      working-directory: src/Bank.Frontend
       
     - name: Lint
       run: npm run lint
-      working-directory: Bank.Frontend
+      working-directory: src/Bank.Frontend
       
     - name: Test
       run: npm run test:ci
-      working-directory: Bank.Frontend
+      working-directory: src/Bank.Frontend
       
     - name: Build
       run: npm run build --prod
-      working-directory: Bank.Frontend
+      working-directory: src/Bank.Frontend
 
   # Security Scanning
   security-scan:
