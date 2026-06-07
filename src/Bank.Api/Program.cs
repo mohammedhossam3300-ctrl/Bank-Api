@@ -49,7 +49,7 @@ builder.Services.AddBackgroundJobServices(builder.Configuration);
 builder.Services.AddApiDocumentationServices();
 
 // 11. CORS Policies
-builder.Services.AddCorsServices();
+builder.Services.AddCorsServices(builder.Configuration);
 
 var app = builder.Build();
 

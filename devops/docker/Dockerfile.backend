@@ -11,16 +11,16 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["bank-backend/Bank.Api/Bank.Api.csproj", "Bank.Api/"]
-COPY ["bank-backend/Bank.Application/Bank.Application.csproj", "Bank.Application/"]
-COPY ["bank-backend/Bank.Domain/Bank.Domain.csproj", "Bank.Domain/"]
-COPY ["bank-backend/Bank.Infrastructure/Bank.Infrastructure.csproj", "Bank.Infrastructure/"]
+COPY ["src/Bank.Api/Bank.Api.csproj", "Bank.Api/"]
+COPY ["src/Bank.Application/Bank.Application.csproj", "Bank.Application/"]
+COPY ["src/Bank.Domain/Bank.Domain.csproj", "Bank.Domain/"]
+COPY ["src/Bank.Infrastructure/Bank.Infrastructure.csproj", "Bank.Infrastructure/"]
 
 # Restore dependencies
 RUN dotnet restore "Bank.Api/Bank.Api.csproj"
 
 # Copy source code
-COPY bank-backend/ .
+COPY src/ .
 
 # Build application
 WORKDIR "/src/Bank.Api"
