@@ -3,6 +3,22 @@ using Bank.Domain.Enums;
 namespace Bank.Application.Helpers.Statement;
 
 /// <summary>
+/// Represents statement filter criteria
+/// </summary>
+public class StatementFilterCriteria<T>
+{
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public decimal? MinAmount { get; set; }
+    public decimal? MaxAmount { get; set; }
+    public string? SearchText { get; set; }
+    
+    public required Func<T, DateTime> DateSelector { get; set; }
+    public required Func<T, decimal> AmountSelector { get; set; }
+    public required Func<T, string> DescriptionSelector { get; set; }
+}
+
+/// <summary>
 /// Helper for filtering statement transactions
 /// </summary>
 public static class StatementFilteringHelper
@@ -127,36 +143,28 @@ public static class StatementFilteringHelper
     }
 
     /// <summary>
-    /// Applies multiple filters to transactions
+    /// Applies multiple filters to transactions using a filter criteria object
     /// </summary>
     /// <param name="transactions">Transactions to filter</param>
-    /// <param name="startDate">Start date filter</param>
-    /// <param name="endDate">End date filter</param>
-    /// <param name="minAmount">Minimum amount filter</param>
-    /// <param name="maxAmount">Maximum amount filter</param>
-    /// <param name="searchText">Description search text</param>
+    /// <param name="criteria">Filter criteria object containing all filter parameters</param>
     /// <returns>Filtered transactions</returns>
     public static IEnumerable<T> ApplyMultipleFilters<T>(
         IEnumerable<T> transactions,
-        DateTime? startDate,
-        DateTime? endDate,
-        decimal? minAmount,
-        decimal? maxAmount,
-        string? searchText,
-        Func<T, DateTime> dateSelector,
-        Func<T, decimal> amountSelector,
-        Func<T, string> descriptionSelector)
+        StatementFilterCriteria<T> criteria)
     {
+        if (criteria == null)
+            throw new ArgumentNullException(nameof(criteria));
+
         var result = transactions;
 
-        if (startDate.HasValue && endDate.HasValue)
-            result = FilterByDateRange(result, startDate.Value, endDate.Value, dateSelector);
+        if (criteria.StartDate.HasValue && criteria.EndDate.HasValue)
+            result = FilterByDateRange(result, criteria.StartDate.Value, criteria.EndDate.Value, criteria.DateSelector);
 
-        if (minAmount.HasValue || maxAmount.HasValue)
-            result = FilterByAmountRange(result, minAmount, maxAmount, amountSelector);
+        if (criteria.MinAmount.HasValue || criteria.MaxAmount.HasValue)
+            result = FilterByAmountRange(result, criteria.MinAmount, criteria.MaxAmount, criteria.AmountSelector);
 
-        if (!string.IsNullOrWhiteSpace(searchText))
-            result = FilterByDescription(result, searchText, descriptionSelector);
+        if (!string.IsNullOrWhiteSpace(criteria.SearchText))
+            result = FilterByDescription(result, criteria.SearchText, criteria.DescriptionSelector);
 
         return result;
     }
