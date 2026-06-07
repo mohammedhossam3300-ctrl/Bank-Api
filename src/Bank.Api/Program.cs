@@ -29,6 +29,19 @@ if (File.Exists(envPath))
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Kestrel to listen on all interfaces on port 5000
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000);
+});
+
+// Override connection string directly from DATABASE_URL environment variable (Replit PostgreSQL)
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = databaseUrl;
+}
+
 // Process appsettings.json to replace placeholders with environment variables
 ProcessConfigurationPlaceholders(builder.Configuration);
 

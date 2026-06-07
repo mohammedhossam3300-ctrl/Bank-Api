@@ -1,0 +1,45 @@
+modules = ["dotnet-7.0", "web", "bash", "dotnet-9.0"]
+[agent]
+expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+ASPNETCORE_ENVIRONMENT = "Development"
+JWT_KEY = "FinBankSuperSecretJwtKey2024!SuperLong512bitKeyForHMACSHA512"
+EMAIL_SMTP_HOST = "smtp.example.com"
+EMAIL_SMTP_PORT = "587"
+EMAIL_USERNAME = "noreply@example.com"
+EMAIL_PASSWORD = "placeholder"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd src/Bank.Api && dotnet run --profile http"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

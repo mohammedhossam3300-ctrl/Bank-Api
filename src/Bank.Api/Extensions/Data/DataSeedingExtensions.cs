@@ -24,8 +24,34 @@ public static class DataSeedingExtensions
 
             logger.LogInformation("🔍 Applying database migrations...");
 
+            // Log the connection string (redacted) for debugging
+            var connStr = dbContext.Database.GetConnectionString() ?? "(null)";
+            var redacted = connStr.Length > 60 ? connStr.Substring(0, 60) + "..." : connStr;
+            logger.LogInformation("🔗 Using connection: {ConnStr}", redacted);
+
+            // Apply migrations directly (creates tables if needed)
+            try
+            {
+                await dbContext.Database.MigrateAsync();
+                logger.LogInformation("✅ Database migrations applied successfully!");
+                return;
+            }
+            catch (Exception migrateEx)
+            {
+                logger.LogWarning(migrateEx, "⚠️ MigrateAsync failed, trying CanConnectAsync: {Message}", migrateEx.Message);
+            }
+
             // Test connection first
-            var canConnect = await dbContext.Database.CanConnectAsync();
+            bool canConnect;
+            try
+            {
+                canConnect = await dbContext.Database.CanConnectAsync();
+            }
+            catch (Exception connEx)
+            {
+                logger.LogError(connEx, "❌ Database connection exception: {Message}", connEx.Message);
+                throw new InvalidOperationException($"Database connection failed: {connEx.Message}", connEx);
+            }
             if (!canConnect)
             {
                 logger.LogError("❌ Cannot connect to database. Connection string may be invalid.");

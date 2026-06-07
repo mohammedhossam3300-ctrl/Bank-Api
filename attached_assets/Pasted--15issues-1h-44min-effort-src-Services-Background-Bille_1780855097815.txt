@@ -1,0 +1,316 @@
+
+15issues
+1h 44min effort
+
+src/.../Services/Background/BillerHealthCheckBackgroundService.cs
+
+
+Rename parameter 'cancellationToken' to 'stoppingToken' to match the base class declaration.
+
+Consistency
+Maintainability
+
+
+4
+High
+suspicious
++
+Open
+Not assigned
+L25
+10min effort
+9 hours ago
+Code Smell
+Critical
+src/.../Services/Background/PaymentRetryBackgroundService.cs
+
+
+Rename parameter 'cancellationToken' to 'stoppingToken' to match the base class declaration.
+
+Consistency
+Maintainability
+
+
+4
+High
+suspicious
++
+Open
+Not assigned
+L27
+10min effort
+10 hours ago
+Code Smell
+Critical
+src/.../Services/Deposit/DepositBackgroundService.cs
+
+
+Rename parameter 'cancellationToken' to 'stoppingToken' to match the base class declaration.
+
+Consistency
+Maintainability
+
+
+4
+High
+suspicious
++
+Open
+Not assigned
+L25
+10min effort
+10 hours ago
+Code Smell
+Critical
+src/Bank.Application/Services/Loan/LoanAnalyticsService.cs
+
+
+Remove this unread private field '_userRepository' or refactor the code to use its value.
+
+Intentionality
+Maintainability
+
+
+4
+High
+cwe
+unused
++
+Open
+Mostafa Said
+Mostafa Said
+L19
+5min effort
+9 hours ago
+Code Smell
+Critical
+src/Bank.Application/Services/Loan/LoanBackgroundService.cs
+
+
+Rename parameter 'cancellationToken' to 'stoppingToken' to match the base class declaration.
+
+Consistency
+Maintainability
+
+
+4
+High
+suspicious
++
+Open
+Not assigned
+L25
+10min effort
+9 hours ago
+Code Smell
+Critical
+src/Bank.Application/Services/Loan/LoanService.cs
+
+
+Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.
+
+Adaptability
+Maintainability
+
+
+4
+High
+brain-overload
++
+Open
+Mostafa Said
+Mostafa Said
+L175
+6min effort
+2 months ago
+Code Smell
+Critical
+src/.../Services/Payment/BillPaymentBackgroundService.cs
+
+
+Rename parameter 'cancellationToken' to 'stoppingToken' to match the base class declaration.
+
+Consistency
+Maintainability
+
+
+4
+High
+suspicious
++
+Open
+Not assigned
+L25
+10min effort
+9 hours ago
+Code Smell
+Critical
+src/.../Services/Payment/BillerIntegrationService.cs
+
+
+Remove this unread private field '_paymentRetryRepository' or refactor the code to use its value.
+
+Intentionality
+Maintainability
+
+
+4
+High
+cwe
+unused
++
+Open
+Mostafa Said
+Mostafa Said
+L31
+5min effort
+2 months ago
+Code Smell
+Critical
+
+
+Remove this unread private field '_configuration' or refactor the code to use its value.
+
+Intentionality
+Maintainability
+
+
+4
+High
+cwe
+unused
++
+Open
+Mostafa Said
+Mostafa Said
+L34
+5min effort
+2 months ago
+Code Smell
+Critical
+
+
+Remove this unread private field '_httpClient' or refactor the code to use its value.
+
+Intentionality
+Maintainability
+
+
+4
+High
+cwe
+unused
++
+Open
+Mostafa Said
+Mostafa Said
+L36
+5min effort
+2 months ago
+Code Smell
+Critical
+src/.../Services/Statement/StatementGenerator.cs
+
+
+Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.
+
+Adaptability
+Maintainability
+
+
+4
+High
+brain-overload
++
+Open
+Mostafa Said
+Mostafa Said
+L729
+6min effort
+2 months ago
+Code Smell
+Critical
+src/.../Services/Statement/StatementService.cs
+
+
+Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.
+
+Adaptability
+Maintainability
+
+
+4
+High
+brain-overload
++
+Open
+Mostafa Said
+Mostafa Said
+L724
+6min effort
+2 months ago
+Code Smell
+Critical
+src/.../Services/Transaction/TransferEligibilityService.cs
+
+
+Remove this unread private field '_beneficiaryService' or refactor the code to use its value.
+
+Intentionality
+Maintainability
+
+
+4
+High
+cwe
+unused
++
+Open
+Mostafa Said
+Mostafa Said
+L18
+5min effort
+2 months ago
+Code Smell
+Critical
+
+
+Remove this unread private field '_fraudDetectionService' or refactor the code to use its value.
+
+Intentionality
+Maintainability
+
+
+4
+High
+cwe
+unused
++
+Open
+Mostafa Said
+Mostafa Said
+L19
+5min effort
+2 months ago
+Code Smell
+Critical
+
+
+Refactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.
+
+Adaptability
+Maintainability
+
+
+4
+High
+brain-overload
++
+Open
+Mostafa Said
+Mostafa Said
+L314
+6min effort
+2 months ago
+Code Smell
+Critical
