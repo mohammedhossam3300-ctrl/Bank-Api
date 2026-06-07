@@ -67,7 +67,8 @@ public class CardRepository : Repository<Card>, ICardRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting cards for account {AccountId}", accountId);
+            // Do not log account ID - use generic message
+            _logger.LogError(ex, "Error getting cards for account");
             return new List<Card>();
         }
     }
@@ -76,8 +77,10 @@ public class CardRepository : Repository<Card>, ICardRepository
     {
         try
         {
+            // Hash the card number for comparison to avoid clear text storage
+            var hashedCardNumber = HashCardNumber(cardNumber);
             return !await _context.Cards
-                .AnyAsync(c => c.CardNumber == cardNumber);
+                .AnyAsync(c => c.CardNumber == hashedCardNumber);
         }
         catch (Exception ex)
         {
@@ -90,15 +93,30 @@ public class CardRepository : Repository<Card>, ICardRepository
     {
         try
         {
+            // Hash the card number for comparison to avoid clear text storage
+            var hashedCardNumber = HashCardNumber(cardNumber);
             return await _context.Cards
                 .Include(c => c.Account)
                 .Include(c => c.Customer)
-                .FirstOrDefaultAsync(c => c.CardNumber == cardNumber);
+                .FirstOrDefaultAsync(c => c.CardNumber == hashedCardNumber);
         }
         catch (Exception ex)
         {
+            // Do not log the card number - log generic message only
             _logger.LogError(ex, "Error getting card by card number");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Hash card number for secure comparison without exposing clear text
+    /// </summary>
+    private static string HashCardNumber(string cardNumber)
+    {
+        using (var sha256 = System.Security.Cryptography.SHA256.Create())
+        {
+            var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(cardNumber));
+            return Convert.ToBase64String(hashedBytes);
         }
     }
     public async Task<List<Card>> GetCardsExpiringWithinDaysAsync(int days)

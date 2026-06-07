@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
         
         // API features
         services.AddApiDocumentationServices();
-        services.AddCorsServices();
+        services.AddCorsServices(configuration);
 
         return services;
     }

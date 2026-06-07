@@ -29,8 +29,9 @@ jobs:
     - name: Get PR details
       id: pr-details
       if: steps.check-dependabot.outputs.is_dependabot == 'true'
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        PR_TITLE="${{ github.event.pull_request.title }}"
         echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
         
         # Check if it's a patch or minor update
