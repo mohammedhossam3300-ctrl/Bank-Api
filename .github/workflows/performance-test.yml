@@ -98,7 +98,7 @@ jobs:
         artillery report performance-results.json --output performance-report.html
         
     - name: Upload performance results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: performance-results
         path: |

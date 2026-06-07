@@ -41,7 +41,7 @@ jobs:
         echo "EOF" >> $GITHUB_OUTPUT
         
     - name: Create Release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -52,10 +52,9 @@ jobs:
           
           ${{ steps.changelog.outputs.changelog }}
           
-          ## Docker Images
+          ## Docker Image
           
           - Backend: `ghcr.io/${{ github.repository }}/backend:${{ github.ref_name }}`
-          - Frontend: `ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}`
           
           ## Deployment
           
@@ -93,20 +92,11 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Extract metadata (backend)
-      id: meta-backend
+    - name: Extract metadata
+      id: meta
       uses: docker/metadata-action@v5
       with:
         images: ghcr.io/${{ github.repository }}/backend
-        tags: |
-          type=ref,event=tag
-          type=raw,value=latest
-          
-    - name: Extract metadata (frontend)
-      id: meta-frontend
-      uses: docker/metadata-action@v5
-      with:
-        images: ghcr.io/${{ github.repository }}/frontend
         tags: |
           type=ref,event=tag
           type=raw,value=latest
@@ -117,14 +107,5 @@ jobs:
         context: .
         file: ./devops/docker/Dockerfile.backend
         push: true
-        tags: ${{ steps.meta-backend.outputs.tags }}
-        labels: ${{ steps.meta-backend.outputs.labels }}
-        
-    - name: Build and push frontend image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./devops/docker/Dockerfile.frontend
-        push: true
-        tags: ${{ steps.meta-frontend.outputs.tags }}
-        labels: ${{ steps.meta-frontend.outputs.labels }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

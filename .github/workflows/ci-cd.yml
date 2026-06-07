@@ -33,7 +33,7 @@ jobs:
       run: dotnet test src/Bank.sln --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
       
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
         flags: backend
@@ -55,7 +55,7 @@ jobs:
         output: 'trivy-results.sarif'
         
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: 'trivy-results.sarif'
 

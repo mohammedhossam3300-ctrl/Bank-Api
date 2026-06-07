@@ -20,7 +20,6 @@ jobs:
       uses: coderabbitai/coderabbit-action@v2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
@@ -37,21 +36,15 @@ jobs:
         dotnet-version: '9.0.x'
         
     - name: Restore dependencies
-      run: dotnet restore bank-backend/
+      run: dotnet restore src/Bank.sln
       
     - name: Build
-      run: dotnet build bank-backend/ --no-restore --configuration Release
+      run: dotnet build src/Bank.sln --no-restore --configuration Release
       
     - name: Run static analysis
       run: |
         dotnet tool install --global dotnet-sonarscanner
         dotnet sonarscanner begin /k:"bank-management-system" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-        dotnet build bank-backend/
+        dotnet build src/Bank.sln
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-      continue-on-error: true
-      
-    - name: Security scan
-      uses: securecodewarrior/github-action-add-sarif@v1
-      with:
-        sarif-file: 'security-scan-results.sarif'
       continue-on-error: true
